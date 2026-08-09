@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { RichText } from "@/components/patterns/RichText";
 import { getNewsPostBySlug, getNewsPosts } from "@/lib/sanity/queries";
+import { buildMetadata } from "@/lib/metadata";
 import styles from "./page.module.css";
 
 export async function generateStaticParams() {
@@ -17,11 +18,10 @@ export async function generateMetadata(
   const post = await getNewsPostBySlug(slug);
   if (!post) return {};
 
-  return {
-    title: post.seo?.metaTitle || post.title,
-    description: post.seo?.metaDescription || post.excerpt,
-    robots: post.seo?.noIndex ? { index: false, follow: false } : undefined,
-  };
+  return buildMetadata(post.seo?.metaTitle || post.title, {
+    ...post.seo,
+    metaDescription: post.seo?.metaDescription || post.excerpt,
+  });
 }
 
 export default async function NewsPostPage(props: PageProps<"/news/[slug]">) {

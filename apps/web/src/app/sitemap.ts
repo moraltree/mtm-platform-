@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { PAGE_ID_PATHS } from "@/lib/links";
 import type { PageId } from "@/lib/sanity/types";
+import { useMockContent } from "@/lib/sanity/env";
 import {
   getAllLegalPageSlugs,
   getExistingPageIds,
@@ -23,6 +24,11 @@ const ALWAYS_AVAILABLE: PageId[] = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // robots.ts already disallows all crawling in this mode; an empty
+  // sitemap alongside it means nothing about preview/mock URLs is ever
+  // published for search engines to find.
+  if (useMockContent) return [];
+
   const existingPageIds = new Set((await getExistingPageIds()) ?? []);
 
   const pageEntries = (Object.entries(PAGE_ID_PATHS) as Array<[PageId, string]>)

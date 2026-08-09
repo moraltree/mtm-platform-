@@ -1,0 +1,13 @@
+.banner {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-overlay);
+  padding: var(--space-2) var(--space-4);
+  /* Deliberately not a design-token colour — this is a dev/preview-only
+     signal that should never be mistaken for real site chrome. */
+  background: #7a3b00;
+  color: var(--color-white);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-align: center;
+}

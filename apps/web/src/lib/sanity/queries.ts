@@ -1,4 +1,15 @@
 import { sanityFetch } from "./client";
+import { useMockContent } from "./env";
+import {
+  getMockPage,
+  mockExistingPageIds,
+  mockFounder,
+  mockLeadership,
+  mockLegalPages,
+  mockNewsPosts,
+  mockSiteSettings,
+  mockStoryWorlds,
+} from "../mockContent";
 import type {
   LegalPageDoc,
   NewsPostDoc,
@@ -75,7 +86,7 @@ const SECTIONS_PROJECTION = `
 `;
 
 export async function getSiteSettings() {
-  return sanityFetch<SiteSettingsDoc>(`
+  const result = await sanityFetch<SiteSettingsDoc>(`
     *[_type == "siteSettings"][0] {
       siteTitle, tagline, logo,
       primaryNav[] { ${LINK_PROJECTION} },
@@ -89,75 +100,101 @@ export async function getSiteSettings() {
       }
     }
   `);
+  if (result) return result;
+  return useMockContent ? mockSiteSettings : null;
 }
 
 export async function getPageByPageId(pageId: PageId) {
-  return sanityFetch<PageDoc>(
+  const result = await sanityFetch<PageDoc>(
     `*[_type == "page" && pageId == $pageId][0] {
       _id, pageId, title, slug, ${SECTIONS_PROJECTION}, ${SEO_PROJECTION}
     }`,
     { pageId },
   );
+  if (result) return result;
+  return useMockContent ? getMockPage(pageId) : null;
 }
 
 export async function getStoryWorlds() {
-  return sanityFetch<StoryWorldDoc[]>(`
+  const result = await sanityFetch<StoryWorldDoc[]>(`
     *[_type == "storyWorld"] | order(order asc) {
       _id, title, slug, tagline, formats, status, heroImage, featured
     }
   `);
+  if (result) return result;
+  return useMockContent ? mockStoryWorlds : null;
 }
 
 export async function getFeaturedStoryWorlds() {
-  return sanityFetch<StoryWorldDoc[]>(`
+  const result = await sanityFetch<StoryWorldDoc[]>(`
     *[_type == "storyWorld" && featured == true] | order(order asc) {
       _id, title, slug, tagline, formats, status, heroImage
     }
   `);
+  if (result) return result;
+  return useMockContent ? mockStoryWorlds.filter((sw) => sw.featured) : null;
 }
 
 export async function getStoryWorldBySlug(slug: string) {
-  return sanityFetch<StoryWorldDoc>(
+  const result = await sanityFetch<StoryWorldDoc>(
     `*[_type == "storyWorld" && slug.current == $slug][0] {
       _id, title, slug, tagline, formats, status, heroImage,
       synopsis, gallery, ${SECTIONS_PROJECTION}, ${SEO_PROJECTION}
     }`,
     { slug },
   );
+  if (result) return result;
+  return useMockContent
+    ? (mockStoryWorlds.find((sw) => sw.slug.current === slug) ?? null)
+    : null;
 }
 
 export async function getNewsPosts(limit = 20) {
-  return sanityFetch<NewsPostDoc[]>(
+  const result = await sanityFetch<NewsPostDoc[]>(
     `*[_type == "newsPost"] | order(publishedAt desc) [0...$limit] {
       _id, title, slug, publishedAt, excerpt, coverImage
     }`,
     { limit },
   );
+  if (result) return result;
+  return useMockContent ? mockNewsPosts.slice(0, limit) : null;
 }
 
 export async function getNewsPostBySlug(slug: string) {
-  return sanityFetch<NewsPostDoc>(
+  const result = await sanityFetch<NewsPostDoc>(
     `*[_type == "newsPost" && slug.current == $slug][0] {
       _id, title, slug, publishedAt, excerpt, coverImage, body, ${SEO_PROJECTION}
     }`,
     { slug },
   );
+  if (result) return result;
+  return useMockContent
+    ? (mockNewsPosts.find((post) => post.slug.current === slug) ?? null)
+    : null;
 }
 
 export async function getLegalPageBySlug(slug: string) {
-  return sanityFetch<LegalPageDoc>(
+  const result = await sanityFetch<LegalPageDoc>(
     `*[_type == "legalPage" && slug.current == $slug][0] {
       _id, title, slug, effectiveDate, body, ${SEO_PROJECTION}
     }`,
     { slug },
   );
+  if (result) return result;
+  return useMockContent
+    ? (mockLegalPages.find((page) => page.slug.current === slug) ?? null)
+    : null;
 }
 
 /** Slugs only — for generateStaticParams/sitemap, not page rendering. */
 export async function getAllLegalPageSlugs() {
-  return sanityFetch<Array<{ slug: string }>>(`
+  const result = await sanityFetch<Array<{ slug: string }>>(`
     *[_type == "legalPage"] { "slug": slug.current }
   `);
+  if (result) return result;
+  return useMockContent
+    ? mockLegalPages.map((page) => ({ slug: page.slug.current }))
+    : null;
 }
 
 const PERSON_PROJECTION = `
@@ -166,21 +203,27 @@ const PERSON_PROJECTION = `
 `;
 
 export async function getLeadershipPeople() {
-  return sanityFetch<PersonDoc[]>(`
+  const result = await sanityFetch<PersonDoc[]>(`
     *[_type == "person" && showOnLeadershipPage == true] | order(order asc) {
       ${PERSON_PROJECTION}
     }
   `);
+  if (result) return result;
+  return useMockContent ? mockLeadership : null;
 }
 
 export async function getFounder() {
-  return sanityFetch<PersonDoc>(`
+  const result = await sanityFetch<PersonDoc>(`
     *[_type == "person" && isFounder == true][0] { ${PERSON_PROJECTION} }
   `);
+  if (result) return result;
+  return useMockContent ? mockFounder : null;
 }
 
 /** pageIds with a real document — for sitemap.ts, which shouldn't list
  * editorial routes that would just 404 (see lib/editorialPage.tsx). */
 export async function getExistingPageIds() {
-  return sanityFetch<PageId[]>(`*[_type == "page"].pageId`);
+  const result = await sanityFetch<PageId[]>(`*[_type == "page"].pageId`);
+  if (result) return result;
+  return useMockContent ? mockExistingPageIds : null;
 }

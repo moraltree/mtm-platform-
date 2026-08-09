@@ -18,6 +18,12 @@ of those block further engineering work; they block the site actually
 showing real content instead of the honest empty/404 states described
 under "Null-handling rules by page" below.
 
+For visual review without a real Sanity project, set `USE_MOCK_CONTENT=true`
+(`apps/web/.env.local`) — every route then renders `lib/mockContent.ts`'s
+stub content instead of its null-state, behind a persistent on-page banner
+and forced `noindex`/`disallow: /`. See "Mock content" under Architecture
+notes; this does not change the null-handling contract itself.
+
 Implementation proceeded in work packages:
 
 - **WP1 — Foundation** ✅ Next.js app scaffolded in `apps/web`, tooling
@@ -197,6 +203,35 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   commit message), not just typechecked. Once a project exists: set
   `SANITY_STUDIO_PROJECT_ID`/`_DATASET` in `apps/studio/.env` and the
   matching `NEXT_PUBLIC_SANITY_*` vars in `apps/web/.env.local`.
+- **Mock content** (`lib/mockContent.ts`, gated by `USE_MOCK_CONTENT` in
+  `lib/sanity/env.ts`) exists purely so every route can be visually
+  reviewed without a real Sanity project — it is not a second content
+  source to design around. Each `queries.ts` function falls back to it
+  only when `sanityFetch()` returns `null` _and_ the flag is on; with the
+  flag off (always true in CI/production unless someone deliberately sets
+  it), behavior is byte-for-byte what it was before this file existed —
+  verified by rebuilding with it unset and confirming the same 404s/
+  fallbacks. Mock image _refs_ don't point at real Sanity assets, so
+  `urlFor()` (`lib/sanity/image.ts`) special-cases mock mode to always
+  resolve to `/placeholder.png` via a tiny mock `ImageUrlChain` rather than
+  trying to build a real CDN URL from a fake ref. Safety is layered, not
+  single-point: `PreviewBanner` (persistent, non-dismissible) on every
+  page, root layout forces `robots: {index:false,follow:false}`,
+  `robots.ts` returns a blanket `disallow: /`, and `sitemap.ts` returns
+  `[]` — all four keyed off the same flag, so there's no way to have
+  mock content rendering without all four also being active.
+- **Metadata merging pitfall (found via mock-content testing, fixed
+  site-wide):** Next.js treats a key's mere _presence_ in a route's
+  `generateMetadata` return value — even set to `undefined` — as that
+  route defining the field, which drops the root layout's default instead
+  of inheriting it (unlike an _omitted_ key, which does inherit). Every
+  route was doing `{ description: seo?.metaDescription }`, which silently
+  deleted the site-wide default description on any page without its own
+  `seo.metaDescription` — i.e. every page, since no content (real or
+  mock) sets `seo` yet. Fixed by routing every route's `generateMetadata`
+  through `lib/metadata.ts#buildMetadata`, which omits `description`/
+  `robots` entirely when there's no value. Use it for any new route
+  rather than building the Metadata object by hand.
 - **Null-handling rules by page — three different rules, not one.** Don't
   assume "treat null as an error" applies uniformly:
   1. **Pure editorial content** (About, Founder†, Mission, Publishing,

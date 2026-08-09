@@ -3,6 +3,7 @@ import { Container } from "@/components/ui/Container";
 import { PageSections } from "@/components/patterns/PageSections";
 import { getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
+import { buildMetadata } from "@/lib/metadata";
 
 // Home is the site's front door — unlike the pure-editorial pages, a
 // missing `page` document falls back to a plain, honest placeholder
@@ -13,12 +14,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageByPageId("home");
   if (!page) return {};
 
-  const metaTitle = page.seo?.metaTitle;
-  return {
-    ...(metaTitle ? { title: metaTitle } : {}),
-    description: page.seo?.metaDescription,
-    robots: page.seo?.noIndex ? { index: false, follow: false } : undefined,
-  };
+  // No `page.title` fallback here (unlike other routes): the default
+  // "Moral Tree Media" (root layout) should stand bare on the homepage,
+  // not become "Home | Moral Tree Media".
+  return buildMetadata(page.seo?.metaTitle, page.seo);
 }
 
 export default async function Home() {

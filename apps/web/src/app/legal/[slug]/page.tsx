@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { RichText } from "@/components/patterns/RichText";
 import { getAllLegalPageSlugs, getLegalPageBySlug } from "@/lib/sanity/queries";
+import { buildMetadata } from "@/lib/metadata";
 import styles from "./page.module.css";
 
 // Content lookup by slug — unlike the shell's site-wide chrome, a missing
@@ -19,11 +20,7 @@ export async function generateMetadata(
   const page = await getLegalPageBySlug(slug);
   if (!page) return {};
 
-  return {
-    title: page.seo?.metaTitle || page.title,
-    description: page.seo?.metaDescription,
-    robots: page.seo?.noIndex ? { index: false, follow: false } : undefined,
-  };
+  return buildMetadata(page.seo?.metaTitle || page.title, page.seo);
 }
 
 export default async function LegalPage(props: PageProps<"/legal/[slug]">) {

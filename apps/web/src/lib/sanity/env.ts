@@ -10,3 +10,13 @@ export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
 export const apiVersion = "2025-01-01";
 
 export const isSanityConfigured = Boolean(projectId);
+
+/**
+ * Opt-in local preview aid — never on by default, never in CI/production
+ * unless someone deliberately sets it. When true and Sanity is
+ * unconfigured, queries.ts substitutes lib/mockContent.ts's stub data so
+ * every route renders for visual review instead of its honest null-state
+ * (404/empty/fallback). Does not touch the null-handling contract itself:
+ * with this unset, behavior is identical to before it existed.
+ */
+export const useMockContent = process.env.USE_MOCK_CONTENT === "true";

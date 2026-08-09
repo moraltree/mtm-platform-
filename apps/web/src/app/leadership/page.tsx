@@ -5,6 +5,7 @@ import { PageSections } from "@/components/patterns/PageSections";
 import { getLeadershipPeople, getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
 import { urlFor } from "@/lib/sanity/image";
+import { buildMetadata } from "@/lib/metadata";
 import styles from "./page.module.css";
 
 // An empty team list is a normal, expected state (the team's real size is
@@ -13,13 +14,10 @@ import styles from "./page.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageByPageId("leadership");
-  if (!page) return { title: "Leadership" };
-
-  return {
-    title: page.seo?.metaTitle || page.title,
-    description: page.seo?.metaDescription,
-    robots: page.seo?.noIndex ? { index: false, follow: false } : undefined,
-  };
+  return buildMetadata(
+    page?.seo?.metaTitle || page?.title || "Leadership",
+    page?.seo,
+  );
 }
 
 export default async function LeadershipPage() {

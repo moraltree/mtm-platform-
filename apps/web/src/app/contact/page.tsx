@@ -4,6 +4,7 @@ import { ContactForm } from "@/components/patterns/ContactForm";
 import { PageSections } from "@/components/patterns/PageSections";
 import { getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
+import { buildMetadata } from "@/lib/metadata";
 
 // Contact is a utility page, not pure editorial content — being reachable
 // matters more than being CMS-authored, so unlike About/Founder/Mission
@@ -11,13 +12,10 @@ import { adaptSections } from "@/lib/pageSections";
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageByPageId("contact");
-  if (!page) return { title: "Contact" };
-
-  return {
-    title: page.seo?.metaTitle || page.title,
-    description: page.seo?.metaDescription,
-    robots: page.seo?.noIndex ? { index: false, follow: false } : undefined,
-  };
+  return buildMetadata(
+    page?.seo?.metaTitle || page?.title || "Contact",
+    page?.seo,
+  );
 }
 
 export default async function ContactPage() {

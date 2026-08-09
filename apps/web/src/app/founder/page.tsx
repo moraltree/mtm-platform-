@@ -7,6 +7,7 @@ import { PageSections } from "@/components/patterns/PageSections";
 import { getFounder, getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
 import { urlFor } from "@/lib/sanity/image";
+import { buildMetadata } from "@/lib/metadata";
 import styles from "./page.module.css";
 
 // Founder is a `page` document (optional intro sections) plus the
@@ -16,14 +17,14 @@ import styles from "./page.module.css";
 // lib/editorialPage.tsx like the other single-purpose pages.
 
 export async function generateMetadata(): Promise<Metadata> {
-  const page = await getPageByPageId("founder");
-  if (!page) return {};
+  const [page, founder] = await Promise.all([
+    getPageByPageId("founder"),
+    getFounder(),
+  ]);
+  if (!page && !founder) return {};
 
-  return {
-    title: page.seo?.metaTitle || page.title,
-    description: page.seo?.metaDescription,
-    robots: page.seo?.noIndex ? { index: false, follow: false } : undefined,
-  };
+  const title = page?.seo?.metaTitle || page?.title || founder?.name;
+  return buildMetadata(title, page?.seo);
 }
 
 export default async function FounderPage() {

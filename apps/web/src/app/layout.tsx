@@ -5,8 +5,10 @@ import { SkipLink } from "@/components/ui/SkipLink";
 import { Header } from "@/components/patterns/Header";
 import { Footer } from "@/components/patterns/Footer";
 import { ConsentBanner } from "@/components/patterns/ConsentBanner";
+import { PreviewBanner } from "@/components/patterns/PreviewBanner";
 import { getSiteSettings } from "@/lib/sanity/queries";
 import { resolveLink, resolveLinks } from "@/lib/links";
+import { useMockContent } from "@/lib/sanity/env";
 import {
   DEFAULT_DESCRIPTION,
   DEFAULT_FOOTER_NOTE,
@@ -33,7 +35,12 @@ export const metadata: Metadata = {
     template: `%s | ${DEFAULT_SITE_TITLE}`,
   },
   description: DEFAULT_DESCRIPTION,
-  robots: { index: true, follow: true },
+  // Belt-and-suspenders: if USE_MOCK_CONTENT is ever left on somewhere it
+  // shouldn't be, search engines still won't index the placeholder copy.
+  // Individual pages can still opt into their own noindex on top of this.
+  robots: useMockContent
+    ? { index: false, follow: false }
+    : { index: true, follow: true },
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -59,6 +66,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
+        {useMockContent && <PreviewBanner />}
         <SkipLink />
         <Header siteTitle={siteTitle} nav={primaryNav} />
         <main id="main-content">{children}</main>

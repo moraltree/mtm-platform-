@@ -8,6 +8,7 @@ import { PageSections } from "@/components/patterns/PageSections";
 import { getStoryWorldBySlug, getStoryWorlds } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
 import { urlFor } from "@/lib/sanity/image";
+import { buildMetadata } from "@/lib/metadata";
 import styles from "./page.module.css";
 
 // The one reusable template for every Story World — content lookup by
@@ -40,13 +41,10 @@ export async function generateMetadata(
   const storyWorld = await getStoryWorldBySlug(slug);
   if (!storyWorld) return {};
 
-  return {
-    title: storyWorld.seo?.metaTitle || storyWorld.title,
-    description: storyWorld.seo?.metaDescription || storyWorld.tagline,
-    robots: storyWorld.seo?.noIndex
-      ? { index: false, follow: false }
-      : undefined,
-  };
+  return buildMetadata(storyWorld.seo?.metaTitle || storyWorld.title, {
+    ...storyWorld.seo,
+    metaDescription: storyWorld.seo?.metaDescription || storyWorld.tagline,
+  });
 }
 
 export default async function StoryWorldPage(
