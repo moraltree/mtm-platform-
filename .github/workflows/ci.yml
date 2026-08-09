@@ -31,4 +31,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_SITE_URL: https://example.org
+          # Real production domain (Vercel) — see DEPLOYMENT.md. Using it
+          # here too so a CI build exercises the same absolute-URL values
+          # production actually gets, not an arbitrary placeholder.
+          NEXT_PUBLIC_SITE_URL: https://moraltree.media

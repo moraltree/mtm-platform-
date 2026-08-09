@@ -12,11 +12,16 @@ WCAG 2.2 AA accessibility, Core Web Vitals performance, and standard
 security/privacy controls).
 
 **All six work packages are functionally complete** (code-wise — see each
-WP below). What's left is not code: a real Sanity project/credentials, a
-hosting/domain target, and real content/copy/legal text/brand assets. None
-of those block further engineering work; they block the site actually
-showing real content instead of the honest empty/404 states described
-under "Null-handling rules by page" below.
+WP below). What's left is not code: a real Sanity project/credentials and
+real content/copy/legal text/brand assets. **Hosting is decided** —
+Vercel, canonical domain `moraltree.media` (`moraltreemedia.com` and both
+`www.` variants redirect permanently) — and the project is prepared for it
+in code (see `DEPLOYMENT.md`), but connecting the actual Vercel account,
+adding the domains, and DNS are separate steps that need account/DNS
+access this repo's tooling doesn't have. None of the remaining items block
+further engineering work; they block the site actually showing real
+content and being reachable at its real domain, instead of the honest
+empty/404 states described under "Null-handling rules by page" below.
 
 For visual review without a real Sanity project, set `USE_MOCK_CONTENT=true`
 (`apps/web/.env.local`) — every route then renders `lib/mockContent.ts`'s
@@ -190,6 +195,13 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   which trades away the static optimization this mostly-static site needs
   for Core Web Vitals. Revisit only if the project's security requirements
   tighten enough to justify that trade-off.
+- `next.config.ts`'s `redirects()` sends `moraltreemedia.com` and both
+  `www.` variants to `https://moraltree.media` with a 308, matched on the
+  request's `Host` header (`has: [{type: "host", ...}]`) — deliberately an
+  application-level redirect rather than a Vercel dashboard setting, so it
+  works locally (`next start` + `curl -H "Host: ..."`, no live DNS needed
+  to verify it) and isn't tied to Vercel specifically. See `DEPLOYMENT.md`
+  for what still needs actual Vercel/DNS access.
 - Site-wide chrome (nav/footer/site title in the root layout) falls back to
   `lib/siteDefaults.ts` when `getSiteSettings()` returns `null` — this is
   **not** the same rule as page-content null-handling below; global chrome
@@ -284,17 +296,20 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
 
 - Keep this file's work-package checklist current as WPs land.
 - Do not touch `backend/` — see above.
-- When adding real content/brand assets/hosting target, replace the
-  placeholder assumptions from WP1 (Vercel-shaped hosting) if the owner
-  specifies otherwise. Self-built cookie consent (`ConsentBanner`) and
-  Cloudflare Turnstile for form spam-protection (`ContactForm`) are now
-  actually implemented, not just planned — swapping either for a different
-  vendor means replacing those specific components/env vars, not starting
-  from scratch.
-- The contact form's rate limiting is in-memory and single-instance only —
-  fine for one Node process, not for a multi-instance serverless
-  deployment. Swap in a shared store (Upstash Redis, Vercel KV, etc.) as
-  part of picking a real hosting target, not before.
+- **Hosting is now a firm decision, not a placeholder**: Vercel, canonical
+  domain `moraltree.media` — see `DEPLOYMENT.md` for exactly what's done
+  in code versus what still needs Vercel account access/DNS. Don't
+  re-litigate this or treat it as still-open; WP1's original "Vercel-
+  shaped hosting" assumption is now confirmed, not a guess to revisit.
+  Self-built cookie consent (`ConsentBanner`) and Cloudflare Turnstile for
+  form spam-protection (`ContactForm`) are also actually implemented, not
+  just planned — swapping either for a different vendor means replacing
+  those specific components/env vars, not starting from scratch.
+- The contact form's rate limiting is in-memory and single-instance
+  only — fine for one Vercel serverless function instance, not guaranteed
+  correct across concurrent instances under real traffic. Swap in a shared
+  store (Upstash Redis, Vercel KV, etc.) when that becomes a real problem,
+  not speculatively before there's traffic to warrant it.
 - Adding a Sanity `pageBuilder` block type requires touching three places:
   `apps/studio/schemaTypes/objects/<name>.ts`, its registration in
   `apps/studio/schemaTypes/objects/pageBuilder.ts` and

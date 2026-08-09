@@ -29,6 +29,19 @@ const cspHeader = `
   .replace(/\s{2,}/g, " ")
   .trim();
 
+// Canonical production domain is moraltree.media (Vercel) — everything
+// else redirects to it, at the application level rather than relying on
+// a hosting-platform-specific mechanism (Vercel also offers a per-domain
+// "redirect to primary" toggle in its dashboard; both are safe to have
+// active at once, but this is the one that keeps working if hosting ever
+// changes). Only fires when the request's Host header actually matches
+// one of these — harmless everywhere else, including local dev.
+const LEGACY_HOSTS = [
+  "moraltreemedia.com",
+  "www.moraltreemedia.com",
+  "www.moraltree.media",
+];
+
 const nextConfig: NextConfig = {
   images: {
     // Sanity's asset CDN — no project exists yet, but this is needed the
@@ -36,6 +49,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io", pathname: "/images/**" },
     ],
+  },
+
+  async redirects() {
+    return LEGACY_HOSTS.map((host) => ({
+      source: "/:path*",
+      has: [{ type: "host" as const, value: host }],
+      destination: "https://moraltree.media/:path*",
+      permanent: true,
+    }));
   },
 
   async headers() {
@@ -52,9 +74,10 @@ const nextConfig: NextConfig = {
             value: "camera=(), microphone=(), geolocation=()",
           },
           // Safe to send over plain HTTP too — browsers only act on this
-          // header when it arrives over HTTPS. Submitting to the HSTS
-          // preload list (hstspreload.org) is a separate, deliberate
-          // operational step once the real domain/hosting is live.
+          // header when it arrives over HTTPS. Submitting moraltree.media
+          // to the HSTS preload list (hstspreload.org) is a separate,
+          // deliberate operational step once DNS/hosting are actually
+          // live — see DEPLOYMENT.md.
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",

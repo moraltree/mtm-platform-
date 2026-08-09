@@ -68,6 +68,35 @@ entries first.
   rather than a fix to something broken or an already-flagged gap, so it
   stays out per "don't invent unrelated scope." Worth doing if/when asked.
 
+## 2026-08-09 (session 3 — hosting decision)
+
+- Owner decision: Vercel, canonical domain `moraltree.media`,
+  `moraltreemedia.com` (+ both `www.` variants) redirect permanently.
+- Implemented the redirect at the application level
+  (`apps/web/next.config.ts`'s `redirects()`, `has: [{type: "host", ...}]`)
+  rather than only as a Vercel dashboard setting, so it's testable locally
+  and portable. Verified with `next start` + `curl -H "Host: ..."` for all
+  three legacy hosts (each 308s to `https://moraltree.media`, path
+  preserved) and confirmed the canonical host and local dev are
+  unaffected. Also reconfirmed sitemap.xml/robots.txt correctly emit
+  `https://moraltree.media` URLs when `NEXT_PUBLIC_SITE_URL` is set to it.
+- Added `DEPLOYMENT.md`: what's done in code (redirects, env-var-driven
+  URLs, headers, zero-config Next.js build) versus what needs actual
+  Vercel account access and DNS control (creating the project with Root
+  Directory `apps/web`, setting env vars, adding domains, DNS, eventual
+  HSTS preload submission) — stopped exactly there, as instructed.
+- Updated CLAUDE.md (hosting no longer a placeholder assumption),
+  `.env.example`, root `README.md`, and replaced `apps/web/README.md`'s
+  untouched `create-next-app` boilerplate with real project info — it had
+  been missed since WP1. CI's build-step `NEXT_PUBLIC_SITE_URL` now uses
+  the real domain instead of `https://example.org`.
+- No Vercel account access, domain verification, or DNS changes made or
+  attempted — none were required to reach this point, and this session
+  doesn't have that access regardless.
+- Verified: lint/typecheck/format/build clean in both mock-content-on and
+  mock-content-off states; `sanity build` clean; backend/ untouched
+  (checked active before and after).
+
 ## 2026-08-09 (session 1)
 
 - WP1 Foundation, WP2 Sanity CMS/schemas, WP3 design system, WP4 corporate

@@ -1,7 +1,8 @@
 # MTM Platform
 
 Website for Moral Tree Media. See [`CLAUDE.md`](./CLAUDE.md) for architecture,
-work-package status, and detailed guidance.
+work-package status, and detailed guidance. Hosting target: Vercel,
+canonical domain `moraltree.media` — see [`DEPLOYMENT.md`](./DEPLOYMENT.md).
 
 ## Structure
 
