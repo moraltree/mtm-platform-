@@ -40,16 +40,18 @@ Implementation proceeds in work packages:
   (`next.config.ts`); `ContactForm` is real (Server Action, honeypot +
   best-effort rate limiting, optional Turnstile/Resend — inert until their
   env vars are set) and wired into `PageSections`' `formEmbedBlock` case.
-- **WP5 — Core corporate pages** (Home, About, Founder, Leadership, Mission,
-  Publishing, Audiobooks, Animation, News, Contact) — not started. Will
-  consume `apps/web/src/lib/sanity/queries.ts` + `PageSections`, and needs
-  the Sanity → `PageSection` adapter for `sections` arrays (see Architecture
-  notes — `resolveLink` for nav-style links already exists, but the fuller
-  page-builder adapter doesn't) plus the `teamGridBlock`/`newsListBlock`
-  data-fetching `PageSections` currently no-ops on.
+- **WP5 — Core corporate pages** ✅ All ten routes exist: `/`, `/about`,
+  `/founder`, `/leadership`, `/mission`, `/publishing`, `/audiobooks`,
+  `/animation`, `/contact`, `/news` (+ `/news/[slug]`). `lib/pageSections.ts`
+  is the Sanity `sections` → `PageSection[]` adapter (see Architecture
+  notes). Three different null-handling rules apply depending on the page
+  — see "Null-handling rules by page" below; don't assume they're all the
+  same. `teamGridBlock`/`newsListBlock` are still `PageSections` no-ops
+  (Leadership/News render their person/post lists directly instead, not
+  through a pageBuilder block).
 - **WP6 — Story World portfolio system** (index + reusable detail template)
-  — not started. Needs the same adapter, plus `storyWorldGridBlock`'s
-  data-fetching.
+  — not started. Reuses `lib/pageSections.ts`'s adapter, plus needs
+  `storyWorldGridBlock`'s data-fetching (still a `PageSections` no-op).
 
 ## Repository structure
 
@@ -103,28 +105,37 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   ContactForm, Header, Footer, ConsentBanner) plus `PageSections`, which
   switches on a section's `_type` to render it. `PageSections`' components
   are deliberately presentational — they take plain resolved props
-  (`href: string`, already-built image `src`), not raw Sanity objects. The
-  adapter that turns a fetched `page`/`storyWorld` document's `sections`
-  array (raw Sanity JSON: `link` objects with `internalRef`/`externalUrl`,
-  image refs, etc.) into `PageSection[]` does not exist yet — build it in
-  WP5 alongside the first real page, once there's real data to shape it
-  against. `lib/links.ts#resolveLink` is the equivalent adapter for
-  site-wide nav links (siteSettings' `primaryNav`/`footerNav`/
-  `socialLinks`) and already works end-to-end; the `sections`-array
-  adapter is a bigger surface (per-block-type field shapes) and is
-  deliberately not built speculatively ahead of a real consumer.
-- Three pageBuilder block types are still CMS-data-driven placeholders:
-  `teamGridBlock`, `storyWorldGridBlock`, `newsListBlock`. `PageSections`
-  renders `null` for these (see its switch statement) rather than fake
-  output, until their real data source lands: `teamGridBlock`/Leadership
-  and `newsListBlock` in WP5, `storyWorldGridBlock` in WP6. `formEmbedBlock`
-  is already real (WP4) — see ContactForm below.
+  (`href: string`, already-built image `src`), not raw Sanity objects.
+  `lib/pageSections.ts#adaptSections` is the adapter: queries.ts's
+  `SECTIONS_PROJECTION` dereferences each block's links/images in GROQ,
+  `adaptSections` then maps each raw `{_type, _key, ...}` entry to its
+  typed `PageSection` variant (dropping sub-parts it can't resolve — a
+  missing image, an unresolvable link — rather than dropping the whole
+  section). Keep `SECTIONS_PROJECTION`, `adaptSections`, and
+  `PageSections/types.ts` in sync by hand when a block type's fields
+  change; nothing generates one from the others. `lib/links.ts#resolveLink`
+  is the narrower version of this same idea for standalone `link` fields
+  (site-wide nav, a block's single CTA) and is what `adaptSections` itself
+  calls for those.
+- Three pageBuilder block types still render `null` in `PageSections` (see
+  its switch statement): `teamGridBlock`, `newsListBlock`,
+  `storyWorldGridBlock`. `storyWorldGridBlock` needs WP6. The other two
+  don't have a real consumer _by design_, not because anything's missing:
+  Leadership queries `person` documents directly and News' index queries
+  `newsPost` directly, since each page's own team/post listing isn't
+  something an editor picks per-page. `teamGridBlock`/`newsListBlock` stay
+  available for embedding a team grid or news teaser list on some _other_
+  page (e.g. a `newsListBlock` on Home) — that's the actual trigger for
+  giving either a real `PageSections` case. `formEmbedBlock` is real since
+  WP4 (see ContactForm below).
 - `RichText` (Portable Text renderer) resolves `internalLink` marks via an
-  optional `resolveInternalLink` prop — until a caller passes one (WP5,
-  once GROQ projections dereference the annotation's `reference` the way
-  `LINK_PROJECTION` already does for `link` fields), internal links render
-  as styled but non-interactive text rather than a broken `<a>` with no
-  `href`. Images inside rich text and elsewhere go through `urlFor()`
+  optional `resolveInternalLink` prop — no caller passes one yet (would
+  need `blockContent`'s `internalLink` annotation dereferenced in GROQ the
+  way `LINK_PROJECTION` does for `link` fields; none of WP5's rich-text
+  consumers — legal pages, news posts, founder bio — populate it), so
+  internal links inside rich text currently render as styled but
+  non-interactive text rather than a broken `<a>` with no `href`. Images
+  inside rich text and elsewhere go through `urlFor()`
   (`lib/sanity/image.ts`), which accepts a raw `{_ref}` image object
   directly — no need to dereference `asset->url` in GROQ for that case.
 - `ContactForm` (`components/patterns/ContactForm`) is a real,
@@ -163,19 +174,44 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   image URL builder, queries) is fully wired but `sanityFetch()` returns
   `null` whenever `NEXT_PUBLIC_SANITY_PROJECT_ID` is unset, which is true in
   every environment right now — this is intentional so the site keeps
-  building without live credentials. Once a project exists: set
+  building without live credentials, and it means every WP5 route was
+  verified against `null` data (a real `next start` + curl pass — see WP5
+  commit message), not just typechecked. Once a project exists: set
   `SANITY_STUDIO_PROJECT_ID`/`_DATASET` in `apps/studio/.env` and the
-  matching `NEXT_PUBLIC_SANITY_*` vars in `apps/web/.env.local`. WP5/WP6
-  pages should treat a `null` fetch result as a real error, not silently
-  render empty — the graceful-degradation behavior is a bootstrapping
-  convenience, not a permanent contract. `/legal/[slug]` (WP4) already
-  follows this: an unresolved slug calls `notFound()`, it's the reference
-  implementation for how WP5/WP6 content-lookup routes should behave.
+  matching `NEXT_PUBLIC_SANITY_*` vars in `apps/web/.env.local`.
+- **Null-handling rules by page — three different rules, not one.** Don't
+  assume "treat null as an error" applies uniformly:
+  1. **Pure editorial content** (About, Founder†, Mission, Publishing,
+     Audiobooks, Animation, legal pages, a Story World by slug, a news post
+     by slug) — a missing document is a real 404 (`notFound()`). There's no
+     honest non-fabricated fallback for a company's About copy or a
+     founder's bio, so don't invent one.
+  2. **Site-wide chrome** (root layout's nav/footer/site title) — falls
+     back to `lib/siteDefaults.ts`. Global chrome has to work before any
+     content exists at all.
+  3. **Listing/utility pages** (Leadership's person grid, News' post grid,
+     Contact's form, Home) — render a genuine empty/generic state, not a
+     404 and not fabricated copy. An empty team or post list is a normal
+     state; being unreachable (Contact) or 404ing at the domain root
+     (Home) would be worse than a plain placeholder.
+
+  † Founder is 1+3 at once: no `page` doc _and_ no founder `person` doc is
+  a 404, but either one alone renders something (see `app/founder/page.tsx`).
+
 - `page` documents use a fixed `pageId` (see the option list in
   `apps/studio/schemaTypes/documents/page.ts` and `PAGE_IDS` in
-  `apps/studio/structure.ts`) so Home/About/Founder/etc. are pinned
-  singletons in the Studio rather than editor-creatable duplicates.
+  `apps/studio/structure.ts` — includes `news`, added in WP5 alongside
+  `/news`; a WP2 gap where it was missing from both lists) so
+  Home/About/Founder/etc. are pinned singletons in the Studio rather than
+  editor-creatable duplicates. `PAGE_ID_PATHS` (`lib/links.ts`) maps each
+  `pageId` to its route and must stay in sync with the App Router folder
+  structure by hand — adding a page route means updating both.
   `storyWorld`, `newsPost`, `person`, `legalPage` are open document lists.
+- `sitemap.ts` only lists a `pageId`'s route once a real `page` document
+  exists for it (via `getExistingPageIds()`), except the always-available
+  ones (home/leadership/contact/news) — otherwise it would point search
+  engines at pages that currently 404. Update its `ALWAYS_AVAILABLE` list
+  if a page's null-handling rule changes.
 
 ## Guidance for future sessions
 

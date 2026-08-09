@@ -27,6 +27,7 @@ export default defineType({
           { title: "Audiobooks", value: "audiobooks" },
           { title: "Animation", value: "animation" },
           { title: "Contact", value: "contact" },
+          { title: "News index", value: "news" },
           { title: "Story Worlds index", value: "story-worlds" },
         ],
       },

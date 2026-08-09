@@ -10,10 +10,12 @@ import type { ContactFormProps } from "../ContactForm";
 
 /**
  * One entry per apps/studio pageBuilder member (`_type` matches the
- * schema's type name exactly). The middle three (team/story-world/news
- * grid) are CMS-data-driven rather than purely presentational —
- * PageSections intentionally renders nothing for them until WP5/WP6 give
- * them real queries. `formEmbedBlock` is wired to a real form (WP4).
+ * schema's type name exactly). team/news/story-world grid are CMS-data-
+ * driven rather than purely presentational, and PageSections intentionally
+ * renders nothing for them — see its switch statement and CLAUDE.md for
+ * why (Leadership/News query their own data directly instead of embedding
+ * these as pageBuilder blocks; storyWorldGridBlock needs WP6).
+ * `formEmbedBlock` is wired to a real form (WP4).
  */
 export type PageSection =
   | ({ _type: "heroBlock"; _key: string } & HeroProps)

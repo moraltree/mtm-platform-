@@ -4,6 +4,7 @@ import type {
   NewsPostDoc,
   PageDoc,
   PageId,
+  PersonDoc,
   SiteSettingsDoc,
   StoryWorldDoc,
 } from "./types";
@@ -21,6 +22,56 @@ const SEO_PROJECTION = `seo { metaTitle, metaDescription, ogImage, noIndex }`;
 const LINK_PROJECTION = `
   label, type, externalUrl, openInNewTab,
   internalRef-> { _type, "slug": slug.current, pageId }
+`;
+
+// One conditional branch per apps/studio pageBuilder member — see
+// lib/pageSections.ts#adaptSections, which turns this raw shape into the
+// design system's typed PageSection. Keep the two in sync by hand; there's
+// no schema-driven codegen tying them together.
+const SECTIONS_PROJECTION = `
+  sections[] {
+    _type,
+    _key,
+    _type == "heroBlock" => {
+      eyebrow, heading, subheading, media,
+      ctas[] { ${LINK_PROJECTION} }
+    },
+    _type == "richTextBlock" => {
+      content, width
+    },
+    _type == "ctaPanelBlock" => {
+      heading, body, tone,
+      cta { ${LINK_PROJECTION} }
+    },
+    _type == "mediaBlock" => {
+      mediaType, image, videoUrl, caption, fullBleed
+    },
+    _type == "quoteBlock" => {
+      quote, attribution, role
+    },
+    _type == "timelineBlock" => {
+      heading, entries
+    },
+    _type == "statsBlock" => {
+      heading, stats
+    },
+    _type == "cardGridBlock" => {
+      heading, columns,
+      cards[] { title, body, image, link { ${LINK_PROJECTION} } }
+    },
+    _type == "teamGridBlock" => {
+      heading
+    },
+    _type == "storyWorldGridBlock" => {
+      heading
+    },
+    _type == "newsListBlock" => {
+      heading
+    },
+    _type == "formEmbedBlock" => {
+      form, heading, intro
+    }
+  }
 `;
 
 export async function getSiteSettings() {
@@ -43,7 +94,7 @@ export async function getSiteSettings() {
 export async function getPageByPageId(pageId: PageId) {
   return sanityFetch<PageDoc>(
     `*[_type == "page" && pageId == $pageId][0] {
-      _id, pageId, title, slug, sections, ${SEO_PROJECTION}
+      _id, pageId, title, slug, ${SECTIONS_PROJECTION}, ${SEO_PROJECTION}
     }`,
     { pageId },
   );
@@ -69,7 +120,7 @@ export async function getStoryWorldBySlug(slug: string) {
   return sanityFetch<StoryWorldDoc>(
     `*[_type == "storyWorld" && slug.current == $slug][0] {
       _id, title, slug, tagline, formats, status, heroImage,
-      synopsis, gallery, sections, ${SEO_PROJECTION}
+      synopsis, gallery, ${SECTIONS_PROJECTION}, ${SEO_PROJECTION}
     }`,
     { slug },
   );
@@ -107,4 +158,29 @@ export async function getAllLegalPageSlugs() {
   return sanityFetch<Array<{ slug: string }>>(`
     *[_type == "legalPage"] { "slug": slug.current }
   `);
+}
+
+const PERSON_PROJECTION = `
+  _id, name, role, photo, bio, isFounder,
+  socialLinks[] { ${LINK_PROJECTION} }
+`;
+
+export async function getLeadershipPeople() {
+  return sanityFetch<PersonDoc[]>(`
+    *[_type == "person" && showOnLeadershipPage == true] | order(order asc) {
+      ${PERSON_PROJECTION}
+    }
+  `);
+}
+
+export async function getFounder() {
+  return sanityFetch<PersonDoc>(`
+    *[_type == "person" && isFounder == true][0] { ${PERSON_PROJECTION} }
+  `);
+}
+
+/** pageIds with a real document — for sitemap.ts, which shouldn't list
+ * editorial routes that would just 404 (see lib/editorialPage.tsx). */
+export async function getExistingPageIds() {
+  return sanityFetch<PageId[]>(`*[_type == "page"].pageId`);
 }

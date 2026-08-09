@@ -12,6 +12,7 @@ const PAGE_IDS: Array<{ id: string; title: string }> = [
   { id: "audiobooks", title: "Audiobooks" },
   { id: "animation", title: "Animation" },
   { id: "contact", title: "Contact" },
+  { id: "news", title: "News index" },
   { id: "story-worlds", title: "Story Worlds index" },
 ];
 

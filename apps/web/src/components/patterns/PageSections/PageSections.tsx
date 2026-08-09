@@ -46,11 +46,11 @@ export function PageSections({ sections }: { sections: PageSection[] }) {
               />
             ) : null;
           case "teamGridBlock":
-          case "storyWorldGridBlock":
           case "newsListBlock":
-            // Data-driven sections — see types.ts. Rendering nothing here
-            // is safer than rendering broken/empty UI for a block editors
-            // don't yet get real output from.
+          case "storyWorldGridBlock":
+            // Data-driven, no real consumer embedding them yet — see
+            // types.ts for why. Rendering nothing is safer than broken/
+            // empty UI for a block editors don't get real output from.
             return null;
           default:
             return null;

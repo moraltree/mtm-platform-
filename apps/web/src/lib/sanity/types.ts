@@ -43,14 +43,24 @@ export type PageId =
   | "audiobooks"
   | "animation"
   | "contact"
+  | "news"
   | "story-worlds";
+
+// Raw, undifferentiated pageBuilder entry as it comes back from GROQ (see
+// queries.ts's SECTIONS_PROJECTION) — lib/pageSections.ts#adaptSections
+// narrows this per `_type` into the design system's typed `PageSection`.
+export interface RawSection {
+  _type: string;
+  _key: string;
+  [field: string]: unknown;
+}
 
 export interface PageDoc {
   _id: string;
   pageId: PageId;
   title: string;
   slug: { current: string };
-  sections?: unknown[]; // rendered via the page-builder renderer, WP3/WP4
+  sections?: RawSection[];
   seo?: SeoFields;
 }
 
@@ -64,9 +74,19 @@ export interface StoryWorldDoc {
   heroImage: SanityImageRef;
   synopsis?: PortableTextContent;
   gallery?: SanityImageRef[];
-  sections?: unknown[];
+  sections?: RawSection[];
   featured?: boolean;
   seo?: SeoFields;
+}
+
+export interface PersonDoc {
+  _id: string;
+  name: string;
+  role: string;
+  photo?: SanityImageRef;
+  bio?: PortableTextContent;
+  isFounder?: boolean;
+  socialLinks?: LinkField[];
 }
 
 export interface NewsPostDoc {

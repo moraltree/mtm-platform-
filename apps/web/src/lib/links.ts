@@ -16,6 +16,7 @@ export const PAGE_ID_PATHS: Record<PageId, string> = {
   audiobooks: "/audiobooks",
   animation: "/animation",
   contact: "/contact",
+  news: "/news",
   "story-worlds": "/story-worlds",
 };
 
