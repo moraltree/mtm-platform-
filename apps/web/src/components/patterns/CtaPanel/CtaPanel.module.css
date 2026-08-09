@@ -1,0 +1,47 @@
+.panel {
+  padding-block: var(--space-7);
+  background: var(--color-brand-600);
+  color: var(--color-on-brand);
+}
+
+.panel.neutral {
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  align-items: flex-start;
+}
+
+.heading {
+  font-size: var(--text-2xl);
+  color: inherit;
+}
+
+.body {
+  margin-top: var(--space-2);
+  font-size: var(--text-md);
+  opacity: 0.9;
+}
+
+/* Override the Button "secondary" variant so its outline reads correctly
+   against this panel's solid brand background. */
+.ctaOnBrand {
+  border-color: var(--color-on-brand);
+  color: var(--color-on-brand);
+}
+
+.ctaOnBrand:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (min-width: 48rem) {
+  .inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}

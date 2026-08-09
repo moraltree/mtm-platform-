@@ -1,0 +1,39 @@
+.section {
+  padding-block: var(--space-7);
+}
+
+.heading {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-6);
+}
+
+.grid {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.value {
+  margin: 0;
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-brand-600);
+}
+
+.label {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 48rem) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

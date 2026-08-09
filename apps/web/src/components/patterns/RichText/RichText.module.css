@@ -1,0 +1,79 @@
+.richText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 42rem; /* ~65ch reading measure */
+}
+
+.richText.wide {
+  max-width: none;
+}
+
+.paragraph {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text);
+}
+
+.h2 {
+  font-size: var(--text-2xl);
+  margin-top: var(--space-4);
+}
+
+.h3 {
+  font-size: var(--text-xl);
+  margin-top: var(--space-3);
+}
+
+.h4 {
+  font-size: var(--text-lg);
+  margin-top: var(--space-2);
+}
+
+.blockquote {
+  margin: 0;
+  padding-left: var(--space-4);
+  border-left: var(--border-width-md) solid var(--color-brand-600);
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-left: var(--space-5);
+}
+
+.list :global(li) {
+  list-style: revert;
+}
+
+.link {
+  color: var(--color-brand-600);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.figureMedia {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.figureImage {
+  object-fit: cover;
+}
+
+.caption {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}

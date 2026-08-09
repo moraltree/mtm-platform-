@@ -22,13 +22,28 @@ Implementation proceeds in work packages:
   design-system pattern in the spec). `apps/web/src/lib/sanity` wires the
   client/queries/image URLs, degrading gracefully to `null` until a real
   project exists (see Architecture notes).
-- **WP3 — Design system** — not started.
+- **WP3 — Design system** ✅ Tokens (`apps/web/src/styles/tokens.css`) +
+  base styles (`base.css`), a `ui/` primitive layer (Container, Button,
+  Card, TextField/TextArea, SkipLink, VisuallyHidden), and a `patterns/`
+  layer covering every named pattern in the spec (Header, Footer, Hero,
+  RichText, CtaPanel, Media, Quote, Timeline, Stats, CardGrid) plus
+  `PageSections`, the renderer that dispatches a page's `sections` array to
+  the matching pattern component. Demoed end-to-end at `/style-guide`
+  (noindex). See Architecture notes for what's deliberately deferred.
 - **WP4 — Corporate shell, legal/error routes, global metadata** — not started.
+  Wires real `Header`/`Footer`/`SkipLink` into the root layout with live
+  `siteSettings` data (`/style-guide` renders them standalone today), adds
+  legal/error routes, sitemap/robots, security headers, cookie consent, and
+  the real contact form (`formEmbedBlock`'s renderer).
 - **WP5 — Core corporate pages** (Home, About, Founder, Leadership, Mission,
   Publishing, Audiobooks, Animation, News, Contact) — not started. Will
-  consume `apps/web/src/lib/sanity/queries.ts` + the WP3 design system.
+  consume `apps/web/src/lib/sanity/queries.ts` + `PageSections`, and needs
+  the Sanity → `PageSection` adapter (see Architecture notes) plus the
+  `teamGridBlock`/`newsListBlock` data-fetching `PageSections` currently
+  no-ops on.
 - **WP6 — Story World portfolio system** (index + reusable detail template)
-  — not started.
+  — not started. Needs the same adapter, plus `storyWorldGridBlock`'s
+  data-fetching.
 
 ## Repository structure
 
@@ -69,11 +84,46 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
 
 ## Architecture notes
 
-- Next.js App Router + TypeScript, no Tailwind — the design system (WP3)
-  will be CSS custom-property tokens + CSS Modules, not a utility framework,
-  to keep components mapped 1:1 to the spec's named patterns (hero/section,
-  cards, CTA panels, timelines, stats, etc.) and to the Studio's
-  `pageBuilder` block types (see `apps/studio/schemaTypes/objects/`).
+- Next.js App Router + TypeScript, no Tailwind — the design system is CSS
+  custom-property tokens (`apps/web/src/styles/tokens.css`) + CSS Modules,
+  not a utility framework, so components map 1:1 to the spec's named
+  patterns and to the Studio's `pageBuilder` block types (see
+  `apps/studio/schemaTypes/objects/`). Colours are a placeholder palette
+  (documented in tokens.css) — swap `--color-brand-*` when real brand
+  assets land, nothing else should need to change.
+- `components/ui` = generic primitives (Button, Card, Container, form
+  fields). `components/patterns` = one component per pageBuilder block type
+  (Hero, RichText, CtaPanel, Media, Quote, Timeline, Stats, CardGrid,
+  Header, Footer) plus `PageSections`, which switches on a section's
+  `_type` to render it. `PageSections`' components are deliberately
+  presentational — they take plain resolved props (`href: string`, already-
+  built image `src`), not raw Sanity objects. The adapter that turns a
+  fetched `page`/`storyWorld` document's `sections` array (raw Sanity JSON:
+  `link` objects with `internalRef`/`externalUrl`, image refs, etc.) into
+  `PageSection[]` does not exist yet — build it in WP4/WP5 alongside the
+  first real page, once there's real data to shape it against. Don't
+  speculatively build it against guessed data shapes.
+- Four pageBuilder block types are CMS-data-driven, not presentational:
+  `teamGridBlock`, `storyWorldGridBlock`, `newsListBlock`, `formEmbedBlock`.
+  `PageSections` currently renders `null` for all four (see its switch
+  statement) rather than fake/partial output. Each gets wired up when its
+  real data source lands: `teamGridBlock`/Leadership in WP5, `newsListBlock`
+  in WP5, `storyWorldGridBlock` in WP6, `formEmbedBlock` (the actual
+  contact form + spam/rate protection) in WP4.
+- `RichText` (Portable Text renderer) resolves `internalLink` marks via an
+  optional `resolveInternalLink` prop — until a caller passes one (WP4/5,
+  once GROQ projections dereference the annotation's `reference`), internal
+  links render as styled but non-interactive text rather than a broken
+  `<a>` with no `href`. Images inside rich text and elsewhere go through
+  `urlFor()` (`lib/sanity/image.ts`), which accepts a raw `{_ref}` image
+  object directly — no need to dereference `asset->url` in GROQ for that
+  case.
+- `next.config.ts` already whitelists `cdn.sanity.io` in `images.remotePatterns`
+  for when real Sanity images arrive. Local placeholder images
+  (`apps/web/public/placeholder.png`) exist for demo/dev use only — an SVG
+  was deliberately avoided since `next/image` blocks SVG sources by default
+  (XSS risk) and enabling `dangerouslyAllowSVG` isn't worth it for a
+  placeholder.
 - Next.js 16 generates global `PageProps<'/route'>` / `LayoutProps<'/route'>`
   helper types automatically (via `next dev`/`build`/`typegen`) — use these
   instead of hand-writing `params: Promise<{...}>` on new routes.
