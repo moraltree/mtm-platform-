@@ -42,6 +42,18 @@ entries first.
   `#6b7280` to `#666c78` (4.66:1 there, 5.27:1 against white — margin on
   both, and CtaPanel's opacity-blended text checked separately and found
   already well clear at ~12:1/~8:1). Rebuilt and reconfirmed clean.
+- Completed a deferred, well-scoped item flagged since WP3: `RichText`'s
+  `resolveInternalLink` had no caller because nothing dereferenced Portable
+  Text's `internalLink` annotation in GROQ. Added
+  `PORTABLE_TEXT_PROJECTION` (queries.ts) — the same dereferencing
+  `LINK_PROJECTION` already did for `link` fields, applied to
+  `newsPost.body`/`legalPage.body`/`person.bio` — and refactored
+  `resolveLink` to share its internal-ref switch with a new
+  `resolveInternalRef`, which all three `RichText` call sites (news post,
+  legal page, founder bio) now pass in. Added a mock-content example
+  (founder bio linking to a Story World) and confirmed via curl that it
+  renders as a real `<a href>`, not styled dead text. Rebuilt with mock
+  off and confirmed the route/404 set unchanged.
 
 ## 2026-08-09 (session 1)
 

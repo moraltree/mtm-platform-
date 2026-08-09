@@ -35,6 +35,21 @@ const LINK_PROJECTION = `
   internalRef-> { _type, "slug": slug.current, pageId }
 `;
 
+// Portable Text's `internalLink` annotation stores its reference the same
+// way a `link` field does — dereference it the same way, so
+// RichText's `resolveInternalLink` prop (lib/links.ts#resolveInternalRef)
+// gets real hrefs instead of unresolvable `{_ref}` pointers. Spliced after
+// a body-text field name, e.g. `body${PORTABLE_TEXT_PROJECTION}`.
+const PORTABLE_TEXT_PROJECTION = `[] {
+  ...,
+  markDefs[] {
+    ...,
+    _type == "internalLink" => {
+      "reference": reference-> { _type, "slug": slug.current, pageId }
+    }
+  }
+}`;
+
 // One conditional branch per apps/studio pageBuilder member — see
 // lib/pageSections.ts#adaptSections, which turns this raw shape into the
 // design system's typed PageSection. Keep the two in sync by hand; there's
@@ -163,7 +178,8 @@ export async function getNewsPosts(limit = 20) {
 export async function getNewsPostBySlug(slug: string) {
   const result = await sanityFetch<NewsPostDoc>(
     `*[_type == "newsPost" && slug.current == $slug][0] {
-      _id, title, slug, publishedAt, excerpt, coverImage, body, ${SEO_PROJECTION}
+      _id, title, slug, publishedAt, excerpt, coverImage,
+      body${PORTABLE_TEXT_PROJECTION}, ${SEO_PROJECTION}
     }`,
     { slug },
   );
@@ -176,7 +192,8 @@ export async function getNewsPostBySlug(slug: string) {
 export async function getLegalPageBySlug(slug: string) {
   const result = await sanityFetch<LegalPageDoc>(
     `*[_type == "legalPage" && slug.current == $slug][0] {
-      _id, title, slug, effectiveDate, body, ${SEO_PROJECTION}
+      _id, title, slug, effectiveDate,
+      body${PORTABLE_TEXT_PROJECTION}, ${SEO_PROJECTION}
     }`,
     { slug },
   );
@@ -198,7 +215,7 @@ export async function getAllLegalPageSlugs() {
 }
 
 const PERSON_PROJECTION = `
-  _id, name, role, photo, bio, isFounder,
+  _id, name, role, photo, bio${PORTABLE_TEXT_PROJECTION}, isFounder,
   socialLinks[] { ${LINK_PROJECTION} }
 `;
 

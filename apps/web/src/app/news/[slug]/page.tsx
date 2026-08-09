@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { RichText } from "@/components/patterns/RichText";
 import { getNewsPostBySlug, getNewsPosts } from "@/lib/sanity/queries";
 import { buildMetadata } from "@/lib/metadata";
+import { resolveInternalRef } from "@/lib/links";
 import styles from "./page.module.css";
 
 export async function generateStaticParams() {
@@ -38,7 +39,11 @@ export default async function NewsPostPage(props: PageProps<"/news/[slug]">) {
         })}
       </p>
       <h1>{post.title}</h1>
-      <RichText value={post.body} width="wide" />
+      <RichText
+        value={post.body}
+        resolveInternalLink={resolveInternalRef}
+        width="wide"
+      />
     </Container>
   );
 }

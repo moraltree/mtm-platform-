@@ -160,16 +160,20 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   `getFounder()` alongside its `page` document. `formEmbedBlock` is real
   since WP4 (see ContactForm below) precisely because it _didn't_ need
   either — the form has no listing to fetch.
-- `RichText` (Portable Text renderer) resolves `internalLink` marks via an
-  optional `resolveInternalLink` prop — no caller passes one yet (would
-  need `blockContent`'s `internalLink` annotation dereferenced in GROQ the
-  way `LINK_PROJECTION` does for `link` fields; none of WP5's rich-text
-  consumers — legal pages, news posts, founder bio — populate it), so
-  internal links inside rich text currently render as styled but
-  non-interactive text rather than a broken `<a>` with no `href`. Images
-  inside rich text and elsewhere go through `urlFor()`
-  (`lib/sanity/image.ts`), which accepts a raw `{_ref}` image object
-  directly — no need to dereference `asset->url` in GROQ for that case.
+- `RichText` (Portable Text renderer) resolves `internalLink` marks via a
+  `resolveInternalLink` prop. `queries.ts`'s `PORTABLE_TEXT_PROJECTION`
+  dereferences the annotation's `reference` the same way `LINK_PROJECTION`
+  does for `link` fields; `lib/links.ts#resolveInternalRef` turns that into
+  a real href (it's the same switch `resolveLink` uses internally — both
+  now call one shared function rather than duplicating it). Every
+  rich-text consumer (legal pages, news posts, founder bio) passes
+  `resolveInternalLink={resolveInternalRef}`. A caller that doesn't (there
+  isn't one currently) still degrades to styled-but-non-interactive text
+  rather than a broken `<a>` with no `href` — that fallback stays as
+  defence in depth, not because anything still needs it. Images inside
+  rich text and elsewhere go through `urlFor()` (`lib/sanity/image.ts`),
+  which accepts a raw `{_ref}` image object directly — no need to
+  dereference `asset->url` in GROQ for that case.
 - `ContactForm` (`components/patterns/ContactForm`) is a real,
   progressively-enhanced form: a Server Action (`actions.ts`) does
   server-side validation, a honeypot field, and best-effort in-memory

@@ -5,11 +5,12 @@ import type { SanityImageSource } from "@sanity/image-url";
 import styles from "./RichText.module.css";
 import { cx } from "@/lib/cx";
 import { urlFor } from "@/lib/sanity/image";
+import type { InternalRef } from "@/lib/links";
 
 type ImageValue = SanityImageSource & { alt?: string; caption?: string };
 
 interface InternalLinkValue {
-  reference?: { _ref: string; _type: string };
+  reference?: InternalRef;
 }
 
 interface ExternalLinkValue {
@@ -20,15 +21,14 @@ interface ExternalLinkValue {
 export interface RichTextProps {
   value: unknown;
   /**
-   * Resolves an internalLink annotation's reference to a real URL. Until
-   * WP4/5 dereference `reference` in the GROQ projection and pass this in,
-   * internal links render as styled (non-interactive) text rather than a
-   * broken `<a>` with no href.
+   * Resolves an internalLink annotation's (already-dereferenced —
+   * queries.ts's PORTABLE_TEXT_PROJECTION) reference to a real URL.
+   * Callers typically pass `resolveInternalRef` (lib/links.ts) directly.
+   * Omitting it renders internal links as styled but non-interactive
+   * text instead of a broken `<a>` with no href — the safe default for
+   * any body-text field that doesn't yet use that projection.
    */
-  resolveInternalLink?: (ref: {
-    _ref: string;
-    _type: string;
-  }) => string | undefined;
+  resolveInternalLink?: (ref: InternalRef) => string | undefined;
   width?: "narrow" | "wide";
 }
 

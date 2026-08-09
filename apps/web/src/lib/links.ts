@@ -27,6 +27,38 @@ export interface ResolvedLink {
   openInNewTab?: boolean;
 }
 
+/** A dereferenced internal-document pointer — the shape both `link`
+ * fields' `internalRef` (queries.ts's LINK_PROJECTION) and Portable Text's
+ * `internalLink` annotation (once dereferenced the same way) produce. */
+export type InternalRef = { _type: string; slug?: string; pageId?: PageId };
+
+/**
+ * Turns a dereferenced internal-document pointer into a real href, or
+ * `undefined` if it can't be resolved (missing target/slug). The one place
+ * that knows the URL scheme for every internally-linkable document type —
+ * `resolveLink` (standalone `link` fields) and `RichText`'s
+ * `resolveInternalLink` prop (Portable Text `internalLink` marks) both
+ * call this rather than duplicating the switch.
+ */
+export function resolveInternalRef(
+  ref: InternalRef | null | undefined,
+): string | undefined {
+  if (!ref) return undefined;
+
+  switch (ref._type) {
+    case "page":
+      return ref.pageId ? PAGE_ID_PATHS[ref.pageId] : undefined;
+    case "storyWorld":
+      return ref.slug ? `/story-worlds/${ref.slug}` : undefined;
+    case "newsPost":
+      return ref.slug ? `/news/${ref.slug}` : undefined;
+    case "legalPage":
+      return ref.slug ? `/legal/${ref.slug}` : undefined;
+    default:
+      return undefined;
+  }
+}
+
 /**
  * Turns a Sanity `link` field into a real href, or `null` if it can't be
  * resolved (missing target/slug) — callers should skip rendering rather
@@ -48,33 +80,8 @@ export function resolveLink(
     };
   }
 
-  const ref = link.internalRef;
-  if (!ref) return null;
-
-  switch (ref._type) {
-    case "page": {
-      const path = ref.pageId ? PAGE_ID_PATHS[ref.pageId] : undefined;
-      return path ? { label: link.label, href: path, external: false } : null;
-    }
-    case "storyWorld":
-      return ref.slug
-        ? {
-            label: link.label,
-            href: `/story-worlds/${ref.slug}`,
-            external: false,
-          }
-        : null;
-    case "newsPost":
-      return ref.slug
-        ? { label: link.label, href: `/news/${ref.slug}`, external: false }
-        : null;
-    case "legalPage":
-      return ref.slug
-        ? { label: link.label, href: `/legal/${ref.slug}`, external: false }
-        : null;
-    default:
-      return null;
-  }
+  const href = resolveInternalRef(link.internalRef);
+  return href ? { label: link.label, href, external: false } : null;
 }
 
 /** Resolves a list of links, dropping any that don't resolve. */

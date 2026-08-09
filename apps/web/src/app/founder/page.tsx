@@ -8,6 +8,7 @@ import { getFounder, getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
 import { urlFor } from "@/lib/sanity/image";
 import { buildMetadata } from "@/lib/metadata";
+import { resolveInternalRef } from "@/lib/links";
 import styles from "./page.module.css";
 
 // Founder is a `page` document (optional intro sections) plus the
@@ -69,7 +70,12 @@ export default async function FounderPage() {
           )}
           <div>
             <p className={styles.role}>{founder.role}</p>
-            {founder.bio && <RichText value={founder.bio} />}
+            {founder.bio && (
+              <RichText
+                value={founder.bio}
+                resolveInternalLink={resolveInternalRef}
+              />
+            )}
           </div>
         </Container>
       )}

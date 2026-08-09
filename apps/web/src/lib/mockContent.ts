@@ -53,8 +53,30 @@ function block(text: string, style: "normal" | "h2" | "h3" | "h4" = "normal") {
   };
 }
 
+// A paragraph containing one `internalLink` mark — demonstrates
+// RichText's resolveInternalLink end-to-end (see lib/links.ts's
+// resolveInternalRef) with content shaped exactly like queries.ts's
+// PORTABLE_TEXT_PROJECTION would return it, not hand-waved.
+function internalLinkBlock(
+  before: string,
+  linkText: string,
+  after: string,
+  ref: { _type: string; slug?: string; pageId?: PageId },
+) {
+  const markKey = key("markdef");
+  return {
+    _type: "block",
+    _key: key("block"),
+    style: "normal",
+    markDefs: [{ _type: "internalLink", _key: markKey, reference: ref }],
+    children: [span(before), span(linkText, [markKey]), span(after)],
+  };
+}
+
 function richText(
-  ...paragraphs: Array<string | ReturnType<typeof block>>
+  ...paragraphs: Array<
+    string | ReturnType<typeof block> | ReturnType<typeof internalLinkBlock>
+  >
 ): PortableTextContent {
   return paragraphs.map((p) => (typeof p === "string" ? block(p) : p));
 }
@@ -417,6 +439,12 @@ export const mockFounder: PersonDoc = {
   photo: mockImage("Portrait of Jordan Ellery"),
   bio: richText(
     "Jordan founded Moral Tree Media in 2019 after a decade writing and editing serialised fiction. They set out to build a studio where a story's ethics could survive contact with three different production pipelines.",
+    internalLinkBlock(
+      "Our first release under that approach was ",
+      "The Last Orchard",
+      ", published in 2021.",
+      { _type: "storyWorld", slug: "the-last-orchard" },
+    ),
   ),
   isFounder: true,
 };

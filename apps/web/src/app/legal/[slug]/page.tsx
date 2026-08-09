@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { RichText } from "@/components/patterns/RichText";
 import { getAllLegalPageSlugs, getLegalPageBySlug } from "@/lib/sanity/queries";
 import { buildMetadata } from "@/lib/metadata";
+import { resolveInternalRef } from "@/lib/links";
 import styles from "./page.module.css";
 
 // Content lookup by slug — unlike the shell's site-wide chrome, a missing
@@ -38,7 +39,11 @@ export default async function LegalPage(props: PageProps<"/legal/[slug]">) {
         })}
       </p>
       <h1>{page.title}</h1>
-      <RichText value={page.body} width="wide" />
+      <RichText
+        value={page.body}
+        resolveInternalLink={resolveInternalRef}
+        width="wide"
+      />
     </Container>
   );
 }
