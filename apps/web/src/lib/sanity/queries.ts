@@ -14,14 +14,28 @@ import type {
 
 const SEO_PROJECTION = `seo { metaTitle, metaDescription, ogImage, noIndex }`;
 
+// `link` objects store `internalRef` as a plain {_ref, _type} pointer;
+// dereference it here so lib/links.ts#resolveLink gets what it needs
+// (which document type, and that document's slug/pageId) without every
+// caller re-deriving it.
+const LINK_PROJECTION = `
+  label, type, externalUrl, openInNewTab,
+  internalRef-> { _type, "slug": slug.current, pageId }
+`;
+
 export async function getSiteSettings() {
   return sanityFetch<SiteSettingsDoc>(`
     *[_type == "siteSettings"][0] {
       siteTitle, tagline, logo,
-      primaryNav[], footerNav[], socialLinks[],
+      primaryNav[] { ${LINK_PROJECTION} },
+      footerNav[] { ${LINK_PROJECTION} },
+      socialLinks[] { ${LINK_PROJECTION} },
       footerNote, contactEmail, contactAddress,
       defaultSeo { metaTitle, metaDescription, ogImage, noIndex },
-      consentBanner
+      consentBanner {
+        enabled, message,
+        policyLink { ${LINK_PROJECTION} }
+      }
     }
   `);
 }
@@ -82,8 +96,15 @@ export async function getNewsPostBySlug(slug: string) {
 export async function getLegalPageBySlug(slug: string) {
   return sanityFetch<LegalPageDoc>(
     `*[_type == "legalPage" && slug.current == $slug][0] {
-      _id, title, slug, effectiveDate, body
+      _id, title, slug, effectiveDate, body, ${SEO_PROJECTION}
     }`,
     { slug },
   );
+}
+
+/** Slugs only — for generateStaticParams/sitemap, not page rendering. */
+export async function getAllLegalPageSlugs() {
+  return sanityFetch<Array<{ slug: string }>>(`
+    *[_type == "legalPage"] { "slug": slug.current }
+  `);
 }

@@ -13,8 +13,10 @@ html {
 }
 
 body {
-  min-height: 100%;
+  min-height: 100dvh;
   margin: 0;
+  display: flex;
+  flex-direction: column;
   color: var(--color-text);
   background: var(--color-surface);
   font-family: var(--font-sans);
@@ -22,6 +24,12 @@ body {
   line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* The root layout's single <main> landmark — grows to push the footer to
+   the bottom of the viewport on short pages. */
+main {
+  flex: 1 0 auto;
 }
 
 img,

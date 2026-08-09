@@ -20,3 +20,7 @@ export { CardGrid } from "./CardGrid";
 export type { CardGridProps } from "./CardGrid";
 export { PageSections } from "./PageSections";
 export type { PageSection } from "./PageSections";
+export { ConsentBanner } from "./ConsentBanner";
+export type { ConsentBannerProps } from "./ConsentBanner";
+export { ContactForm } from "./ContactForm";
+export type { ContactFormProps } from "./ContactForm";

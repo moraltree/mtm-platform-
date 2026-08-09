@@ -1,0 +1,40 @@
+.section {
+  padding-block: var(--space-7);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 32rem;
+}
+
+.intro {
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.formError {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+}
+
+.formSuccess {
+  font-size: var(--text-sm);
+  color: var(--color-success);
+}

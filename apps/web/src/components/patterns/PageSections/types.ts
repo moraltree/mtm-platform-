@@ -6,13 +6,14 @@ import type { QuoteProps } from "../Quote";
 import type { TimelineProps } from "../Timeline";
 import type { StatsProps } from "../Stats";
 import type { CardGridProps } from "../CardGrid";
+import type { ContactFormProps } from "../ContactForm";
 
 /**
  * One entry per apps/studio pageBuilder member (`_type` matches the
- * schema's type name exactly). The last four are CMS-data-driven rather
- * than purely presentational — PageSections intentionally renders nothing
- * for them until WP4 (form) / WP5–WP6 (team/story-world/news queries)
- * give them real data to fetch.
+ * schema's type name exactly). The middle three (team/story-world/news
+ * grid) are CMS-data-driven rather than purely presentational —
+ * PageSections intentionally renders nothing for them until WP5/WP6 give
+ * them real queries. `formEmbedBlock` is wired to a real form (WP4).
  */
 export type PageSection =
   | ({ _type: "heroBlock"; _key: string } & HeroProps)
@@ -26,4 +27,8 @@ export type PageSection =
   | { _type: "teamGridBlock"; _key: string }
   | { _type: "storyWorldGridBlock"; _key: string }
   | { _type: "newsListBlock"; _key: string }
-  | { _type: "formEmbedBlock"; _key: string };
+  | ({
+      _type: "formEmbedBlock";
+      _key: string;
+      form: "contact";
+    } & ContactFormProps);

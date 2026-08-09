@@ -6,6 +6,7 @@ import { Quote } from "../Quote";
 import { Timeline } from "../Timeline";
 import { Stats } from "../Stats";
 import { CardGrid } from "../CardGrid";
+import { ContactForm } from "../ContactForm";
 import type { PageSection } from "./types";
 
 /**
@@ -34,10 +35,19 @@ export function PageSections({ sections }: { sections: PageSection[] }) {
             return <Stats key={section._key} {...section} />;
           case "cardGridBlock":
             return <CardGrid key={section._key} {...section} />;
+          case "formEmbedBlock":
+            // Only "contact" exists in the schema's option list today —
+            // this switch is where a second form kind would branch.
+            return section.form === "contact" ? (
+              <ContactForm
+                key={section._key}
+                heading={section.heading}
+                intro={section.intro}
+              />
+            ) : null;
           case "teamGridBlock":
           case "storyWorldGridBlock":
           case "newsListBlock":
-          case "formEmbedBlock":
             // Data-driven sections — see types.ts. Rendering nothing here
             // is safer than rendering broken/empty UI for a block editors
             // don't yet get real output from.

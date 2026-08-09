@@ -42,6 +42,7 @@ export default defineType({
       type: "boolean",
       initialValue: true,
     }),
+    defineField({ name: "seo", title: "SEO", type: "seo" }),
   ],
   preview: {
     select: { title: "title", subtitle: "effectiveDate" },

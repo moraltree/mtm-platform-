@@ -1,0 +1,20 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding-block: var(--space-9);
+  max-width: 32rem;
+}
+
+.code {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.08em;
+  color: var(--color-brand-600);
+}
+
+.body {
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+}

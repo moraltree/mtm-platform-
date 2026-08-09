@@ -22,10 +22,13 @@ export interface SeoFields {
 // dedicated component (WP3) rather than typing every block/mark shape.
 export type PortableTextContent = unknown[];
 
+// `internalRef` here is the *dereferenced* shape (queries.ts projects
+// `internalRef->{ _type, "slug": slug.current, pageId }`), not the raw
+// `{_ref, _type}` pointer — resolveLink() (lib/links.ts) depends on that.
 export interface LinkField {
   label: string;
   type: "internal" | "external";
-  internalRef?: { _type: string; slug?: { current: string } };
+  internalRef?: { _type: string; slug?: string; pageId?: PageId };
   externalUrl?: string;
   openInNewTab?: boolean;
 }
@@ -83,6 +86,7 @@ export interface LegalPageDoc {
   slug: { current: string };
   effectiveDate: string;
   body: PortableTextContent;
+  seo?: SeoFields;
 }
 
 export interface SiteSettingsDoc {
