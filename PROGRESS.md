@@ -54,6 +54,19 @@ entries first.
   (founder bio linking to a Story World) and confirmed via curl that it
   renders as a real `<a href>`, not styled dead text. Rebuilt with mock
   off and confirmed the route/404 set unchanged.
+- Final full-site check: crawled every `<a href>` reachable from all 20
+  mock-content pages (nav, footer, in-page CTAs, cards, RichText links —
+  17 unique internal URLs) and HEAD-checked each. Zero broken links.
+  Backend confirmed active and untouched throughout this entire session
+  (`systemctl is-active mtm-backend.service` checked before/after every
+  checkpoint); working tree clean at each commit.
+- Considered but deliberately held off: wiring `storyWorldGridBlock`
+  (still a `PageSections` no-op) into Home. Would need `adaptSections` to
+  accept pre-fetched data the way `getFounder()` is merged in for Founder
+  — a real, boundable extension of the existing pattern, not a new one —
+  but it's a new _feature_ (Home doesn't currently promote Story Worlds)
+  rather than a fix to something broken or an already-flagged gap, so it
+  stays out per "don't invent unrelated scope." Worth doing if/when asked.
 
 ## 2026-08-09 (session 1)
 
