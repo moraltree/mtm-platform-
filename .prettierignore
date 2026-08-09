@@ -1,0 +1,10 @@
+# Live production service — do not touch.
+backend
+
+node_modules
+package-lock.json
+
+apps/web/.next
+apps/web/next-env.d.ts
+apps/studio/dist
+apps/studio/.sanity

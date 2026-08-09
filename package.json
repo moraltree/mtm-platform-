@@ -1,17 +1,22 @@
 {
   "name": "mtm-platform",
   "private": true,
-  "workspaces": ["apps/*"],
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
     "dev": "npm run dev --workspace=web",
+    "dev:studio": "npm run dev --workspace=studio",
     "build": "npm run build --workspace=web",
-    "lint": "npm run lint --workspace=web",
-    "typecheck": "npm run typecheck --workspace=web",
-    "format": "npm run format --workspace=web",
-    "format:check": "npm run format:check --workspace=web",
+    "build:studio": "npm run build --workspace=studio",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prepare": "husky"
   },
   "devDependencies": {
-    "husky": "^9.1.7"
+    "husky": "^9.1.7",
+    "prettier": "^3.9.6"
   }
 }
