@@ -116,7 +116,15 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   patterns and to the Studio's `pageBuilder` block types (see
   `apps/studio/schemaTypes/objects/`). Colours are a placeholder palette
   (documented in tokens.css) — swap `--color-brand-*` when real brand
-  assets land, nothing else should need to change.
+  assets land, nothing else should need to change. `--color-ink-500`
+  (backs `--color-text-muted`) is contrast-tuned, not arbitrary: audited
+  every foreground/background pairing actually used in the codebase
+  against WCAG AA (4.5:1) after the fact and found the original `#6b7280`
+  failed at 4.27:1 against `--color-surface-subtle` (Hero subheading,
+  Footer links, Badge) — fixed to `#666c78` (4.66:1 there, 5.27:1 against
+  white). Re-run that audit (see PROGRESS.md for the method — relative
+  luminance per WCAG's formula, not eyeballing) after any palette change,
+  including the eventual real-brand-colour swap.
 - `components/ui` = generic primitives (Button, Card, Container, form
   fields). `components/patterns` = one component per pageBuilder block type
   (Hero, RichText, CtaPanel, Media, Quote, Timeline, Stats, CardGrid,

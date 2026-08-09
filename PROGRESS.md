@@ -32,6 +32,16 @@ entries first.
   `next start` + curl across every route in both mock-on and mock-off
   states; `mtm-backend.service` checked active throughout.
 - Committed as `stub content + mock-mode testing pass` (see git log).
+- Follow-up spec-compliance check (WCAG 2.2 AA is an explicit spec
+  requirement, and the token palette was designed by eye, not verified):
+  computed WCAG relative-luminance contrast ratios for every foreground/
+  background colour pairing actually used across the codebase. Found one
+  real failure — `--color-text-muted` on `--color-surface-subtle`
+  (Hero subheading, Footer links, Badge) at 4.27:1, below the 4.5:1 AA
+  floor for normal text. Fixed by darkening `--color-ink-500` from
+  `#6b7280` to `#666c78` (4.66:1 there, 5.27:1 against white — margin on
+  both, and CtaPanel's opacity-blended text checked separately and found
+  already well clear at ~12:1/~8:1). Rebuilt and reconfirmed clean.
 
 ## 2026-08-09 (session 1)
 

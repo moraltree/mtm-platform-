@@ -19,7 +19,13 @@
   /* Colour — neutral ink scale */
   --color-ink-900: #14181f;
   --color-ink-700: #3c4451;
-  --color-ink-500: #6b7280;
+  /* Tuned, not arbitrary: this is the darkest-possible "muted text" grey
+     that still clears WCAG AA's 4.5:1 against --color-surface-subtle
+     (#eef1f5) — the tightest pairing it's actually used in (Hero
+     subheading, Footer links, Badge). #6b7280 (a common default muted
+     grey) only reaches 4.27:1 there — verified failing. Re-check contrast
+     against surface-subtle specifically if this ever changes. */
+  --color-ink-500: #666c78;
   --color-ink-300: #cbd2db;
   --color-ink-150: #e3e7ec;
   --color-ink-100: #eef1f5;
