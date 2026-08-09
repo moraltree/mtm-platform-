@@ -1,0 +1,17 @@
+{
+  "name": "mtm-platform",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "npm run dev --workspace=web",
+    "build": "npm run build --workspace=web",
+    "lint": "npm run lint --workspace=web",
+    "typecheck": "npm run typecheck --workspace=web",
+    "format": "npm run format --workspace=web",
+    "format:check": "npm run format:check --workspace=web",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
