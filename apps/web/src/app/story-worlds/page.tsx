@@ -1,0 +1,62 @@
+import type { Metadata } from "next";
+import { Container } from "@/components/ui/Container";
+import { Card } from "@/components/ui/Card";
+import { PageSections } from "@/components/patterns/PageSections";
+import { getPageByPageId, getStoryWorlds } from "@/lib/sanity/queries";
+import { adaptSections } from "@/lib/pageSections";
+import { urlFor } from "@/lib/sanity/image";
+import styles from "./page.module.css";
+
+// Listing page — an empty catalogue is a normal state (like Leadership/
+// News), not a 404.
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getPageByPageId("story-worlds");
+  if (!page) return { title: "Story Worlds" };
+
+  return {
+    title: page.seo?.metaTitle || page.title,
+    description: page.seo?.metaDescription,
+    robots: page.seo?.noIndex ? { index: false, follow: false } : undefined,
+  };
+}
+
+export default async function StoryWorldsIndexPage() {
+  const [page, storyWorlds] = await Promise.all([
+    getPageByPageId("story-worlds"),
+    getStoryWorlds(),
+  ]);
+  const sections = adaptSections(page?.sections);
+  const opensWithHero = sections[0]?._type === "heroBlock";
+
+  return (
+    <Container className={styles.wrap}>
+      {!opensWithHero && <h1>{page?.title || "Story Worlds"}</h1>}
+
+      {page && <PageSections sections={sections} />}
+
+      {storyWorlds && storyWorlds.length > 0 ? (
+        <div className={styles.grid}>
+          {storyWorlds.map((storyWorld) => {
+            const imageSrc = urlFor(storyWorld.heroImage)?.width(800).url();
+            return (
+              <Card
+                key={storyWorld._id}
+                title={storyWorld.title}
+                body={storyWorld.tagline}
+                image={
+                  imageSrc
+                    ? { src: imageSrc, alt: storyWorld.heroImage.alt || "" }
+                    : undefined
+                }
+                href={`/story-worlds/${storyWorld.slug.current}`}
+              />
+            );
+          })}
+        </div>
+      ) : (
+        <p className={styles.empty}>Story Worlds are coming soon.</p>
+      )}
+    </Container>
+  );
+}

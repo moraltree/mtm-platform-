@@ -11,7 +11,14 @@ portfolio system, news, contact, legal pages, a shared design system,
 WCAG 2.2 AA accessibility, Core Web Vitals performance, and standard
 security/privacy controls).
 
-Implementation proceeds in work packages:
+**All six work packages are functionally complete** (code-wise — see each
+WP below). What's left is not code: a real Sanity project/credentials, a
+hosting/domain target, and real content/copy/legal text/brand assets. None
+of those block further engineering work; they block the site actually
+showing real content instead of the honest empty/404 states described
+under "Null-handling rules by page" below.
+
+Implementation proceeded in work packages:
 
 - **WP1 — Foundation** ✅ Next.js app scaffolded in `apps/web`, tooling
   (ESLint incl. a11y rules, Prettier, TypeScript strict, Husky pre-commit,
@@ -24,7 +31,7 @@ Implementation proceeds in work packages:
   project exists (see Architecture notes).
 - **WP3 — Design system** ✅ Tokens (`apps/web/src/styles/tokens.css`) +
   base styles (`base.css`), a `ui/` primitive layer (Container, Button,
-  Card, TextField/TextArea, SkipLink, VisuallyHidden), and a `patterns/`
+  Card, Badge, TextField/TextArea, SkipLink, VisuallyHidden), and a `patterns/`
   layer covering every named pattern in the spec (Header, Footer, Hero,
   RichText, CtaPanel, Media, Quote, Timeline, Stats, CardGrid) plus
   `PageSections`, the renderer that dispatches a page's `sections` array to
@@ -49,9 +56,14 @@ Implementation proceeds in work packages:
   same. `teamGridBlock`/`newsListBlock` are still `PageSections` no-ops
   (Leadership/News render their person/post lists directly instead, not
   through a pageBuilder block).
-- **WP6 — Story World portfolio system** (index + reusable detail template)
-  — not started. Reuses `lib/pageSections.ts`'s adapter, plus needs
-  `storyWorldGridBlock`'s data-fetching (still a `PageSections` no-op).
+- **WP6 — Story World portfolio system** ✅ `/story-worlds` (index, listing
+  rule — empty catalogue isn't a 404) and `/story-worlds/[slug]` (the one
+  reusable detail template: hero image, status/format badges, synopsis,
+  gallery, then `sections` via the same `PageSections`/`adaptSections`
+  every other page uses). `storyWorldGridBlock` remains a deliberate
+  `PageSections` no-op — real Story World data exists now, but no page
+  embeds the block yet (see Architecture notes); that's still the actual
+  trigger for wiring it, not "WP6 landing".
 
 ## Repository structure
 
@@ -119,15 +131,21 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   calls for those.
 - Three pageBuilder block types still render `null` in `PageSections` (see
   its switch statement): `teamGridBlock`, `newsListBlock`,
-  `storyWorldGridBlock`. `storyWorldGridBlock` needs WP6. The other two
-  don't have a real consumer _by design_, not because anything's missing:
-  Leadership queries `person` documents directly and News' index queries
-  `newsPost` directly, since each page's own team/post listing isn't
-  something an editor picks per-page. `teamGridBlock`/`newsListBlock` stay
-  available for embedding a team grid or news teaser list on some _other_
-  page (e.g. a `newsListBlock` on Home) — that's the actual trigger for
-  giving either a real `PageSections` case. `formEmbedBlock` is real since
-  WP4 (see ContactForm below).
+  `storyWorldGridBlock` — all _by design_, not because anything's missing.
+  Leadership/News/Story-Worlds-index each query their own data
+  (`person`/`newsPost`/`storyWorld`) directly instead, since a page's own
+  primary listing isn't something an editor picks per-page. All three
+  block types stay available for embedding that _same kind_ of listing on
+  some _other_ page instead (e.g. a `storyWorldGridBlock` on Home, or a
+  `newsListBlock` on About) — that's the actual trigger for giving one a
+  real `PageSections` case, not merely having the underlying data exist.
+  Wiring one in means either `adaptSections`/`PageSections` learning to
+  fetch data (a real architecture change — see the trade-off this avoids:
+  keeping `PageSections` synchronous and purely presentational) or the
+  calling route pre-fetching and merging it in, the way Founder merges
+  `getFounder()` alongside its `page` document. `formEmbedBlock` is real
+  since WP4 (see ContactForm below) precisely because it _didn't_ need
+  either — the form has no listing to fetch.
 - `RichText` (Portable Text renderer) resolves `internalLink` marks via an
   optional `resolveInternalLink` prop — no caller passes one yet (would
   need `blockContent`'s `internalLink` annotation dereferenced in GROQ the
@@ -189,11 +207,11 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   2. **Site-wide chrome** (root layout's nav/footer/site title) — falls
      back to `lib/siteDefaults.ts`. Global chrome has to work before any
      content exists at all.
-  3. **Listing/utility pages** (Leadership's person grid, News' post grid,
-     Contact's form, Home) — render a genuine empty/generic state, not a
-     404 and not fabricated copy. An empty team or post list is a normal
-     state; being unreachable (Contact) or 404ing at the domain root
-     (Home) would be worse than a plain placeholder.
+  3. **Listing/utility pages** (Leadership's person grid, News' index,
+     Story Worlds' index, Contact's form, Home) — render a genuine empty/
+     generic state, not a 404 and not fabricated copy. An empty catalogue
+     is a normal state; being unreachable (Contact) or 404ing at the
+     domain root (Home) would be worse than a plain placeholder.
 
   † Founder is 1+3 at once: no `page` doc _and_ no founder `person` doc is
   a 404, but either one alone renders something (see `app/founder/page.tsx`).
@@ -209,9 +227,11 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   `storyWorld`, `newsPost`, `person`, `legalPage` are open document lists.
 - `sitemap.ts` only lists a `pageId`'s route once a real `page` document
   exists for it (via `getExistingPageIds()`), except the always-available
-  ones (home/leadership/contact/news) — otherwise it would point search
-  engines at pages that currently 404. Update its `ALWAYS_AVAILABLE` list
-  if a page's null-handling rule changes.
+  ones (`ALWAYS_AVAILABLE`: home/leadership/contact/news/story-worlds,
+  i.e. every rule-3 listing page above) — otherwise it would point search
+  engines at pages that currently 404. It also lists real news-post and
+  Story-World slugs directly (not gated on their `page` doc). Update
+  `ALWAYS_AVAILABLE` if a page's null-handling rule changes.
 
 ## Guidance for future sessions
 

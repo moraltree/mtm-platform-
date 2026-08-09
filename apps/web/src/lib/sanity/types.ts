@@ -9,6 +9,9 @@ export interface SanityImageRef {
   asset: { _ref: string; _type: "reference" };
   hotspot?: { x: number; y: number; height: number; width: number };
   alt?: string;
+  // Present on array items (e.g. storyWorld.gallery) — Sanity auto-assigns
+  // it to every object in an array regardless of schema/GROQ projection.
+  _key?: string;
 }
 
 export interface SeoFields {
