@@ -13,7 +13,7 @@ tested locally. Verified locally with `next start` + `curl -H "Host:
 each 308s to `https://moraltree.media`, preserving the path; the
 canonical host and local dev are unaffected.
 
-## Done already (no account access needed)
+## Done already
 
 - [x] Host-based permanent redirects: `moraltreemedia.com`,
       `www.moraltreemedia.com`, `www.moraltree.media` → `moraltree.media`
@@ -26,62 +26,50 @@ canonical host and local dev are unaffected.
 - [x] No Vercel-specific build output config needed — this is a standard
       Next.js App Router build; Vercel's zero-config Next.js support
       handles it without a `vercel.json`
+- [x] **Vercel project created** (`moral-tree-media`, linked via
+      `apps/web/.vercel/project.json` — gitignored, re-run `vercel link`
+      from `apps/web` if a fresh clone needs it relinked), **root directory
+      `apps/web`**, deployed via the Vercel CLI (`vercel --prod` from
+      `apps/web`) rather than a GitHub-integration auto-deploy — there is
+      no Vercel GitHub App connected to this repo, so pushing to `main`
+      alone does **not** trigger a deploy; run `vercel --prod` again after
+      pushing when a production release is actually wanted.
+- [x] **`NEXT_PUBLIC_SITE_URL=https://moraltree.media` set** in the
+      Production environment (`vercel env ls` shows it; verified live —
+      `sitemap.xml`/`robots.txt` on the real domain already use it, not
+      `localhost`).
+- [x] **`moraltree.media` added as a domain and live**: `vercel domains ls`
+      shows it under the project, and `curl https://moraltree.media/`
+      returns 200 with a valid cert and the site's own security headers.
+      DNS isn't delegated to Vercel's nameservers — inspecting the domain
+      shows third-party `name.com` ones instead — so this is presumably
+      record-level (A/CNAME) DNS at the registrar, a legitimate way to
+      point a domain at Vercel and clearly working. Don't assume "switch
+      to Vercel nameservers" is a remaining step here.
 
-## Needs Vercel account access (not done this session — stopped here)
+## Still needs account/DNS access
 
-1. **Create the Vercel project**
-   - Import this Git repository.
-   - Framework preset: Next.js (auto-detected).
-   - **Root Directory: `apps/web`.** This is an npm-workspaces monorepo
-     (root `package.json`'s `"workspaces": ["apps/*"]`) — Vercel detects
-     that automatically once Root Directory is set to `apps/web` and
-     installs from the repo root while building from there. Don't point
-     Vercel at the repo root itself.
-   - Don't deploy `apps/studio` or `backend/` as part of this project.
-     `apps/studio` (Sanity Studio) is better hosted via Sanity's own
-     `sanity deploy` — free, and the conventional way to host a Studio —
-     which is a separate decision to make once a real Sanity project
-     exists. `backend/` runs live elsewhere already (`mtm-backend.service`
-     — see CLAUDE.md) and isn't part of this deploy at all.
-
-2. **Set environment variables** (Project Settings → Environment
-   Variables, Production; see `apps/web/.env.example` for the authoritative
-   list and what each one does):
-   - `NEXT_PUBLIC_SITE_URL=https://moraltree.media` — required. Every
-     absolute URL in the site derives from this.
-   - `NEXT_PUBLIC_SANITY_PROJECT_ID` / `NEXT_PUBLIC_SANITY_DATASET` —
-     once a real Sanity project exists (still an open item, see
-     CLAUDE.md). Until then the site keeps building and running fine
-     without them.
-   - Contact form vars (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`,
-     `TURNSTILE_SECRET_KEY`, `RESEND_API_KEY`, `CONTACT_FORM_TO_EMAIL`,
-     `CONTACT_FORM_FROM_EMAIL`) — optional at launch; the form works
-     without them (honest "not set up yet" message instead of a fake
-     success or a crash), so these can follow later.
-   - Leave `USE_MOCK_CONTENT` **unset** in every Vercel environment
-     (Production and Preview both) — see CLAUDE.md's "Mock content" note.
-     It's a local-only visual-review aid, never a production setting.
-
-3. **Add the domains** (Project Settings → Domains):
-   - Add `moraltree.media`, set it as the Production Domain.
-   - Add `moraltreemedia.com`, `www.moraltreemedia.com`, and
-     `www.moraltree.media`. Vercel will offer its own "redirect to
-     primary domain" toggle for each — safe to enable alongside the
-     application-level redirect already in code; they don't conflict.
-
-4. **DNS** (at whatever registrar/DNS host currently manages these two
-   domains — not decided or touched in this repo): point `moraltree.media`
-   and `moraltreemedia.com` (and their `www` subdomains) at Vercel, using
-   the exact records Vercel's dashboard shows once each domain is added in
-   step 3. Vercel provisions and renews TLS certificates automatically
-   once DNS resolves correctly — no separate certificate step.
-
-5. **After DNS is confirmed live everywhere**, consider submitting
-   `moraltree.media` to the HSTS preload list (hstspreload.org). The
-   header is already being sent (`next.config.ts`); submission itself is
-   a separate, deliberate step that should only happen once the domain is
-   verified reachable over HTTPS from everywhere, not before.
-
-Everything above "Needs Vercel account access" requires the owner's
-Vercel account, and steps 3–4 additionally require DNS control this
-session doesn't have — that's the intended stopping point.
+- [ ] **`moraltreemedia.com`, `www.moraltreemedia.com`, `www.moraltree.media`
+      are not yet added/resolving** — `vercel domains ls` lists only the
+      apex `moraltree.media`, and `curl` to all three legacy hosts times
+      out (no DNS). The application-level 308 redirect
+      (`next.config.ts`) is already correct and tested locally for all
+      three; it simply has nothing to redirect _from_ until each domain is
+      added in Vercel and pointed at it in DNS, the same way the canonical
+      domain already is.
+- [ ] Sanity project credentials (`NEXT_PUBLIC_SANITY_PROJECT_ID`/
+      `_DATASET` in Vercel, `SANITY_STUDIO_PROJECT_ID`/`_DATASET` in
+      `apps/studio`) — still doesn't exist; site runs fine without it (see
+      CLAUDE.md), just serving null-state fallbacks instead of real
+      content.
+- [ ] Contact form vars (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`,
+      `TURNSTILE_SECRET_KEY`, `RESEND_API_KEY`, `CONTACT_FORM_TO_EMAIL`,
+      `CONTACT_FORM_FROM_EMAIL`) — optional; form works without them
+      (honest "not set up yet" message).
+- [ ] `USE_MOCK_CONTENT` — confirmed unset in Vercel (`vercel env ls`
+      shows nothing for it); keep it that way. (It _is_ set to `true` in
+      the local `.env.local` some sessions use for visual review — that
+      file is gitignored and never reaches Vercel.)
+- [ ] HSTS preload submission (hstspreload.org) — hold until the legacy
+      domains above are live too, so the whole preload set resolves
+      correctly first.

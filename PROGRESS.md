@@ -4,6 +4,67 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-10 — Phase 1 production build: premium homepage + first live deploy
+
+- Task: audit the codebase, then build a premium, professional homepage
+  (not template-feeling) for parents/commercial partners/investors/
+  licensors/brands, no invented corporate claims/figures/partnerships/
+  testimonials — clearly-marked placeholders instead — then test, commit,
+  and deploy through the existing Vercel workflow. Required nav (Home/
+  About/Story Worlds/Publishing/Audiobooks/Animation/News/Contact) was
+  already correct in `lib/siteDefaults.ts`; no change needed there.
+- Audit found the codebase exactly as CLAUDE.md describes (WP1–6 done,
+  code-complete, no real Sanity project) — but found live infrastructure
+  CLAUDE.md/DEPLOYMENT.md didn't yet reflect: a Vercel project
+  (`moral-tree-media`) already existed, linked (`apps/web/.vercel/`,
+  gitignored), with one prior production deployment and `moraltree.media`
+  already added as a domain and resolving — from ~22h before this session,
+  outside this repo's own git history. Treated that as real existing
+  infrastructure to build on, per instructions not to alter DNS/domain/
+  email/server config.
+- Built the homepage as Home's existing "no page document" null-state
+  (still null-handling rule 3 — genuine generic state, not fabricated
+  content) rather than a new content source: Hero, mission intro, a Story
+  Worlds teaser (explicit "coming soon" + a visibly-badged placeholder
+  image, no invented Story World titles), a three-medium section
+  (Publishing/Audiobooks/Animation, inline SVG icons — no more blank
+  placeholder art than the one image already used), a partnerships CTA
+  (prospective language only), a parents/press links section. Entirely
+  built from existing design-system components + one route-local module
+  (`home.module.css`/`home-icons.tsx`), same convention as
+  `status-page.module.css`. The moment a real Sanity `home` page document
+  exists, this stops rendering automatically — nothing to tear out by
+  hand.
+- Verified against real production behaviour specifically — built once
+  more with `USE_MOCK_CONTENT` unset (the local `.env.local` already had
+  it `true` for visual-review convenience, which would have hidden this
+  branch entirely behind mock content instead of exercising it):
+  lint/typecheck/build clean, `next start` + curl across changed and
+  unchanged routes, heading hierarchy/metadata/robots inspected in the
+  rendered HTML.
+- Also fixed a small pre-existing gap surfaced this session: `.vercel`
+  (created locally by `vercel link`) was gitignored but not
+  prettier-ignored, breaking the pre-commit `format:check` the moment that
+  directory first existed. Added it to `.prettierignore` alongside the
+  existing `.next`/`.sanity` entries.
+- Committed and pushed to `origin/main`. Set the one documented-required
+  production env var (`NEXT_PUBLIC_SITE_URL=https://moraltree.media`) —
+  previously unset. Deployed via `vercel --prod` from `apps/web` (the
+  existing project's actual workflow — no GitHub-integration auto-deploy
+  is connected, confirmed by timestamps/inspection, so pushing to `main`
+  alone does not deploy). Confirmed live: `https://moraltree.media`
+  returns 200 with the new homepage, correct security headers, and a
+  `sitemap.xml`/`robots.txt` already using the real domain instead of
+  `localhost`. Updated `DEPLOYMENT.md`'s stale "not done this session"
+  framing to match — domain/env/project setup turned out to already be
+  live; only the three legacy-domain redirects (`moraltreemedia.com` +
+  both `www.` variants) remain genuinely un-added/unresolving.
+- Did not touch: DNS records, email configuration, Vercel domain settings
+  beyond what's documented above, `backend/`, or any Sanity schema.
+  Store/Login/Subscription/Campaign-landing/Parent-account were left
+  unscaffolded — nothing in the routing/nav/schema architecture
+  constrains adding them later as ordinary new routes.
+
 ## 2026-08-09 (session 2 — continuation)
 
 - Starting point: WP1–WP6 all committed (`46cd57c`..`7ba168e`), every route
