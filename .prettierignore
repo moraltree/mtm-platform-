@@ -8,3 +8,9 @@ apps/web/.next
 apps/web/next-env.d.ts
 apps/studio/dist
 apps/studio/.sanity
+
+# Vercel CLI link/build metadata (gitignored — see apps/web/.gitignore);
+# generated locally by `vercel link`/`vercel build`, not repo content.
+.vercel
+apps/web/.vercel
+apps/studio/.vercel
