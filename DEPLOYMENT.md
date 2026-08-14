@@ -51,12 +51,18 @@ canonical host and local dev are unaffected.
 
 - [ ] **`moraltreemedia.com`, `www.moraltreemedia.com`, `www.moraltree.media`
       are not yet added/resolving** — `vercel domains ls` lists only the
-      apex `moraltree.media`, and `curl` to all three legacy hosts times
-      out (no DNS). The application-level 308 redirect
+      apex `moraltree.media`. Confirmed precisely (not just "DNS is slow"):
+      connecting directly to Vercel's edge IP with the legacy hostname
+      forced via `curl --resolve` fails the **TLS handshake itself**
+      (`SSL_ERROR_SYSCALL` — no cert presented for that name), because
+      Vercel won't terminate TLS for a hostname that isn't added to _any_
+      project on the account. The application-level 308 redirect
       (`next.config.ts`) is already correct and tested locally for all
-      three; it simply has nothing to redirect _from_ until each domain is
-      added in Vercel and pointed at it in DNS, the same way the canonical
-      domain already is.
+      three; it can't run for real traffic until each domain is added to
+      the Vercel project (which provisions the cert) and DNS points it
+      there — same as the canonical domain already is. Adding a domain is
+      exactly the "domain verification" step this repo's tooling
+      deliberately doesn't do on its own — see the top of this file.
 - [ ] Sanity project credentials (`NEXT_PUBLIC_SANITY_PROJECT_ID`/
       `_DATASET` in Vercel, `SANITY_STUDIO_PROJECT_ID`/`_DATASET` in
       `apps/studio`) — still doesn't exist; site runs fine without it (see

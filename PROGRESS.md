@@ -4,6 +4,54 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-14 — Post-deploy audit and documentation accuracy pass
+
+- Task: continue with the next logical work. Re-oriented first by reading
+  the actual current repo state in full (git log, CLAUDE.md, DEPLOYMENT.md,
+  PROGRESS.md — the prior session's homepage build + first live deploy
+  wasn't in this session's own working memory) and independently verifying
+  the live site, rather than assuming the log was accurate.
+- Verified live: `https://moraltree.media` returns 200 with the documented
+  homepage content, correct security headers, and a working
+  `sitemap.xml`/`robots.txt`; `moraltreemedia.com` still correctly
+  unreachable. CI green on GitHub for both prior commits (checked via the
+  Actions API). Confirmed Vercel CLI auth persists on this host
+  (`npx vercel whoami` → authenticated) even though the `vercel` binary
+  isn't on `PATH` — available if a future change needs `vercel --prod`,
+  not used this session since nothing shipped required it.
+- Code-reviewed the homepage built last session (hadn't personally
+  inspected it before): heading hierarchy, image alt text, icon
+  `aria-hidden` usage, and every CSS custom property it references all
+  checked out — no ad hoc colours, nothing bypassing the token system or
+  the WCAG contrast fix from the 08-09 session.
+- Found and fixed real staleness: `CLAUDE.md`'s "Project status" section
+  still said connecting Vercel/DNS was outstanding, when the site has in
+  fact been live in production since the prior session. Corrected, and
+  added an architecture note on Home's route-local
+  `home.module.css`/`home-icons.tsx` fallback pattern so a future session
+  doesn't have to re-derive why it exists or where the line is (homepage
+  only — About/Mission/Publishing/Audiobooks/Animation deliberately still
+  404 with no Sanity project; not a gap, and not something this session
+  extended without being asked).
+- Crawled the _live_ site's links (not just local mock content, which the
+  08-09 session had already covered) — About/Mission/Publishing/
+  Audiobooks/Animation correctly 404 (expected: real editorial content,
+  no Sanity project, honest 404 per null-handling rule 1), everything else 200.
+- Pinned down the legacy-domain redirect gap more precisely than before:
+  forced a direct connection to Vercel's edge IP with `curl --resolve
+moraltreemedia.com:443:<ip>` and confirmed the **TLS handshake itself**
+  fails (`SSL_ERROR_SYSCALL`, no cert for that name) — Vercel won't
+  terminate TLS for a hostname not added to any project, so the
+  already-correct `next.config.ts` redirect literally cannot run for real
+  traffic yet, not just "DNS hasn't propagated." Documented in
+  `DEPLOYMENT.md`; did not add the domains myself — that's exactly the
+  "domain verification" step this repo's tooling deliberately leaves to
+  the owner.
+- No code behavior changed this session (docs/comments only), so no
+  redeploy was needed — committed and pushed to `origin/main` only.
+- Verified: lint/typecheck/format/build clean; backend/ untouched
+  (checked active before and after).
+
 ## 2026-08-10 — Phase 1 production build: premium homepage + first live deploy
 
 - Task: audit the codebase, then build a premium, professional homepage

@@ -12,16 +12,22 @@ WCAG 2.2 AA accessibility, Core Web Vitals performance, and standard
 security/privacy controls).
 
 **All six work packages are functionally complete** (code-wise — see each
-WP below). What's left is not code: a real Sanity project/credentials and
-real content/copy/legal text/brand assets. **Hosting is decided** —
-Vercel, canonical domain `moraltree.media` (`moraltreemedia.com` and both
-`www.` variants redirect permanently) — and the project is prepared for it
-in code (see `DEPLOYMENT.md`), but connecting the actual Vercel account,
-adding the domains, and DNS are separate steps that need account/DNS
-access this repo's tooling doesn't have. None of the remaining items block
-further engineering work; they block the site actually showing real
-content and being reachable at its real domain, instead of the honest
-empty/404 states described under "Null-handling rules by page" below.
+WP below), **and the site is live in production**: Vercel project
+`moral-tree-media`, canonical domain `https://moraltree.media` (200,
+correct security headers, real deployed content) — see `DEPLOYMENT.md` for
+exactly what's confirmed live versus what's still pending (the three
+legacy-domain redirects have nothing to redirect _from_ yet — no DNS on
+those hosts — Sanity, and the contact-form provider vars). Deploys are
+manual (`vercel --prod` from `apps/web`) — there is **no GitHub-integration
+auto-deploy**, so pushing to `main` alone does not ship a release; that's a
+deliberate, already-verified fact about this project's workflow, not a gap
+to "fix" by wiring one up unless asked. What's left is not code: a real
+Sanity project/credentials, real content/copy/legal text/brand assets, and
+the three legacy-domain DNS records. None of that blocks further
+engineering work — Home already renders a real (if honestly-placeholder)
+production homepage rather than a null-state; the remaining pages still
+follow the null-handling rules below until they get the same treatment or
+real content lands.
 
 For visual review without a real Sanity project, set `USE_MOCK_CONTENT=true`
 (`apps/web/.env.local`) — every route then renders `lib/mockContent.ts`'s
@@ -270,7 +276,19 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
      Story Worlds' index, Contact's form, Home) — render a genuine empty/
      generic state, not a 404 and not fabricated copy. An empty catalogue
      is a normal state; being unreachable (Contact) or 404ing at the
-     domain root (Home) would be worse than a plain placeholder.
+     domain root (Home) would be worse than a plain placeholder. Home's
+     "no `page` document" state (`app/page.tsx`, `home.module.css`,
+     `home-icons.tsx`) is the fullest example of this rule in practice: a
+     real, premium marketing homepage built entirely from hand-authored
+     positioning copy and clearly-marked placeholders (a badged "Placeholder
+     artwork" image, an explicit "coming soon" Story World teaser — no
+     invented titles/figures/partnerships/testimonials), not a bare
+     one-liner and not fabricated content. It's route-local (like
+     `status-page.module.css` for the error routes), not a shared
+     `patterns/` component, because the copy is homepage-specific, not a
+     reusable block type. The instant a real Sanity `home` page document
+     exists, this whole branch stops rendering in favour of that
+     document's own `sections` — nothing to tear out by hand.
 
   † Founder is 1+3 at once: no `page` doc _and_ no founder `person` doc is
   a 404, but either one alone renders something (see `app/founder/page.tsx`).
