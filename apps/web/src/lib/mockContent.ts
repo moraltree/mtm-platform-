@@ -6,7 +6,9 @@ import type {
   PageId,
   PersonDoc,
   PortableTextContent,
+  ProductDoc,
   RawSection,
+  ResolvedPrice,
   SanityImageRef,
   SiteSettingsDoc,
   StoryWorldDoc,
@@ -104,6 +106,7 @@ export const mockSiteSettings: SiteSettingsDoc = {
     pageLink("Publishing", "publishing"),
     pageLink("Audiobooks", "audiobooks"),
     pageLink("Animation", "animation"),
+    pageLink("Shop", "shop"),
     pageLink("News", "news"),
     pageLink("Contact", "contact"),
   ],
@@ -422,6 +425,23 @@ const mockPages: Partial<Record<PageId, PageDoc>> = {
       },
     ],
   },
+
+  shop: {
+    _id: "mock-page-shop",
+    pageId: "shop",
+    title: "Shop",
+    slug: { current: "shop" },
+    sections: [
+      {
+        _type: "richTextBlock",
+        _key: key("rt"),
+        content: richText(
+          "Books, audiobooks, and subscriptions from Moral Tree Media — shipped or streamed straight to your family.",
+        ),
+        width: "narrow",
+      },
+    ],
+  },
 };
 
 export function getMockPage(pageId: PageId): PageDoc | null {
@@ -571,3 +591,63 @@ export const mockLegalPages: LegalPageDoc[] = [
     ),
   },
 ];
+
+// --- Shop ----------------------------------------------------------------
+//
+// Mock price IDs here are fake ("price_mock_...") — no real Stripe test
+// prices exist. lib/stripe.ts#getProductPrice special-cases these the same
+// way, falling back to `mockProductPrices` below instead of a live Stripe
+// lookup, whenever Stripe isn't configured and mock content is on.
+
+export const mockProducts: ProductDoc[] = [
+  {
+    _id: "mock-product-1",
+    title: "The Last Orchard — Hardback",
+    slug: { current: "the-last-orchard-hardback" },
+    description: richText(
+      "The full hardback edition of The Last Orchard, our first published Story World.",
+    ),
+    images: [mockImage("The Last Orchard hardback cover")],
+    priceType: "one-time",
+    stripePriceId: "price_mock_orchard_hardback",
+    active: true,
+    featured: true,
+  },
+  {
+    _id: "mock-product-2",
+    title: "The Last Orchard — Audiobook",
+    slug: { current: "the-last-orchard-audiobook" },
+    description: richText(
+      "The full-cast audio production of The Last Orchard.",
+    ),
+    images: [mockImage("The Last Orchard audiobook cover")],
+    priceType: "one-time",
+    stripePriceId: "price_mock_orchard_audiobook",
+    active: true,
+    featured: false,
+  },
+  {
+    _id: "mock-product-3",
+    title: "Story World Membership",
+    slug: { current: "story-world-membership" },
+    description: richText(
+      "Monthly membership: early access to every new Story World release across print, audio, and animation.",
+    ),
+    images: [mockImage("Story World Membership artwork")],
+    priceType: "subscription",
+    subscriptionInterval: "month",
+    stripePriceId: "price_mock_membership_monthly",
+    active: true,
+    featured: true,
+  },
+];
+
+export const mockProductPrices: Record<string, ResolvedPrice> = {
+  price_mock_orchard_hardback: { unitAmount: 1499, currency: "gbp" },
+  price_mock_orchard_audiobook: { unitAmount: 999, currency: "gbp" },
+  price_mock_membership_monthly: {
+    unitAmount: 599,
+    currency: "gbp",
+    recurringInterval: "month",
+  },
+};

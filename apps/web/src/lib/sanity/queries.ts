@@ -7,6 +7,7 @@ import {
   mockLeadership,
   mockLegalPages,
   mockNewsPosts,
+  mockProducts,
   mockSiteSettings,
   mockStoryWorlds,
 } from "../mockContent";
@@ -16,6 +17,7 @@ import type {
   PageDoc,
   PageId,
   PersonDoc,
+  ProductDoc,
   SiteSettingsDoc,
   StoryWorldDoc,
 } from "./types";
@@ -243,4 +245,48 @@ export async function getExistingPageIds() {
   const result = await sanityFetch<PageId[]>(`*[_type == "page"].pageId`);
   if (result) return result;
   return useMockContent ? mockExistingPageIds : null;
+}
+
+const PRODUCT_PROJECTION = `
+  _id, title, slug, description${PORTABLE_TEXT_PROJECTION}, images,
+  priceType, subscriptionInterval, stripePriceId, active, featured,
+  ${SEO_PROJECTION}
+`;
+
+export async function getProducts() {
+  const result = await sanityFetch<ProductDoc[]>(`
+    *[_type == "product" && active != false] | order(order asc) {
+      _id, title, slug, images, priceType, stripePriceId, featured
+    }
+  `);
+  if (result) return result;
+  return useMockContent ? mockProducts.filter((p) => p.active !== false) : null;
+}
+
+export async function getProductBySlug(slug: string) {
+  const result = await sanityFetch<ProductDoc>(
+    `*[_type == "product" && slug.current == $slug && active != false][0] {
+      ${PRODUCT_PROJECTION}
+    }`,
+    { slug },
+  );
+  if (result) return result;
+  return useMockContent
+    ? (mockProducts.find(
+        (p) => p.slug.current === slug && p.active !== false,
+      ) ?? null)
+    : null;
+}
+
+/** Slugs only — for generateStaticParams, not page rendering. */
+export async function getAllProductSlugs() {
+  const result = await sanityFetch<Array<{ slug: string }>>(`
+    *[_type == "product" && active != false] { "slug": slug.current }
+  `);
+  if (result) return result;
+  return useMockContent
+    ? mockProducts
+        .filter((p) => p.active !== false)
+        .map((p) => ({ slug: p.slug.current }))
+    : null;
 }

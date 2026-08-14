@@ -6,6 +6,7 @@ import {
   getAllLegalPageSlugs,
   getExistingPageIds,
   getNewsPosts,
+  getProducts,
   getStoryWorlds,
 } from "@/lib/sanity/queries";
 
@@ -21,6 +22,7 @@ const ALWAYS_AVAILABLE: PageId[] = [
   "contact",
   "news",
   "story-worlds",
+  "shop",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -59,10 +61,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }));
 
+  const products = (await getProducts()) ?? [];
+  const productEntries = products.map((product) => ({
+    url: new URL(`/shop/${product.slug.current}`, siteUrl).toString(),
+    lastModified: new Date(),
+  }));
+
   return [
     ...pageEntries,
     ...legalEntries,
     ...newsEntries,
     ...storyWorldEntries,
+    ...productEntries,
   ];
 }

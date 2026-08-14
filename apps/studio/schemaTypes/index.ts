@@ -7,6 +7,8 @@ import storyWorld from "./documents/storyWorld";
 import newsPost from "./documents/newsPost";
 import legalPage from "./documents/legalPage";
 import siteSettings from "./documents/siteSettings";
+import product from "./documents/product";
+import order from "./documents/order";
 
 // Objects — shared primitives
 import seo from "./objects/seo";
@@ -36,6 +38,8 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   newsPost,
   legalPage,
   siteSettings,
+  product,
+  order,
 
   // Shared primitives
   seo,

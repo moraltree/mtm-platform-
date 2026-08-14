@@ -19,6 +19,45 @@
   color: var(--color-text);
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.cartLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+}
+
+.cartLink:hover {
+  color: var(--color-brand-600);
+}
+
+.cartBadge {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding-inline: 0.25rem;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-600);
+  color: var(--color-on-brand);
+  font-size: 0.6875rem;
+  font-weight: var(--weight-semibold);
+  line-height: 1;
+}
+
 .toggle {
   display: flex;
   align-items: center;

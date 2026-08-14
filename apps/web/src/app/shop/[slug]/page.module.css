@@ -1,0 +1,53 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-block: var(--space-7) var(--space-5);
+  max-width: 44rem;
+}
+
+.price {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-brand-600);
+}
+
+.gallery {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  max-width: 40rem;
+  margin-bottom: var(--space-6);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.galleryImage {
+  object-fit: cover;
+}
+
+.thumbs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  max-width: 40rem;
+  padding-bottom: var(--space-6);
+}
+
+.thumb {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.thumbImage {
+  object-fit: cover;
+}
+
+.description {
+  padding-bottom: var(--space-6);
+}
+
+.actions {
+  padding-bottom: var(--space-8);
+}

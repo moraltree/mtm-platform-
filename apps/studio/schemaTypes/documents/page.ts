@@ -29,6 +29,7 @@ export default defineType({
           { title: "Contact", value: "contact" },
           { title: "News index", value: "news" },
           { title: "Story Worlds index", value: "story-worlds" },
+          { title: "Shop index", value: "shop" },
         ],
       },
       validation: (rule) => rule.required(),

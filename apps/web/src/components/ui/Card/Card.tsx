@@ -6,6 +6,9 @@ import { cx } from "@/lib/cx";
 
 export interface CardProps {
   title: string;
+  /** Rendered directly under the title — e.g. a price line (shop) or a
+   * status badge row (Story Worlds), before the descriptive `body`. */
+  meta?: ReactNode;
   body?: ReactNode;
   image?: { src: string; alt: string };
   href?: string;
@@ -18,7 +21,7 @@ export interface CardProps {
  * text stays empty in that case since the link's accessible name already
  * comes from the heading.
  */
-export function Card({ title, body, image, href, className }: CardProps) {
+export function Card({ title, meta, body, image, href, className }: CardProps) {
   const content = (
     <>
       {image && (
@@ -34,6 +37,7 @@ export function Card({ title, body, image, href, className }: CardProps) {
       )}
       <div className={styles.body}>
         <h3 className={styles.title}>{title}</h3>
+        {meta && <div className={styles.meta}>{meta}</div>}
         {body && <p className={styles.text}>{body}</p>}
       </div>
     </>

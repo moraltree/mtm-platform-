@@ -1,0 +1,7 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-block: var(--space-8);
+  max-width: 40rem;
+}

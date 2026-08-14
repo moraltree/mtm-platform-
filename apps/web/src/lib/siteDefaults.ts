@@ -21,6 +21,7 @@ export const DEFAULT_PRIMARY_NAV: ResolvedLink[] = [
   { label: "Publishing", href: PAGE_ID_PATHS.publishing, external: false },
   { label: "Audiobooks", href: PAGE_ID_PATHS.audiobooks, external: false },
   { label: "Animation", href: PAGE_ID_PATHS.animation, external: false },
+  { label: "Shop", href: PAGE_ID_PATHS.shop, external: false },
   { label: "News", href: PAGE_ID_PATHS.news, external: false },
   { label: "Contact", href: PAGE_ID_PATHS.contact, external: false },
 ];

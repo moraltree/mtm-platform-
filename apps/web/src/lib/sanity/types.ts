@@ -47,7 +47,8 @@ export type PageId =
   | "animation"
   | "contact"
   | "news"
-  | "story-worlds";
+  | "story-worlds"
+  | "shop";
 
 // Raw, undifferentiated pageBuilder entry as it comes back from GROQ (see
 // queries.ts's SECTIONS_PROJECTION) — lib/pageSections.ts#adaptSections
@@ -110,6 +111,30 @@ export interface LegalPageDoc {
   effectiveDate: string;
   body: PortableTextContent;
   seo?: SeoFields;
+}
+
+export interface ProductDoc {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  description?: PortableTextContent;
+  images?: SanityImageRef[];
+  priceType: "one-time" | "subscription";
+  subscriptionInterval?: "month" | "year";
+  // Source of truth for what's actually charged — deliberately not a
+  // price stored here too. See lib/stripe.ts#getProductPrice, which
+  // fetches the live Stripe Price for display.
+  stripePriceId: string;
+  active?: boolean;
+  featured?: boolean;
+  seo?: SeoFields;
+}
+
+/** A Stripe Price, resolved live at render time — see lib/stripe.ts. */
+export interface ResolvedPrice {
+  unitAmount: number; // minor units, e.g. pence
+  currency: string; // lowercase ISO code, e.g. "gbp"
+  recurringInterval?: "day" | "week" | "month" | "year";
 }
 
 export interface SiteSettingsDoc {

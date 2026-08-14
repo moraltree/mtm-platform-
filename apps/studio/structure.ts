@@ -14,6 +14,7 @@ const PAGE_IDS: Array<{ id: string; title: string }> = [
   { id: "contact", title: "Contact" },
   { id: "news", title: "News index" },
   { id: "story-worlds", title: "Story Worlds index" },
+  { id: "shop", title: "Shop index" },
 ];
 
 export const structure: StructureResolver = (S) =>
@@ -49,4 +50,11 @@ export const structure: StructureResolver = (S) =>
       S.documentTypeListItem("newsPost").title("News"),
       S.documentTypeListItem("person").title("People"),
       S.documentTypeListItem("legalPage").title("Legal pages"),
+      S.divider(),
+      S.documentTypeListItem("product").title("Products"),
+      // Orders are written exclusively by the Stripe webhook (see
+      // order.ts's doc comment) — read-only in practice, but Sanity has
+      // no schema-level "no create" flag, so this is enforced by
+      // convention/documentation, not tooling.
+      S.documentTypeListItem("order").title("Orders"),
     ]);

@@ -18,6 +18,7 @@ export const PAGE_ID_PATHS: Record<PageId, string> = {
   contact: "/contact",
   news: "/news",
   "story-worlds": "/story-worlds",
+  shop: "/shop",
 };
 
 export interface ResolvedLink {

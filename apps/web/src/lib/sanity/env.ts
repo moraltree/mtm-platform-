@@ -12,6 +12,15 @@ export const apiVersion = "2025-01-01";
 export const isSanityConfigured = Boolean(projectId);
 
 /**
+ * Write access — separate from (and stricter than) `isSanityConfigured`.
+ * Only the Stripe webhook's order-recording needs this; everything else
+ * in this codebase is deliberately read-only. See sanity/writeClient.ts.
+ */
+export const sanityWriteToken = process.env.SANITY_API_WRITE_TOKEN;
+export const isSanityWriteConfigured =
+  isSanityConfigured && Boolean(sanityWriteToken);
+
+/**
  * Opt-in local preview aid — never on by default, never in CI/production
  * unless someone deliberately sets it. When true and Sanity is
  * unconfigured, queries.ts substitutes lib/mockContent.ts's stub data so

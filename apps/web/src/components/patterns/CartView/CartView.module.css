@@ -1,0 +1,116 @@
+.empty {
+  color: var(--color-text-muted);
+}
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 5rem 1fr auto;
+  gap: var(--space-4);
+  align-items: center;
+  padding-block: var(--space-3);
+  border-bottom: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+.itemMedia {
+  position: relative;
+  width: 5rem;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+}
+
+.itemImage {
+  object-fit: cover;
+}
+
+.itemBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.itemTitle {
+  font-weight: var(--weight-semibold);
+}
+
+.itemPrice {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.itemControls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.qtyLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.qtyInput {
+  width: 4rem;
+  min-height: 2.75rem;
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.qtyFixed {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.remove {
+  min-height: 2.75rem;
+  padding-inline: var(--space-2);
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.remove:hover,
+.remove:focus-visible {
+  color: var(--color-brand-600);
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+.subtotal {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.note {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
