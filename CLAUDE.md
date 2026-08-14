@@ -11,7 +11,7 @@ portfolio system, news, contact, legal pages, a shared design system,
 WCAG 2.2 AA accessibility, Core Web Vitals performance, and standard
 security/privacy controls).
 
-**All six work packages are functionally complete** (code-wise — see each
+**All seven work packages are functionally complete** (code-wise — see each
 WP below), **and the site is live in production**: Vercel project
 `moral-tree-media`, canonical domain `https://moraltree.media` (200,
 correct security headers, real deployed content) — see `DEPLOYMENT.md` for
@@ -22,12 +22,14 @@ manual (`vercel --prod` from `apps/web`) — there is **no GitHub-integration
 auto-deploy**, so pushing to `main` alone does not ship a release; that's a
 deliberate, already-verified fact about this project's workflow, not a gap
 to "fix" by wiring one up unless asked. What's left is not code: a real
-Sanity project/credentials, real content/copy/legal text/brand assets, and
-the three legacy-domain DNS records. None of that blocks further
-engineering work — Home already renders a real (if honestly-placeholder)
-production homepage rather than a null-state; the remaining pages still
-follow the null-handling rules below until they get the same treatment or
-real content lands.
+Sanity project/credentials, a real Stripe account/credentials (test-mode
+first — see WP7 below and "Guidance for future sessions"), real
+content/copy/legal text/brand assets/product catalogue, and the three
+legacy-domain DNS records. None of that blocks further engineering work —
+Home already renders a real (if honestly-placeholder) production homepage
+rather than a null-state; the remaining pages still follow the
+null-handling rules below until they get the same treatment or real
+content lands.
 
 For visual review without a real Sanity project, set `USE_MOCK_CONTENT=true`
 (`apps/web/.env.local`) — every route then renders `lib/mockContent.ts`'s
@@ -81,6 +83,26 @@ Implementation proceeded in work packages:
   `PageSections` no-op — real Story World data exists now, but no page
   embeds the block yet (see Architecture notes); that's still the actual
   trigger for wiring it, not "WP6 landing".
+- **WP7 — Shop / e-commerce** ✅ Sanity `product` and `order` document
+  types (`order` is webhook-written only — nothing in the Studio UI
+  creates one). `/shop` (index, listing rule), `/shop/[slug]` (product
+  detail, content-lookup rule), `/cart` (noindex), `/checkout/success`,
+  `/checkout/cancelled`. `lib/cart.ts` is a localStorage cart
+  (`useSyncExternalStore`, same pattern as `ConsentBanner`/`lib/consent.ts`)
+  — display-only by design; `app/checkout/actions.ts`'s
+  `createCheckoutSession` Server Action is what actually talks to Stripe,
+  and only ever sends `stripePriceId`/`quantity` (never a client-supplied
+  amount) after cross-checking every `stripePriceId` against the current
+  active product catalogue. `app/api/stripe/webhook/route.ts` records
+  `order` documents on `checkout.session.completed`, marks orders
+  "cancelled"/"refunded" on `customer.subscription.deleted`/
+  `charge.refunded`, and sends a best-effort confirmation email. Every
+  piece is inert-until-configured (`isStripeConfigured`,
+  `isSanityWriteConfigured`) with an honest "not set up yet" message or
+  console warning, the same contract `ContactForm` established in WP4 —
+  see "Guidance for future sessions" for what going live actually requires.
+  No real Stripe account exists yet; nothing here has processed a real
+  charge.
 
 ## Repository structure
 
@@ -266,15 +288,17 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   assume "treat null as an error" applies uniformly:
   1. **Pure editorial content** (About, Founder†, Mission, Publishing,
      Audiobooks, Animation, legal pages, a Story World by slug, a news post
-     by slug) — a missing document is a real 404 (`notFound()`). There's no
-     honest non-fabricated fallback for a company's About copy or a
-     founder's bio, so don't invent one.
+     by slug, **a product by slug**) — a missing document is a real 404
+     (`notFound()`). There's no honest non-fabricated fallback for a
+     company's About copy, a founder's bio, or a specific product page, so
+     don't invent one.
   2. **Site-wide chrome** (root layout's nav/footer/site title) — falls
      back to `lib/siteDefaults.ts`. Global chrome has to work before any
      content exists at all.
   3. **Listing/utility pages** (Leadership's person grid, News' index,
-     Story Worlds' index, Contact's form, Home) — render a genuine empty/
-     generic state, not a 404 and not fabricated copy. An empty catalogue
+     Story Worlds' index, **Shop's product grid**, Contact's form, Home) —
+     render a genuine empty/generic state, not a 404 and not fabricated
+     copy. An empty catalogue
      is a normal state; being unreachable (Contact) or 404ing at the
      domain root (Home) would be worse than a plain placeholder. Home's
      "no `page` document" state (`app/page.tsx`, `home.module.css`,
@@ -293,6 +317,14 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   † Founder is 1+3 at once: no `page` doc _and_ no founder `person` doc is
   a 404, but either one alone renders something (see `app/founder/page.tsx`).
 
+  `/cart`, `/checkout/success`, and `/checkout/cancelled` sit outside this
+  three-rule framework entirely — they're personal, transient views of a
+  browser's own localStorage cart or a single Stripe Checkout Session, not
+  shared editorial content, so all three are `noindex` and none of them
+  404 (an empty cart, an unrecognised/missing `session_id`, and a plain
+  "you weren't charged" message are all just rendered directly rather than
+  mapped onto rule 1/2/3).
+
 - `page` documents use a fixed `pageId` (see the option list in
   `apps/studio/schemaTypes/documents/page.ts` and `PAGE_IDS` in
   `apps/studio/structure.ts` — includes `news`, added in WP5 alongside
@@ -304,11 +336,49 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   `storyWorld`, `newsPost`, `person`, `legalPage` are open document lists.
 - `sitemap.ts` only lists a `pageId`'s route once a real `page` document
   exists for it (via `getExistingPageIds()`), except the always-available
-  ones (`ALWAYS_AVAILABLE`: home/leadership/contact/news/story-worlds,
+  ones (`ALWAYS_AVAILABLE`: home/leadership/contact/news/story-worlds/shop,
   i.e. every rule-3 listing page above) — otherwise it would point search
-  engines at pages that currently 404. It also lists real news-post and
-  Story-World slugs directly (not gated on their `page` doc). Update
-  `ALWAYS_AVAILABLE` if a page's null-handling rule changes.
+  engines at pages that currently 404. It also lists real news-post,
+  Story-World, and product slugs directly (not gated on their `page` doc).
+  Update `ALWAYS_AVAILABLE` if a page's null-handling rule changes.
+- **Shop (WP7) price-drift avoidance:** the Sanity `product` document never
+  stores a price — `stripePriceId` is the sole link to Stripe, and
+  `lib/stripe.ts#getProductPrice` fetches the live Stripe Price at render
+  time (with a `mockContent.ts#mockProductPrices` fallback in mock mode).
+  Don't add a price/amount field to the `product` schema; it would drift
+  from Stripe's own value the first time either side is edited alone.
+- **Shop (WP7) cart is display-only, not authoritative:** `lib/cart.ts`'s
+  localStorage cart stores `unitAmount`/`currency` purely for showing a
+  subtotal in the UI. `app/checkout/actions.ts#createCheckoutSession` is
+  the only thing that talks to Stripe, and it only ever sends
+  `stripePriceId`/`quantity` — Stripe determines the actual charge from
+  its own stored Price, never from a client-supplied amount — and
+  additionally cross-checks every `stripePriceId` against the current
+  active product catalogue (`getProducts()`) before use, so a tampered
+  cart can at worst reference a real active product in this Stripe
+  account, never an arbitrary amount or a removed/inactive one.
+- **Shop (WP7) checkout mode:** `createCheckoutSession` uses
+  `mode: "subscription"` if any cart item is a recurring price, else
+  `mode: "payment"` — Stripe allows a one-time Price alongside recurring
+  Price(s) in subscription mode but rejects the reverse. This was reasoned
+  through against `node_modules/stripe`'s `SessionCreateParams` types, not
+  verified against a live Stripe account (none exists yet) — re-verify the
+  first time a real mixed one-time+subscription cart actually checks out.
+- **Shop (WP7) webhook** (`app/api/stripe/webhook/route.ts`) is the only
+  place besides the Studio itself that writes to Sanity — via
+  `lib/sanity/writeClient.ts#sanityWriteClient`, `null` unless
+  `SANITY_API_WRITE_TOKEN` is set (separate from, and stricter than,
+  `isSanityConfigured`). It records an `order` on
+  `checkout.session.completed`, and updates an existing order's `status`
+  to `"cancelled"`/`"refunded"` on `customer.subscription.deleted`/
+  `charge.refunded` (the latter looks the Checkout Session back up from
+  Stripe via the charge's `payment_intent`, since orders are keyed on
+  session ID — there's no `paymentIntentId` field on the schema, and
+  adding one just for this lookup wasn't worth it). A handler failure is
+  logged, not rethrown, so a bug doesn't make Stripe retry the same event
+  forever; Stripe's own Dashboard and (once `SANITY_API_WRITE_TOKEN` is
+  set) Sanity's Orders list are the two places to actually check order
+  history — this webhook is not itself a system of record.
 
 ## Guidance for future sessions
 
@@ -333,3 +403,19 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   `apps/studio/schemaTypes/objects/pageBuilder.ts` and
   `apps/studio/schemaTypes/index.ts`, and (from WP3 onward) a matching
   renderer case in the page-builder component in `apps/web`.
+- **No real Stripe account exists yet (WP7)** — same status as Sanity.
+  `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` unset means the shop browses
+  fine but checkout/webhook both degrade honestly (see WP7 above). Setting
+  up a real account, creating live Products/Prices in the Stripe
+  Dashboard, and configuring the webhook endpoint
+  (`https://moraltree.media/api/stripe/webhook`) are external-account
+  steps for the owner to do, same category as DNS/domain changes — don't
+  do this without being asked, and **use test-mode keys** even once asked,
+  unless the owner explicitly says to go live. Once product Prices exist
+  in Stripe, create matching `product` documents in the Studio with each
+  one's `stripePriceId` — there's no sync/import tooling for this, it's a
+  manual one-to-one link by design (see the price-drift note above).
+- The shop's rate limiting (`app/checkout/actions.ts`) has the identical
+  in-memory/single-instance caveat as the contact form's — same fix
+  (shared store) applies to both if/when it becomes a real problem, not
+  two separate efforts.

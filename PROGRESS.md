@@ -4,6 +4,61 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-14 (session 2) — WP7: shop / e-commerce built from scratch
+
+- Task: audit whether MTM's shop/e-commerce capability existed anywhere
+  (this repo, or elsewhere on the linked Vercel account) across twelve
+  specific criteria (catalogue, cart, Stripe checkout, subscriptions,
+  success/cancel flows, confirmation emails, order recording, mobile
+  responsiveness, end-to-end test purchase, refunds, tax/VAT, nav
+  wiring). Found nothing — no shop schema, routes, cart, or Stripe
+  integration anywhere; the only other thing on the Vercel account was an
+  unrelated project ("zulu-the-zebra"/"The Moral Tree" audio app),
+  reported transparently rather than assumed irrelevant. Owner chose to
+  build it from scratch in this repo, explicit approval required before
+  any live financial transaction or external account change (Stripe
+  account creation is exactly that — held, like DNS).
+- Built WP7 end-to-end, code-complete, inert until a real Stripe account
+  exists (same "honest not-set-up-yet" contract WP4's ContactForm
+  established): Sanity `product`/`order` document types (`product` never
+  stores a price — `stripePriceId` is the sole link to Stripe, avoiding
+  price drift; `order` is written exclusively by the webhook); `/shop`
+  (listing rule) + `/shop/[slug]` (content-lookup rule, real 404);
+  `lib/cart.ts` (localStorage cart via `useSyncExternalStore`, the same
+  pattern proven for `ConsentBanner`/`lib/consent.ts` — display-only by
+  design); `app/checkout/actions.ts`'s `createCheckoutSession` Server
+  Action (charge amount always comes from Stripe's own stored Price,
+  never a client-supplied one; every `stripePriceId` cross-checked
+  against the active product catalogue); `/checkout/success` (live
+  Session lookup, degrades to a generic confirmation if it fails) and
+  `/checkout/cancelled`; `app/api/stripe/webhook/route.ts` (records
+  orders on `checkout.session.completed`, marks them
+  cancelled/refunded on `customer.subscription.deleted`/
+  `charge.refunded`, sends a best-effort confirmation email via a new
+  `lib/email.ts` extracted from ContactForm's existing inline pattern).
+  "Shop" added to primary nav and `sitemap.ts`'s `ALWAYS_AVAILABLE`.
+- One architectural decision worth remembering: `formatPrice` lives in
+  its own `lib/format.ts`, not `lib/stripe.ts`, specifically so the
+  client-side cart/checkout UI can format prices without pulling the
+  `stripe` SDK itself into the browser bundle.
+- One risk flagged rather than silently assumed: Checkout Session `mode`
+  ("subscription" if any cart item is recurring, else "payment") is
+  reasoned through against `node_modules/stripe`'s own
+  `SessionCreateParams` types, not verified against a live account —
+  no Stripe credentials exist in this environment to test against.
+  Documented in both the code comment and CLAUDE.md; re-verify the first
+  time a real mixed cart actually checks out.
+- Verified with full `next build` in three states — `USE_MOCK_CONTENT=true`
+  (all shop routes + 3 example products render, prices/subscription
+  suffix correct), `USE_MOCK_CONTENT=false` with Sanity/Stripe both
+  unconfigured (honest empty/404 states, no crashes), and a live
+  `next start` + curl pass confirming the webhook returns 503 when
+  unconfigured and the nav/cart badge render correctly. Committed in four
+  checkpoints (schema+cart+routes, checkout flow, webhook, docs);
+  lint/typecheck/format clean at each. Did not create a Stripe account,
+  touch DNS, or process any transaction — all held per the owner's
+  explicit instruction.
+
 ## 2026-08-14 — Post-deploy audit and documentation accuracy pass
 
 - Task: continue with the next logical work. Re-oriented first by reading

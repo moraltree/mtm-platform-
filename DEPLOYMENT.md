@@ -72,6 +72,31 @@ canonical host and local dev are unaffected.
       `TURNSTILE_SECRET_KEY`, `RESEND_API_KEY`, `CONTACT_FORM_TO_EMAIL`,
       `CONTACT_FORM_FROM_EMAIL`) — optional; form works without them
       (honest "not set up yet" message).
+- [ ] **Shop / Stripe (WP7) — no real Stripe account exists yet.** Same
+      category as Sanity/DNS above: an external-account step for the
+      owner, not something this repo's tooling does on its own. Once a
+      Stripe account exists (**test mode** unless explicitly told to go
+      live): set `STRIPE_SECRET_KEY` in Vercel (Production environment);
+      add a webhook endpoint in the Stripe Dashboard pointing at
+      `https://moraltree.media/api/stripe/webhook`, subscribed to at
+      least `checkout.session.completed`, `customer.subscription.deleted`,
+      and `charge.refunded`, then set the signing secret it gives you as
+      `STRIPE_WEBHOOK_SECRET`; set `SANITY_API_WRITE_TOKEN` (a Sanity API
+      token with Editor access — needs a real Sanity project first, see
+      above) so the webhook can actually record `order` documents —
+      without it the webhook still verifies/processes events but only
+      logs a warning instead of writing; optionally set
+      `SHOP_ORDER_FROM_EMAIL` (reuses `RESEND_API_KEY` from the contact
+      form vars above) for order confirmation emails — without it,
+      checkout still completes and the order still records, only the
+      email is skipped. Create each product's Price in the Stripe
+      Dashboard first, then create a matching `product` document in the
+      Studio with that `stripePriceId` — there's no import/sync tooling,
+      this is a manual one-to-one link by design (see CLAUDE.md's
+      price-drift note). The codebase has never processed a real charge;
+      test the full flow with Stripe test-mode card numbers before
+      considering this done.
+
 - [ ] `USE_MOCK_CONTENT` — confirmed unset in Vercel (`vercel env ls`
       shows nothing for it); keep it that way. (It _is_ set to `true` in
       the local `.env.local` some sessions use for visual review — that
