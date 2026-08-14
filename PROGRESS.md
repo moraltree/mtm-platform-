@@ -58,6 +58,13 @@ entries first.
   lint/typecheck/format clean at each. Did not create a Stripe account,
   touch DNS, or process any transaction — all held per the owner's
   explicit instruction.
+- Deployed via `vercel --prod` from `apps/web` (the project's existing
+  manual-deploy workflow — no GitHub-integration auto-deploy). Confirmed
+  live on `https://moraltree.media`: `/shop`, `/cart`,
+  `/checkout/cancelled` all 200 with the honest "coming soon"/empty
+  states (no Sanity project yet), `/api/stripe/webhook` correctly 503s
+  (no Stripe account yet), "Shop" appears in the live nav, and security
+  headers (CSP/HSTS/X-Frame-Options) are unchanged.
 
 ## 2026-08-14 — Post-deploy audit and documentation accuracy pass
 
