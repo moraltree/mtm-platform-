@@ -290,3 +290,21 @@ export async function getAllProductSlugs() {
         .map((p) => ({ slug: p.slug.current }))
     : null;
 }
+
+/**
+ * Looks up a product's Sanity `_id` by its `stripePriceId` — used only by
+ * the Stripe webhook (app/api/stripe/webhook/route.ts) to link an order's
+ * line items back to a `product` document. Deliberately not filtered on
+ * `active`: a product later deactivated should still resolve for orders
+ * placed while it was active.
+ */
+export async function getProductByStripePriceId(stripePriceId: string) {
+  const result = await sanityFetch<{ _id: string }>(
+    `*[_type == "product" && stripePriceId == $stripePriceId][0] { _id }`,
+    { stripePriceId },
+  );
+  if (result) return result;
+  if (!useMockContent) return null;
+  const match = mockProducts.find((p) => p.stripePriceId === stripePriceId);
+  return match ? { _id: match._id } : null;
+}
