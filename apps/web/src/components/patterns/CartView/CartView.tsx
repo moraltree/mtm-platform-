@@ -1,17 +1,19 @@
 "use client";
 
 import Image from "next/image";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
+import { createCheckoutSession } from "@/app/checkout/actions";
 import styles from "./CartView.module.css";
 
 /**
  * Cart contents + subtotal + checkout entry point. Client component: the
  * cart only exists in localStorage (lib/cart.ts), so there's nothing to
- * render server-side. Checkout itself (the Server Action that turns this
- * into a Stripe Checkout Session) is a separate, not-yet-built piece —
- * this component only reads/mutates the display-only cart.
+ * render server-side. "Checkout" invokes the createCheckoutSession Server
+ * Action directly (not a <form action>, since it needs the current cart
+ * array, not FormData) and redirects to the Stripe-hosted URL it returns.
  */
 export function CartView() {
   const {
@@ -22,6 +24,22 @@ export function CartView() {
     updateCartQuantity,
     removeFromCart,
   } = useCart();
+  const [isPending, startTransition] = useTransition();
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  function handleCheckout() {
+    setCheckoutError(null);
+    startTransition(async () => {
+      const result = await createCheckoutSession(items);
+      if (result.url) {
+        window.location.href = result.url;
+      } else {
+        setCheckoutError(
+          result.error || "Something went wrong. Please try again.",
+        );
+      }
+    });
+  }
 
   if (itemCount === 0) {
     return <p className={styles.empty}>Your cart is empty.</p>;
@@ -94,8 +112,18 @@ export function CartView() {
           Taxes (VAT), if applicable, are calculated at checkout. Subscription
           items renew until cancelled.
         </p>
-        <Button href="/checkout" size="lg">
-          Checkout
+        {checkoutError && (
+          <p className={styles.error} role="alert">
+            {checkoutError}
+          </p>
+        )}
+        <Button
+          type="button"
+          size="lg"
+          onClick={handleCheckout}
+          disabled={isPending}
+        >
+          {isPending ? "Starting checkout…" : "Checkout"}
         </Button>
       </div>
     </div>

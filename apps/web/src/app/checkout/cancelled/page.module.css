@@ -1,0 +1,13 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding-block: var(--space-8);
+  max-width: 34rem;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+}
