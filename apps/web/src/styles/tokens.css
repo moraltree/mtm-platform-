@@ -24,6 +24,8 @@
  *   - --color-brand-600 as text/link colour on --color-surface / -subtle: 7.68:1 / 6.88:1
  *   - --color-brand-700 as text on --color-brand-100 (badge) and on
  *     --color-on-brand (ConsentBanner's accept button): 9.80:1 / 11.73:1
+ *   - --color-heading-accent (Hero headline only) on --color-surface /
+ *     --color-surface-subtle: 10.18:1 / 9.12:1
  *   All comfortably clear WCAG AA's 4.5:1 for normal text.
  *   --color-border and --color-accent-gold are decorative/non-text and
  *   were instead tuned for the ~3:1 UI-component/graphical-object
@@ -50,6 +52,12 @@
   --palette-cocoa-600: #6b4423; /* warm cocoa brown */
   --palette-cocoa-500: #8c5f35; /* warm cocoa brown, lighter */
   --palette-cocoa-grey-500: #6b5a46; /* muted-text brown-grey */
+  /* Deep cappuccino/espresso — a high-emphasis heading tone that's
+     visibly brown rather than reading as near-black, without giving up
+     strong hierarchy/contrast. Introduced for the homepage Hero headline
+     (see --color-heading-accent below); --color-ink-900 stays the
+     darkest, default text tone everywhere else. */
+  --palette-cappuccino-700: #4a3728;
   --palette-cream-50: #fff8ec; /* warm cream-white (on dark brown) */
   --palette-cream-100: #faf3e6; /* soft cream (default surface) */
   --palette-ivory-100: #f3e6d0; /* warm ivory (subtle surface) */
@@ -62,7 +70,10 @@
      kept as an "ink-*" scale, not renamed, since every component
      references these exact custom-property names — see file comment) */
   --color-ink-900: var(--palette-espresso-900);
-  --color-ink-700: var(--palette-cocoa-700);
+  /* Previously aliased to the same primitive as --color-brand-700 while
+     unused by any component; now points at the dedicated cappuccino
+     primitive above so it's distinct from the brand/button colour. */
+  --color-ink-700: var(--palette-cappuccino-700);
   /* Tuned, not arbitrary: the darkest-possible "muted text" tone that
      still clears WCAG AA's 4.5:1 against --color-surface-subtle (this
      palette's warm ivory) — the tightest pairing it's actually used in
@@ -88,6 +99,13 @@
 
   /* Colour — semantic */
   --color-text: var(--color-ink-900);
+  /* A lighter, more visibly-brown alternative to --color-text for a
+     single high-emphasis element (currently: the homepage Hero
+     headline only) — 9.1:1+ contrast against both surfaces, so it's
+     not a contrast compromise, just a warmer read than near-black. Not
+     a wholesale replacement for --color-text; most headings/body copy
+     should keep using --color-text. */
+  --color-heading-accent: var(--color-ink-700);
   --color-text-muted: var(--color-ink-500);
   --color-text-on-dark: var(--color-white);
   --color-surface: var(--palette-cream-100);
