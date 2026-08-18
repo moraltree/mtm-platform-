@@ -25,12 +25,14 @@ export const metadata: Metadata = {
 };
 
 const SWATCHES = [
-  ["--color-brand-600", "Brand"],
-  ["--color-brand-100", "Brand tint"],
-  ["--color-ink-900", "Text"],
+  ["--color-brand-600", "Brand (cocoa)"],
+  ["--color-brand-100", "Brand tint (sand)"],
+  ["--color-accent-gold", "Accent (honey/gold)"],
+  ["--color-ink-900", "Text (espresso)"],
   ["--color-ink-500", "Text muted"],
-  ["--color-ink-300", "Border"],
-  ["--color-ink-100", "Surface subtle"],
+  ["--color-ink-300", "Border (sand)"],
+  ["--color-ink-100", "Surface subtle (ivory)"],
+  ["--color-surface", "Surface (cream)"],
   ["--color-danger", "Danger"],
   ["--color-success", "Success"],
 ] as const;

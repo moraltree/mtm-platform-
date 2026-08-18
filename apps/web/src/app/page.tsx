@@ -11,8 +11,18 @@ import { getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
 import { buildMetadata } from "@/lib/metadata";
 import { cx } from "@/lib/cx";
+import { getCharacterPose } from "@/lib/characters";
 import { BookIcon, HeadphonesIcon, FilmIcon } from "./home-icons";
 import styles from "./home.module.css";
+
+// Temporary hero image for the null-state homepage (see the "no page doc"
+// branch below): Zulu's approved three-quarter-wave website pose, via the
+// character asset manifest (lib/characters.ts) rather than a hardcoded
+// path, so swapping this later is a one-line change (or removing it
+// entirely once a real Sanity `home` page document supplies its own
+// hero media). Falls back to `undefined` (Hero renders with no image,
+// same as before this change) if that pose is ever missing.
+const HOME_HERO_IMAGE = getCharacterPose("zulu", "three-quarter-wave");
 
 // Home is the site's front door — unlike the pure-editorial pages, a
 // missing `page` document falls back to a real, premium homepage built
@@ -65,6 +75,11 @@ export default async function Home() {
           eyebrow="Moral Tree Media"
           heading="Story worlds with a moral centre, told across every medium."
           subheading="We build children's story worlds — and the publishing, audiobook, and animation experiences that carry them into the real world — for families who want stories that mean something."
+          media={
+            HOME_HERO_IMAGE
+              ? { src: HOME_HERO_IMAGE.path, alt: HOME_HERO_IMAGE.alt }
+              : undefined
+          }
           ctas={[
             { label: "Explore Story Worlds", href: "/story-worlds" },
             { label: "Partner With Us", href: "/contact" },

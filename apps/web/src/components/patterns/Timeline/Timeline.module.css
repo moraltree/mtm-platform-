@@ -27,7 +27,10 @@
   width: 0.625rem;
   height: 0.625rem;
   border-radius: var(--radius-full);
-  background: var(--color-brand-600);
+  /* Restrained honey/gold accent — a decorative marker dot, not text, so
+     the lighter accent tone (tuned for ~3:1 non-text contrast rather than
+     4.5:1) is appropriate here; see tokens.css. */
+  background: var(--color-accent-gold);
 }
 
 .date {

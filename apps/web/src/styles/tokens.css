@@ -1,10 +1,38 @@
 /*
- * Design tokens (WP3).
+ * Design tokens (WP3; palette replaced Phase 1 of the Zulu the Zebra &
+ * The Savannah Seven website update — see
+ * /logs/website-update/ for the working log and report).
  *
- * Colour values below are a neutral placeholder palette, not approved
- * brand colours — no brand assets exist yet (see CLAUDE.md). Swap the
- * --color-brand-* values and this file's the only place that needs to
- * change; every component consumes tokens, never literals.
+ * Brand palette: warm, premium brown-and-cream, chosen for a calm,
+ * child-friendly, storybook/bedtime feel — deliberately not neon, not
+ * heavily dark, and not corporate-financial. Six named primitives below
+ * (deep espresso brown, warm cocoa brown, soft cream, warm ivory, safari
+ * sand, a restrained honey/gold accent) feed the semantic tokens that
+ * every component actually consumes — components never reference a raw
+ * hex value, only a semantic token (--color-text, --color-brand-600,
+ * etc.), so this file is still the only place a future palette change
+ * needs to happen (e.g. swapping in a final, fully-approved brand
+ * palette later).
+ *
+ * Contrast audited by relative luminance per WCAG's own formula (not
+ * eyeballed — see PROGRESS.md/logs/website-update for the method), same
+ * standard the previous placeholder palette was held to:
+ *   - --color-text on --color-surface / --color-surface-subtle: ~15:1 / ~13:1
+ *   - --color-text-muted on --color-surface-subtle (tightest pairing,
+ *     same one the old placeholder palette's comment called out): 5.37:1
+ *   - --color-on-brand (button label) on --color-brand-600 / -700: 8.03:1 / 11.73:1
+ *   - --color-brand-600 as text/link colour on --color-surface / -subtle: 7.68:1 / 6.88:1
+ *   - --color-brand-700 as text on --color-brand-100 (badge) and on
+ *     --color-on-brand (ConsentBanner's accept button): 9.80:1 / 11.73:1
+ *   All comfortably clear WCAG AA's 4.5:1 for normal text.
+ *   --color-border and --color-accent-gold are decorative/non-text and
+ *   were instead tuned for the ~3:1 UI-component/graphical-object
+ *   guideline (WCAG 1.4.11) against --color-surface: 3.8:1 / 3.38:1.
+ *   --color-border-subtle stays intentionally faint (~1.3:1, matching the
+ *   previous palette's equally-faint border-subtle) — it's a decorative
+ *   divider backed by --shadow-sm, never the sole boundary cue.
+ * Re-run this audit (same method) after any further palette change,
+ * including a future real-brand-asset swap.
  *
  * Breakpoints are documented here but NOT defined as custom properties:
  * CSS custom properties cannot be used inside @media conditions. Use the
@@ -16,38 +44,58 @@
  */
 
 :root {
-  /* Colour — neutral ink scale */
-  --color-ink-900: #14181f;
-  --color-ink-700: #3c4451;
-  /* Tuned, not arbitrary: this is the darkest-possible "muted text" grey
-     that still clears WCAG AA's 4.5:1 against --color-surface-subtle
-     (#eef1f5) — the tightest pairing it's actually used in (Hero
-     subheading, Footer links, Badge). #6b7280 (a common default muted
-     grey) only reaches 4.27:1 there — verified failing. Re-check contrast
-     against surface-subtle specifically if this ever changes. */
-  --color-ink-500: #666c78;
-  --color-ink-300: #cbd2db;
-  --color-ink-150: #e3e7ec;
-  --color-ink-100: #eef1f5;
-  --color-white: #ffffff;
+  /* Colour — palette primitives (warm brown & cream) */
+  --palette-espresso-900: #2b1b10; /* deep espresso brown */
+  --palette-cocoa-700: #4a2e18; /* warm cocoa brown, darker */
+  --palette-cocoa-600: #6b4423; /* warm cocoa brown */
+  --palette-cocoa-500: #8c5f35; /* warm cocoa brown, lighter */
+  --palette-cocoa-grey-500: #6b5a46; /* muted-text brown-grey */
+  --palette-cream-50: #fff8ec; /* warm cream-white (on dark brown) */
+  --palette-cream-100: #faf3e6; /* soft cream (default surface) */
+  --palette-ivory-100: #f3e6d0; /* warm ivory (subtle surface) */
+  --palette-sand-100: #e8d8be; /* pale safari sand (subtle border) */
+  --palette-sand-200: #f5e3be; /* pale gold-sand tint (badge/tint bg) */
+  --palette-sand-500: #9c7449; /* safari sand (visible border) */
+  --palette-honey-500: #ad7b24; /* restrained honey/gold accent */
 
-  /* Colour — placeholder brand (forest green; replace when brand lands) */
-  --color-brand-700: #163b30;
-  --color-brand-600: #1f4d3f;
-  --color-brand-500: #2d6753;
-  --color-brand-100: #e3ede9;
+  /* Colour — ink scale (maps to the espresso/cocoa/sand primitives above;
+     kept as an "ink-*" scale, not renamed, since every component
+     references these exact custom-property names — see file comment) */
+  --color-ink-900: var(--palette-espresso-900);
+  --color-ink-700: var(--palette-cocoa-700);
+  /* Tuned, not arbitrary: the darkest-possible "muted text" tone that
+     still clears WCAG AA's 4.5:1 against --color-surface-subtle (this
+     palette's warm ivory) — the tightest pairing it's actually used in
+     (Hero subheading, Footer links, Badge, muted body copy). See the
+     file-level comment above for the measured ratio. */
+  --color-ink-500: var(--palette-cocoa-grey-500);
+  --color-ink-300: var(--palette-sand-500);
+  --color-ink-150: var(--palette-sand-100);
+  --color-ink-100: var(--palette-ivory-100);
+  --color-white: var(--palette-cream-50);
+
+  /* Colour — brand (warm cocoa brown, the interactive/accent family used
+     for buttons, links, nav hover, CTAs). Restrained honey/gold
+     (--color-accent-gold) is a separate, deliberately sparingly-used
+     token — see its call sites (Timeline marker, homepage pillar icons)
+     rather than the pervasive brand-600/700 used everywhere else. */
+  --color-brand-700: var(--palette-cocoa-700);
+  --color-brand-600: var(--palette-cocoa-600);
+  --color-brand-500: var(--palette-cocoa-500);
+  --color-brand-100: var(--palette-sand-200);
   --color-on-brand: var(--color-white);
+  --color-accent-gold: var(--palette-honey-500);
 
   /* Colour — semantic */
   --color-text: var(--color-ink-900);
   --color-text-muted: var(--color-ink-500);
   --color-text-on-dark: var(--color-white);
-  --color-surface: var(--color-white);
+  --color-surface: var(--palette-cream-100);
   --color-surface-subtle: var(--color-ink-100);
   --color-surface-inverted: var(--color-ink-900);
   --color-border: var(--color-ink-300);
   --color-border-subtle: var(--color-ink-150);
-  --color-focus: var(--color-brand-600);
+  --color-focus: var(--color-brand-700);
   --color-danger: #a4291f;
   --color-danger-surface: #fbe9e7;
   --color-success: #1e6b3a;
@@ -100,13 +148,14 @@
   --border-width-sm: 1px;
   --border-width-md: 2px;
 
-  /* Elevation */
+  /* Elevation — shadow tint warmed from neutral ink to espresso brown to
+     match the palette (values/opacities unchanged, colour only). */
   --shadow-sm:
-    0 1px 2px rgba(20, 24, 31, 0.06), 0 1px 1px rgba(20, 24, 31, 0.04);
+    0 1px 2px rgba(43, 27, 16, 0.06), 0 1px 1px rgba(43, 27, 16, 0.04);
   --shadow-md:
-    0 4px 8px rgba(20, 24, 31, 0.08), 0 2px 4px rgba(20, 24, 31, 0.04);
+    0 4px 8px rgba(43, 27, 16, 0.08), 0 2px 4px rgba(43, 27, 16, 0.04);
   --shadow-lg:
-    0 12px 24px rgba(20, 24, 31, 0.12), 0 4px 8px rgba(20, 24, 31, 0.06);
+    0 12px 24px rgba(43, 27, 16, 0.12), 0 4px 8px rgba(43, 27, 16, 0.06);
 
   /* Motion — disabled wholesale under prefers-reduced-motion, see base.css */
   --duration-fast: 120ms;

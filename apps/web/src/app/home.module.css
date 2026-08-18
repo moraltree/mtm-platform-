@@ -143,8 +143,12 @@
   width: 3rem;
   height: 3rem;
   border-radius: var(--radius-full);
+  /* Restrained honey/gold accent on the icon's outline colour, against
+     the pale gold-sand tint background (--color-brand-100) — a small,
+     deliberate accent touch rather than the cocoa brown used pervasively
+     for links/buttons elsewhere; see tokens.css. */
   background: var(--color-brand-100);
-  color: var(--color-brand-700);
+  color: var(--color-accent-gold);
 }
 
 .pillarTitle {
