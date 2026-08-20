@@ -9,8 +9,18 @@
  * null-handling rule 3 (Home is a listing/utility page).
  */
 
+/* Mobile-only: one step down the existing spacing scale (--space-8 ->
+   --space-7, an existing token, not a new value) — owner mobile review
+   found the gap between sections excessive at ~390px. Restored to
+   --space-8 at 40rem+ below, so tablet/desktop spacing is unchanged. */
 .section {
-  padding-block: var(--space-8);
+  padding-block: var(--space-7);
+}
+
+@media (min-width: 40rem) {
+  .section {
+    padding-block: var(--space-8);
+  }
 }
 
 .sectionSubtle {

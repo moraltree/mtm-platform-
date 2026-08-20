@@ -4,6 +4,29 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-20 (session 7) — Homepage mobile polish: Hero heading + section gaps
+
+- Task: owner's mobile (~390px) visual review of the corporate homepage
+  — approved overall, two targeted CSS-only polish requests: shrink the
+  Hero heading ~10-15% and slightly tighten the vertical gap between
+  major sections, mobile only, no other changes.
+- `Hero.module.css` `.heading`: mobile-only `font-size` changed to
+  `clamp(2.1875rem, 1.6625rem + 2.625vw, 3.5rem)` — the existing
+  `--text-4xl` clamp's own three terms each scaled by 0.875, a uniform
+  12.5% reduction (mid-point of the requested 10-15%) at every width the
+  clamp is fluid at, not a single eyeballed number. Restored to
+  `var(--text-4xl)` unchanged at `min-width: 40rem`.
+- `home.module.css` `.section`: `padding-block` changed from
+  `var(--space-8)` to `var(--space-7)` (one existing step down the
+  spacing scale, no new value) on mobile, restored to `var(--space-8)`
+  at `min-width: 40rem`.
+- Both changes scoped to the two files/rules named above only — CTA
+  sizing (`Button-module`'s `lg` class unchanged), imagery, copy,
+  `/free30`'s enlarged brand mark, and every other component/page
+  confirmed untouched by direct inspection of the compiled CSS/HTML, not
+  assumed. Production-parity build still 23 routes.
+- Not deployed to production — updated NON-PRODUCTION preview only.
+
 ## 2026-08-20 (session 6) — `/free30` brand mark: increased prominence
 
 - Task: owner asked for the Moral Tree brand mark to be more prominent —
