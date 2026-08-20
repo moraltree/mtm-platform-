@@ -11,7 +11,7 @@ import { getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
 import { buildMetadata } from "@/lib/metadata";
 import { cx } from "@/lib/cx";
-import { getCharacterPose } from "@/lib/characters";
+import { getCharacterPose, getEnsembleCharacters } from "@/lib/characters";
 import { BookIcon, HeadphonesIcon, FilmIcon } from "./home-icons";
 import styles from "./home.module.css";
 
@@ -23,6 +23,19 @@ import styles from "./home.module.css";
 // hero media). Falls back to `undefined` (Hero renders with no image,
 // same as before this change) if that pose is ever missing.
 const HOME_HERO_IMAGE = getCharacterPose("zulu", "three-quarter-wave");
+
+// "Meet the cast" section, below: Zulu leads (already featured in the
+// Hero above) while the other seven get equal-sized billing here, per
+// the character manifest's own documented purpose for
+// getEnsembleCharacters() (lib/characters.ts) — a section that
+// deliberately rotates through the ensemble rather than defaulting every
+// section back to Zulu. Headshot pose + canonical name only — no
+// species/personality/backstory copy, since that canon doesn't exist in
+// this repository yet (see lib/characters.ts's own doc comment).
+const CAST_MEMBERS = getEnsembleCharacters().map((character) => ({
+  character,
+  pose: getCharacterPose(character.slug, "close-up-headshot"),
+}));
 
 // Home is the site's front door — unlike the pure-editorial pages, a
 // missing `page` document falls back to a real, premium homepage built
@@ -141,9 +154,9 @@ export default async function Home() {
                     Story World reveals coming soon
                   </h3>
                   <p className={styles.storyWorldText}>
-                    Character, setting, and synopsis details are still in
-                    development and will be announced here and on our Story
-                    Worlds page once approved.
+                    Setting and synopsis details are still in development and
+                    will be announced here and on our Story Worlds page once
+                    approved — meet the characters below in the meantime.
                   </p>
                 </div>
               </div>
@@ -163,6 +176,37 @@ export default async function Home() {
         </section>
 
         <section className={styles.section}>
+          <Container>
+            <div className={styles.sectionHead}>
+              <h2 className={styles.sectionHeading}>Meet the cast</h2>
+              <p className={styles.sectionBody}>
+                Zulu leads a wider circle of friends who&rsquo;ll appear
+                throughout our first Story World. Here&rsquo;s who else
+                you&rsquo;ll be meeting.
+              </p>
+            </div>
+            <ul className={styles.castGrid}>
+              {CAST_MEMBERS.map(({ character, pose }) => (
+                <li key={character.slug} className={styles.castMember}>
+                  {pose && (
+                    <div className={styles.castPortrait}>
+                      <Image
+                        src={pose.path}
+                        alt={pose.alt}
+                        fill
+                        sizes="8rem"
+                        className={styles.castImage}
+                      />
+                    </div>
+                  )}
+                  <p className={styles.castName}>{character.canonicalName}</p>
+                </li>
+              ))}
+            </ul>
+          </Container>
+        </section>
+
+        <section className={cx(styles.section, styles.sectionSubtle)}>
           <Container>
             <div className={styles.sectionHead}>
               <h2 className={styles.sectionHeading}>

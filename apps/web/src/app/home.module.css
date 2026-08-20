@@ -95,6 +95,57 @@
   }
 }
 
+/* --- Meet the cast ----------------------------------------------------- */
+
+.castGrid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(2, 1fr);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@media (min-width: 40rem) {
+  .castGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 64rem) {
+  .castGrid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+
+.castMember {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.castPortrait {
+  position: relative;
+  width: 100%;
+  max-width: 8rem;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+.castImage {
+  object-fit: cover;
+}
+
+.castName {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
 /* --- Mediums / pillars ----------------------------------------------- */
 
 .pillarGrid {

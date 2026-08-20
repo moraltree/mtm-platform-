@@ -4,6 +4,45 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-20 — Homepage "Meet the cast": wired up the unused ensemble helper
+
+- Task: resume the website update plan from the current state (brown/cream
+  palette + character manifest already live from the 08-18 session),
+  audit for anything still incomplete, and continue non-destructively.
+  Full detail: `logs/website-update/20260820-082714-phase1-cast-balance-report.md`.
+- Found `lib/characters.ts#getEnsembleCharacters()` — written the prior
+  session specifically so some section could balance representation
+  across Zala/Nara/Mango/Lulu/Sid/Rocky/Kofi without defaulting back to
+  Zulu — had no caller anywhere. Added a "Meet the cast" section to the
+  homepage null-state (between the Story World teaser and the mediums
+  grid): all seven ensemble characters, equal-sized circular portraits
+  (`close-up-headshot` pose), canonical name only, no invented
+  species/personality/backstory. Zulu stays the Hero image only, not
+  repeated in the new grid.
+- Fixed one copy inconsistency this created: the Story World teaser said
+  "Character, setting, and synopsis details are still in development" —
+  no longer true once named characters appear lower on the same page.
+  Narrowed to "Setting and synopsis details..." (still un-revealed) and
+  pointed readers at the new section. Setting/plot/title stay
+  un-announced, matching the prior session's deliberate "Coming soon"
+  framing.
+- Audited the rest of the site for other placeholder/inconsistency
+  candidates first (palette, other listing pages, remaining
+  `/placeholder.png` uses) — palette is clean and token-only, and every
+  other rule-3 listing page (Leadership/Story Worlds/Shop/News) renders
+  real Sanity-backed data with its own legitimate empty state, not a
+  place to drop in decorative character art. No other changes made.
+- Verified: lint/typecheck/format clean; two production builds
+  (`USE_MOCK_CONTENT` true and false, the latter matching Vercel's actual
+  config — 22 routes, same count as before); `next start` + curl
+  confirmed all 7 ensemble images render exactly once each, Zulu's hero
+  image isn't duplicated, alt text is correct per character, and heading
+  order is unaffected. `backend/`/`mtm-backend.service` confirmed
+  untouched and active throughout.
+- Not deployed — per this session's brief, deploys stay a deliberate,
+  separate, explicitly-requested step; left committed on `main` for the
+  owner to review before shipping.
+
 ## 2026-08-14 (session 2) — WP7: shop / e-commerce built from scratch
 
 - Task: audit whether MTM's shop/e-commerce capability existed anywhere
