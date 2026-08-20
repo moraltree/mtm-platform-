@@ -9,31 +9,36 @@
  * still consume the same design tokens (tokens.css) throughout, so the
  * warm cream/cocoa/espresso brand system carries over intact.
  *
- * New dark-background text pairings introduced here (existing tokens,
- * verified by relative luminance — same method as tokens.css's own
- * audit — rather than assumed):
- *   --color-on-brand (cream) on --color-ink-900 (espresso): 15.70:1
- *   --color-on-brand (cream) on --color-brand-700 (cocoa): 11.73:1 (already
- *     audited in tokens.css for the CtaPanel/ConsentBanner use of this
- *     exact pair)
- *   --color-accent-gold on --color-ink-900: 4.45:1
- *   --color-accent-gold on --color-brand-700: 3.32:1
- *   Both accent-gold pairings are used ONLY for the large, bold .tagline
- *   (>=24px) — large-text WCAG AA needs 3:1, not 4.5:1 — matching
- *   tokens.css's existing rule that accent-gold is a decorative/
- *   large-emphasis colour, never body text, regardless of background.
+ * Light end to end, deliberately — an earlier draft used dark
+ * cocoa/espresso hero and finalCta sections; owner feedback was that it
+ * read as "a dark generic signup page," not a warm campaign page, so
+ * every section below is one of the light surface tokens
+ * (--color-surface / --color-surface-subtle / --color-brand-100) and
+ * every text colour is a pairing already audited in tokens.css itself —
+ * nothing new to verify here. The one large/bold-only exception,
+ * unchanged from before: --color-accent-gold on --color-surface
+ * (3.38:1) — tokens.css's own documented "decorative/large-emphasis
+ * only" rule, used here for .tagline only.
+ *
+ * Hero/cast images use object-fit: cover (not the single-character
+ * pages' object-fit: contain) — these are establishing group *scenes*
+ * (lib/characterGroups.ts), not solo portraits where cropping a specific
+ * character's ears/head would be wrong; a scene tolerating a cropped
+ * edge is the normal trade-off for hero/banner imagery.
  */
 
 .page {
   display: flex;
   flex-direction: column;
+  background: var(--color-surface);
 }
 
 /* --- Minimal brand bar (not corporate nav) ------------------------------ */
 
 .brandBar {
   padding-block: var(--space-4);
-  background: var(--color-ink-900);
+  background: var(--color-surface);
+  border-bottom: var(--border-width-sm) solid var(--color-border-subtle);
 }
 
 .brandBarInner {
@@ -46,36 +51,68 @@
   font-weight: var(--weight-semibold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-on-brand);
-  opacity: 0.85;
+  color: var(--color-brand-600);
 }
 
 /* --- Hero ---------------------------------------------------------------- */
 
 .hero {
-  padding-block: var(--space-8) var(--space-9);
-  /* Warm "bedtime sky" gradient — dark cocoa into deep espresso, both
-     already-audited dark tokens (see file comment), not a new colour. */
+  padding-block: var(--space-6) var(--space-8);
+  /* Soft cream-to-ivory wash, not a flat colour — warm and bright without
+     being a new hue (both ends are existing surface tokens). */
   background: linear-gradient(
     180deg,
-    var(--color-brand-700) 0%,
-    var(--color-ink-900) 100%
+    var(--color-surface) 0%,
+    var(--color-surface-subtle) 100%
   );
-  color: var(--color-on-brand);
-  text-align: center;
 }
 
-.heroInner {
+.heroGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "imgLeft imgRight" "content content";
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.heroImageLeft {
+  grid-area: imgLeft;
+}
+
+.heroImageRight {
+  grid-area: imgRight;
+}
+
+.heroImageLeft,
+.heroImageRight {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+  box-shadow: var(--shadow-md);
+}
+
+.heroImage {
+  object-fit: cover;
+}
+
+.heroContent {
+  grid-area: content;
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 34rem;
+  text-align: center;
+  margin-top: var(--space-5);
 }
 
 .kicker {
   font-size: var(--text-3xl);
   line-height: var(--leading-tight);
-  color: inherit;
+  /* Same warm cappuccino emphasis token the corporate homepage's own
+     Hero headline uses (Hero.module.css) — deliberate consistency, not
+     a new colour. */
+  color: var(--color-heading-accent);
 }
 
 .tagline {
@@ -89,18 +126,37 @@
   margin-top: var(--space-4);
   font-size: var(--text-md);
   line-height: var(--leading-relaxed);
-  color: inherit;
-  opacity: 0.92;
+  color: var(--color-text-muted);
+  max-width: 30rem;
 }
 
 .heroForm {
   margin-top: var(--space-6);
   width: 100%;
+  max-width: 28rem;
 }
 
-@media (min-width: 48rem) {
+@media (min-width: 40rem) {
   .kicker {
     font-size: var(--text-4xl);
+  }
+}
+
+@media (min-width: 64rem) {
+  .heroGrid {
+    grid-template-columns: 16rem 1fr 16rem;
+    grid-template-areas: "imgLeft content imgRight";
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .heroImageLeft,
+  .heroImageRight {
+    aspect-ratio: 3 / 4;
+  }
+
+  .heroContent {
+    margin-top: 0;
   }
 }
 
@@ -123,7 +179,10 @@
 }
 
 .signupCard {
-  background: var(--color-surface);
+  /* Lighter than the page's own cream/ivory background, so the form
+     still reads as a distinct, elevated card rather than blending flat
+     into the section behind it. */
+  background: var(--color-on-brand);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
   box-shadow: var(--shadow-md);
@@ -148,8 +207,7 @@
 .reassurance {
   margin-top: var(--space-3);
   font-size: var(--text-sm);
-  color: inherit;
-  opacity: 0.85;
+  color: var(--color-text-muted);
 }
 
 .formError {
@@ -167,7 +225,7 @@
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   color: var(--color-success);
-  background: var(--color-on-brand);
+  background: var(--color-surface-subtle);
   border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-3);
 }
@@ -313,7 +371,7 @@
 /* --- Cast intro ------------------------------------------------------------ */
 
 .cast {
-  padding-block: var(--space-7);
+  padding-block: var(--space-8);
   background: var(--color-surface);
   text-align: center;
 }
@@ -325,8 +383,29 @@
   max-width: 34rem;
 }
 
+/* The group photo is the primary visual device here (not the small
+   circular portraits the first draft used) — wide, prominent, framed
+   like a photo card rather than a thumbnail. */
+.castImageWrap {
+  position: relative;
+  width: 100%;
+  /* 4/5 closely matches the source photo's own ~0.8 portrait ratio (see
+     lib/characterGroups.ts) — a wider crop here would cut into the
+     circle of characters around the book. */
+  max-width: 24rem;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.castImage {
+  object-fit: cover;
+}
+
 .castHeading {
-  font-size: var(--text-lg);
+  margin-top: var(--space-6);
+  font-size: var(--text-xl);
 }
 
 .castBody {
@@ -336,48 +415,21 @@
   line-height: var(--leading-relaxed);
 }
 
-.castRow {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-5);
-  margin-top: var(--space-5);
-  list-style: none;
-  padding: 0;
-}
-
-.castMember {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.castPortrait {
-  position: relative;
-  width: 4.5rem;
-  height: 4.5rem;
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  background: var(--color-surface-subtle);
-  border: var(--border-width-sm) solid var(--color-border-subtle);
-}
-
-.castImage {
-  object-fit: cover;
-}
-
-.castName {
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  color: var(--color-text);
+.castNames {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-brand-600);
 }
 
 /* --- Final CTA -------------------------------------------------------------- */
 
 .finalCta {
   padding-block: var(--space-8);
-  background: var(--color-ink-900);
-  color: var(--color-on-brand);
+  /* Pale gold-sand tint, not another neutral surface — a soft, warm
+     "landing spot" for the second CTA, still fully within the light
+     palette (see file comment). */
+  background: var(--color-brand-100);
   text-align: center;
 }
 
@@ -390,7 +442,7 @@
 
 .finalCtaHeading {
   font-size: var(--text-2xl);
-  color: inherit;
+  color: var(--color-heading-accent);
   margin-bottom: var(--space-5);
 }
 
@@ -398,18 +450,17 @@
 
 .minimalFooter {
   padding-block: var(--space-5);
-  background: var(--color-ink-900);
-  border-top: var(--border-width-sm) solid rgba(255, 248, 236, 0.12);
+  background: var(--color-surface-subtle);
+  border-top: var(--border-width-sm) solid var(--color-border-subtle);
 }
 
 .minimalFooterInner {
   text-align: center;
   font-size: var(--text-xs);
-  color: var(--color-on-brand);
-  opacity: 0.75;
+  color: var(--color-text-muted);
 }
 
 .minimalFooterInner a {
-  color: inherit;
+  color: var(--color-brand-600);
   text-decoration: underline;
 }

@@ -65,12 +65,9 @@ export function SignupForm({
       <input type="hidden" name="campaign" value={campaign} />
       <input type="hidden" name="source" value={source || ""} />
 
-      {/* A light card, not the bare dark section background: FormField's
-          own error text (--color-danger) is only audited/legible against
-          the light --color-surface family — see CampaignLanding.module.css's
-          file comment — so the field needs a light surface under it
-          regardless of which section (hero or the dark finalCta) this
-          form instance renders in. */}
+      {/* A slightly lighter card than the page's own cream/ivory
+          background, so the form reads as a distinct, elevated element —
+          see CampaignLanding.module.css's file comment. */}
       <div className={styles.signupCard}>
         <div className={styles.signupRow}>
           <TextField
@@ -96,7 +93,7 @@ export function SignupForm({
       </div>
 
       <p className={styles.reassurance}>
-        No credit card today · Cancel anytime
+        No credit card today. Cancel anytime.
       </p>
 
       {state.status === "error" && state.message && (

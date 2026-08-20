@@ -118,7 +118,15 @@ Implementation proceeded in work packages:
   template (`CampaignLanding.tsx` + `SignupForm.tsx` + `actions.ts` +
   `campaign-icons.tsx`) — `campaign`/`source` route through the page into
   the signup Server Action as hidden fields, so a later analytics
-  integration has real per-campaign/per-source data from day one.
+  integration has real per-campaign/per-source data from day one. Light
+  cream/ivory/brand-100 palette throughout (no dark sections — an
+  earlier dark-hero draft read as "a generic dark signup page," not a
+  warm campaign page, per owner feedback), image-led via
+  `lib/characterGroups.ts` — a `characters.ts`-style manifest for three
+  already-approved full-cast group photos (`public/images/characters/
+full-cast/`, copied from the master library's `15-approved/`
+  "website-use ready" subset, nothing generated) used in the hero and
+  cast section instead of small circular headshots.
   `/free30/page.tsx` is the one route built so far; adding `/blackpool`,
   `/pampers`, or `/chester-zoo` later means a thin `app/<slug>/page.tsx`
   rendering `<CampaignLanding campaign="<slug>" .../>` (optionally with a

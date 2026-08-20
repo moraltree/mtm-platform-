@@ -4,6 +4,49 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-20 (session 3) — `/free30` visual revision: light, image-led
+
+- Task: owner feedback on session 2's `/free30` — too dark, read as "a
+  generic dark signup page" not a QR-campaign page, hero too text-only,
+  cast section too weak, and one factual copy error ("Narrated by Zulu
+  and his circle of friends" implies Zulu narrates every story, which
+  isn't true — stories are independently narrated).
+- Headline/CTA copy changed per the owner's exact wording: "30 Nights
+  Free Trial" (was "30 Free Bedtime Stories"), tagline "Make bedtime the
+  perfect end to their day.", CTA "START TONIGHT — FREE FOR 30 NIGHTS"
+  (was "...30 DAYS"), reassurance "No credit card today. Cancel
+  anytime." Cast copy corrected to "Stories inspired by Zulu the Zebra
+  and the Savannah Seven" / "Meet the characters children will love
+  returning to each night — each story independently narrated" — no
+  narration claim.
+- Entire page relit: removed every dark cocoa/espresso section (hero,
+  finalCta, brandBar, footer) in favour of the same light cream/ivory/
+  brand-100 tokens the corporate site already uses — no new colours.
+  This also made the earlier dark-background contrast workaround
+  unnecessary (kept the signup card anyway, for the "premium floating
+  card" look, not because contrast now requires it).
+- Hero redesigned image-led: three already-approved full-cast group
+  images (`~/mtm-assets/.../15-approved/` — the master library's own
+  "website-use ready" subset, not newly generated) copied into
+  `public/images/characters/full-cast/` and manifested in a new
+  `lib/characterGroups.ts` (mirrors `lib/characters.ts`'s pattern).
+  Hero is now a CSS Grid with named areas: two group-photo cards flank
+  the signup content on desktop (≥64rem), stack as a 2-up row above the
+  content on mobile/tablet. Cast section replaced three tiny circular
+  headshots with one large "storytime circle" group photo (all 8
+  characters gathered around a storybook — a strong thematic fit) plus
+  a plain-text line naming all eight for balanced representation,
+  without competing with the photo.
+- Verified: lint/typecheck/format clean; a stale-cache false alarm
+  (duplicate old+new CSS rules for the same class after several builds
+  without clearing `.next`) was caught and ruled out with a clean
+  rebuild, not shipped; clean production-parity build still 23 routes;
+  `next start` + curl confirmed every requested copy string present
+  exactly, the old inaccurate narration line is gone (0 matches), all
+  three group images render, and the browser tab title (missed in the
+  first pass, then fixed) now matches the new headline.
+- Not deployed to production — updated NON-PRODUCTION preview only.
+
 ## 2026-08-20 (session 2) — Corporate homepage refinements + `/free30` (WP8)
 
 - Task: two objectives from the owner — (A) final homepage refinements

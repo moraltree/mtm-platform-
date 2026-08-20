@@ -1,11 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
-import {
-  getLeadCharacter,
-  getCharacterPose,
-  getEnsembleCharacters,
-} from "@/lib/characters";
+import { CHARACTER_GROUPS } from "@/lib/characterGroups";
 import { SignupForm } from "./SignupForm";
 import {
   MoonIcon,
@@ -47,11 +43,11 @@ export interface CampaignLandingProps {
 
 const DEFAULT_CONTENT: CampaignLandingContent = {
   eyebrow: "Moral Tree Media",
-  kicker: "30 Free Bedtime Stories",
-  tagline: "The End To A Perfect Day",
+  kicker: "30 Nights Free Trial",
+  tagline: "Make bedtime the perfect end to their day.",
   description:
-    "Magical bedtime audiobooks designed to help children relax, dream and drift off peacefully.",
-  ctaLabel: "START TONIGHT — FREE FOR 30 DAYS",
+    "Thirty nights of calming, screen-free bedtime stories to help children relax, dream, and drift off peacefully.",
+  ctaLabel: "START TONIGHT — FREE FOR 30 NIGHTS",
 };
 
 const BENEFITS = [
@@ -67,18 +63,36 @@ const DEVICES = [
   { Icon: SpeakerIcon, label: "Smart speaker" },
 ];
 
-// Introduced modestly, lower on the page, per the brief — the lead plus
-// two of the ensemble (not the full eight), so this stays a supporting
-// beat rather than competing with the conversion message above the fold.
-// Reuses the same already-approved character manifest/assets as the
-// corporate homepage's "Meet the cast" section — no new imagery.
-const lead = getLeadCharacter();
-const castPreview = [lead, ...getEnsembleCharacters().slice(0, 2)].map(
-  (character) => ({
-    character,
-    pose: getCharacterPose(character.slug, "playful-tilt"),
-  }),
-);
+// Group imagery (lib/characterGroups.ts) rather than single-character
+// portraits: the hero needs to read as a polished, image-led campaign
+// page at a glance, which a pair of tiny circular headshots can't carry.
+// object-fit: cover (not the single-character pages' object-fit: contain)
+// is a deliberate difference — these are establishing group *scenes*, not
+// solo portraits where cropping a specific character's ears/head would be
+// wrong; a scene tolerating a cropped edge is the normal trade-off for
+// hero/banner imagery.
+const HERO_IMAGE_LEFT = CHARACTER_GROUPS.find(
+  (g) => g.slug === "group-portrait",
+)!;
+const HERO_IMAGE_RIGHT = CHARACTER_GROUPS.find(
+  (g) => g.slug === "sunset-silhouette",
+)!;
+const CAST_IMAGE = CHARACTER_GROUPS.find((g) => g.slug === "storytime-circle")!;
+
+// All eight, named — balanced representation as a simple text line under
+// the group photo (see the corporate homepage's "Meet the cast" section
+// for the same eight names) rather than eight more small portraits
+// competing with the photo above them.
+const ALL_CHARACTER_NAMES = [
+  "Zulu",
+  "Zala",
+  "Nara",
+  "Mango",
+  "Lulu",
+  "Sid",
+  "Rocky",
+  "Kofi",
+];
 
 /**
  * Shared template for every campaign/QR landing page (`/free30` today;
@@ -88,7 +102,9 @@ const castPreview = [lead, ...getEnsembleCharacters().slice(0, 2)].map(
  * exactly like `/free30/page.tsx` does). One objective per page: convert
  * a visitor into the free trial as fast as possible — no corporate nav
  * (see CorporateChromeGate/lib/campaignRoutes.ts), no invented
- * testimonials/stats/claims, mobile-first throughout.
+ * testimonials/stats/claims, mobile-first throughout. Light warm cream/
+ * cappuccino palette end to end — no dark sections — matching the
+ * corporate site's brand system rather than a separate dark treatment.
  */
 export function CampaignLanding({
   campaign,
@@ -110,18 +126,42 @@ export function CampaignLanding({
       </div>
 
       <section className={styles.hero}>
-        <Container className={styles.heroInner}>
-          <h1 className={styles.kicker}>{copy.kicker}</h1>
-          <p className={styles.tagline}>{copy.tagline}</p>
-          <p className={styles.description}>{copy.description}</p>
+        <Container>
+          <div className={styles.heroGrid}>
+            <div className={styles.heroImageLeft}>
+              <Image
+                src={HERO_IMAGE_LEFT.path}
+                alt={HERO_IMAGE_LEFT.alt}
+                fill
+                sizes="(min-width: 64rem) 16rem, 45vw"
+                className={styles.heroImage}
+                priority
+              />
+            </div>
+            <div className={styles.heroImageRight}>
+              <Image
+                src={HERO_IMAGE_RIGHT.path}
+                alt={HERO_IMAGE_RIGHT.alt}
+                fill
+                sizes="(min-width: 64rem) 16rem, 45vw"
+                className={styles.heroImage}
+                priority
+              />
+            </div>
+            <div className={styles.heroContent}>
+              <h1 className={styles.kicker}>{copy.kicker}</h1>
+              <p className={styles.tagline}>{copy.tagline}</p>
+              <p className={styles.description}>{copy.description}</p>
 
-          <SignupForm
-            campaign={campaign}
-            source={source}
-            ctaLabel={copy.ctaLabel}
-            instanceId="hero"
-            className={styles.heroForm}
-          />
+              <SignupForm
+                campaign={campaign}
+                source={source}
+                ctaLabel={copy.ctaLabel}
+                instanceId="hero"
+                className={styles.heroForm}
+              />
+            </div>
+          </div>
         </Container>
       </section>
 
@@ -172,34 +212,24 @@ export function CampaignLanding({
 
       <section className={styles.cast}>
         <Container className={styles.castInner}>
+          <div className={styles.castImageWrap}>
+            <Image
+              src={CAST_IMAGE.path}
+              alt={CAST_IMAGE.alt}
+              fill
+              sizes="(min-width: 48rem) 40rem, 90vw"
+              className={styles.castImage}
+            />
+          </div>
           <h2 className={styles.castHeading}>
-            Narrated by Zulu and his circle of friends
+            Stories inspired by Zulu the Zebra and the Savannah Seven
           </h2>
           <p className={styles.castBody}>
-            Every bedtime story comes from Moral Tree Media&rsquo;s first Story
-            World — a cast your child will look forward to seeing again each
-            night.
+            Meet the characters children will love returning to each night —
+            each story independently narrated, all part of the same warm,
+            familiar world.
           </p>
-          <ul className={styles.castRow}>
-            {castPreview.map(({ character, pose }) => (
-              <li key={character.slug} className={styles.castMember}>
-                {pose && (
-                  <div className={styles.castPortrait}>
-                    <Image
-                      src={pose.path}
-                      alt={pose.alt}
-                      fill
-                      sizes="4.5rem"
-                      className={styles.castImage}
-                    />
-                  </div>
-                )}
-                <span className={styles.castName}>
-                  {character.canonicalName}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <p className={styles.castNames}>{ALL_CHARACTER_NAMES.join(" · ")}</p>
         </Container>
       </section>
 
