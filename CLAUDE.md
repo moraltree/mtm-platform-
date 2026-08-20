@@ -121,12 +121,24 @@ Implementation proceeded in work packages:
   integration has real per-campaign/per-source data from day one. Light
   cream/ivory/brand-100 palette throughout (no dark sections — an
   earlier dark-hero draft read as "a generic dark signup page," not a
-  warm campaign page, per owner feedback), image-led via
-  `lib/characterGroups.ts` — a `characters.ts`-style manifest for three
-  already-approved full-cast group photos (`public/images/characters/
-full-cast/`, copied from the master library's `15-approved/`
-  "website-use ready" subset, nothing generated) used in the hero and
-  cast section instead of small circular headshots. The brand bar is a
+  warm campaign page, per owner feedback). `lib/characterGroups.ts` (a
+  `characters.ts`-style manifest for three already-approved full-cast
+  group photos, `public/images/characters/full-cast/`, copied from the
+  master library's `15-approved/` "website-use ready" subset) now backs
+  only the cast section's one photo — the hero's own left/right imagery
+  moved away from full-cast photos entirely (see
+  `HeroCastCluster.tsx`'s doc comment): none of that manifest's group
+  photos both satisfy `lib/characters.ts#relativeScale` (the master
+  library's owner-approved canonical scale table — Zala/Kofi read
+  clearly largest, Sid smallest — added to the character manifest
+  specifically for this) _and_ share a background/lighting treatment
+  with each other, so the hero instead composes two "one anchor + three
+  smaller companions" clusters directly from the same individual
+  approved character portraits used everywhere else on the site, sized
+  by tier to match the canonical order. `object-fit: contain` throughout
+  the cluster (never crop a character), unlike the cast section's one
+  full-cast photo which still uses `cover` (an establishing scene, not a
+  solo portrait). The brand bar is a
   proper icon+wordmark lockup, not text-only — `public/images/brand/
 moral-tree-mark.png` (also an approved, already-generated asset, see
   its own README) is the actual Moral Tree symbol, not just the words

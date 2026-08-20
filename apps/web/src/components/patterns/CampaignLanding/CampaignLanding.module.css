@@ -20,11 +20,17 @@
  * (3.38:1) — tokens.css's own documented "decorative/large-emphasis
  * only" rule, used here for .tagline only.
  *
- * Hero/cast images use object-fit: cover (not the single-character
- * pages' object-fit: contain) — these are establishing group *scenes*
- * (lib/characterGroups.ts), not solo portraits where cropping a specific
- * character's ears/head would be wrong; a scene tolerating a cropped
- * edge is the normal trade-off for hero/banner imagery.
+ * Two different image treatments, deliberately: the cast section's one
+ * full-cast group *photo* (lib/characterGroups.ts) uses object-fit:
+ * cover — an establishing scene tolerating a cropped edge is the normal
+ * trade-off for that kind of banner imagery. The hero's own left/right
+ * imagery (HeroCastCluster.tsx) is built from individual approved
+ * character portraits instead and uses object-fit: contain throughout —
+ * same rule the corporate homepage Hero uses for Zulu: a character must
+ * never be cropped to force a scale/frame a portrait wasn't composed
+ * for. See HeroCastCluster.tsx's doc comment for why the hero moved away
+ * from a full-cast photo at all (a canonical relative-scale correction,
+ * not a style preference).
  */
 
 .page {
@@ -107,16 +113,77 @@
 
 .heroImageLeft,
 .heroImageRight {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* --- Hero cast cluster (HeroCastCluster.tsx) ------------------------------
+   One "anchor" (canonically larger) character above a row of smaller
+   companions — the size hierarchy itself is the composition. Every card
+   uses object-fit: contain (never cover) — same rule the corporate
+   homepage Hero uses for Zulu: these are the same approved single-
+   character portraits used throughout the rest of the site, and a
+   character must never be cropped to force a scale a portrait wasn't
+   composed for. 4/5 (not the rest of the page's 3/4) matches the source
+   website-pose photos' own ~0.8 ratio closely, keeping visible
+   letterboxing to a minimum. */
+
+.castCluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.clusterCompanions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+  width: 100%;
+}
+
+.clusterPortrait {
   position: relative;
-  aspect-ratio: 3 / 4;
-  border-radius: var(--radius-lg);
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--color-surface-subtle);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+  min-width: 0; /* let flex-basis: 0 actually shrink below content size on narrow columns, instead of overflowing */
+}
+
+.clusterPortrait_anchor {
+  width: 100%;
+  max-width: 9rem;
   box-shadow: var(--shadow-md);
 }
 
-.heroImage {
-  object-fit: cover;
+/* Companions use flex-grow (not a fixed width) so the row always fits its
+   column at any viewport — grow ratios keep medium visibly bigger than
+   small, capped by max-width once there's room, rather than needing
+   separate hand-tuned sizes per breakpoint. */
+.clusterPortrait_medium {
+  flex: 1.3 1 0;
+  max-width: 6rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.clusterPortrait_small {
+  flex: 1 1 0;
+  max-width: 4.75rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.clusterPortraitImage {
+  object-fit: contain;
+}
+
+@media (min-width: 64rem) {
+  .clusterPortrait_anchor {
+    max-width: 11rem;
+  }
 }
 
 .heroContent {
@@ -173,15 +240,13 @@
 
 @media (min-width: 64rem) {
   .heroGrid {
-    grid-template-columns: 16rem 1fr 16rem;
+    /* Wide enough for the widest companion row (medium+medium+small,
+       ~16.25rem incl. gaps — see the cluster tier sizes above) plus
+       breathing room. */
+    grid-template-columns: 18rem 1fr 18rem;
     grid-template-areas: "imgLeft content imgRight";
     gap: var(--space-8);
     align-items: center;
-  }
-
-  .heroImageLeft,
-  .heroImageRight {
-    aspect-ratio: 3 / 4;
   }
 
   .heroContent {

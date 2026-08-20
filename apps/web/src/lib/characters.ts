@@ -55,6 +55,19 @@ export interface Character {
   order: number;
   /** True only for Zulu — see the file-level doc comment. */
   isLead: boolean;
+  /** Relative standing height, Zulu = 1.00 — the master asset library's
+   * own owner-approved canonical scale/composition reference
+   * (`14-batch2-corrected/savannah-seven-scale-lineup-batch2-v1.png` and
+   * its `AUDIT-NOTES.md`, Session 15: "APPROVED as the canonical visual/
+   * composition scale reference"). Real production canon, not invented
+   * here — any layout that places two or more characters together at a
+   * meaningful size (a hero composition, a group scene) should size
+   * them proportionally to this, not treat every character as
+   * interchangeable. Lulu/Nara/Mango's figures carry a documented
+   * sitting-pose measurement caveat (no standing-pose source art exists
+   * for them) but are still the approved reference values to design
+   * against. */
+  relativeScale: number;
   websitePoses: WebsitePoseImage[];
 }
 
@@ -64,16 +77,67 @@ export interface Character {
 // the "Zulu the Zebra & The Savannah Seven" Story World name) — nothing
 // invented here.
 const CHARACTER_DEFS: Array<
-  Pick<Character, "slug" | "canonicalName" | "order" | "isLead">
+  Pick<
+    Character,
+    "slug" | "canonicalName" | "order" | "isLead" | "relativeScale"
+  >
 > = [
-  { slug: "zulu", canonicalName: "Zulu", order: 1, isLead: true },
-  { slug: "zala", canonicalName: "Zala", order: 2, isLead: false },
-  { slug: "nara", canonicalName: "Nara", order: 3, isLead: false },
-  { slug: "mango", canonicalName: "Mango", order: 4, isLead: false },
-  { slug: "lulu", canonicalName: "Lulu", order: 5, isLead: false },
-  { slug: "sid", canonicalName: "Sid", order: 6, isLead: false },
-  { slug: "rocky", canonicalName: "Rocky", order: 7, isLead: false },
-  { slug: "kofi", canonicalName: "Kofi", order: 8, isLead: false },
+  {
+    slug: "zulu",
+    canonicalName: "Zulu",
+    order: 1,
+    isLead: true,
+    relativeScale: 1.0,
+  },
+  {
+    slug: "zala",
+    canonicalName: "Zala",
+    order: 2,
+    isLead: false,
+    relativeScale: 1.9,
+  },
+  {
+    slug: "nara",
+    canonicalName: "Nara",
+    order: 3,
+    isLead: false,
+    relativeScale: 0.55,
+  },
+  {
+    slug: "mango",
+    canonicalName: "Mango",
+    order: 4,
+    isLead: false,
+    relativeScale: 0.4,
+  },
+  {
+    slug: "lulu",
+    canonicalName: "Lulu",
+    order: 5,
+    isLead: false,
+    relativeScale: 0.75,
+  },
+  {
+    slug: "sid",
+    canonicalName: "Sid",
+    order: 6,
+    isLead: false,
+    relativeScale: 0.25,
+  },
+  {
+    slug: "rocky",
+    canonicalName: "Rocky",
+    order: 7,
+    isLead: false,
+    relativeScale: 1.15,
+  },
+  {
+    slug: "kofi",
+    canonicalName: "Kofi",
+    order: 8,
+    isLead: false,
+    relativeScale: 1.4,
+  },
 ];
 
 // The six approved website poses, in filename order, with the plain-

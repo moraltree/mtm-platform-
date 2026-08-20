@@ -5,6 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { CHARACTER_GROUPS } from "@/lib/characterGroups";
 import { cx } from "@/lib/cx";
 import { SignupForm } from "./SignupForm";
+import { HeroCastCluster, type HeroCastMember } from "./HeroCastCluster";
 import {
   MoonIcon,
   AudiobookIcon,
@@ -78,21 +79,35 @@ const DEVICES = [
   { Icon: SpeakerIcon, label: "Smart speaker" },
 ];
 
-// Group imagery (lib/characterGroups.ts) rather than single-character
-// portraits: the hero needs to read as a polished, image-led campaign
-// page at a glance, which a pair of tiny circular headshots can't carry.
-// object-fit: cover (not the single-character pages' object-fit: contain)
-// is a deliberate difference — these are establishing group *scenes*, not
-// solo portraits where cropping a specific character's ears/head would be
-// wrong; a scene tolerating a cropped edge is the normal trade-off for
-// hero/banner imagery.
-const HERO_IMAGE_LEFT = CHARACTER_GROUPS.find(
-  (g) => g.slug === "group-portrait",
-)!;
-const HERO_IMAGE_RIGHT = CHARACTER_GROUPS.find(
-  (g) => g.slug === "sunset-silhouette",
-)!;
+// Cast section (below the fold) still uses the full-cast "storytime
+// circle" group photo — untouched by this pass, see
+// lib/characterGroups.ts. The hero's own left/right imagery, below, was
+// reworked away from the other two full-cast photos this manifest once
+// used here (group-portrait/sunset-silhouette) — see HeroCastCluster's
+// doc comment for why.
 const CAST_IMAGE = CHARACTER_GROUPS.find((g) => g.slug === "storytime-circle")!;
+
+// The hero's left/right flanks, split so every character appears exactly
+// once across the whole hero (no duplicates) and each flank gets one
+// canonically-larger "anchor" plus a mix of smaller companions — see
+// lib/characters.ts#relativeScale for the approved scale this ordering
+// follows: Zala (1.90) and Kofi (1.40) are the two largest, so each
+// anchors one side; Nara (0.55) and Mango (0.40) — the two characters
+// flagged as reading too-similar-in-size in the previous full-cast-photo
+// version — land in different "small" companion slots, nowhere near
+// each other, so there's no risk of them reading as the same size again.
+const HERO_LEFT_CAST: HeroCastMember[] = [
+  { slug: "zala", tier: "anchor", pose: "standing-full-body" },
+  { slug: "rocky", tier: "medium", pose: "three-quarter-wave" },
+  { slug: "nara", tier: "small", pose: "three-quarter-wave" },
+  { slug: "sid", tier: "small", pose: "three-quarter-wave" },
+];
+const HERO_RIGHT_CAST: HeroCastMember[] = [
+  { slug: "kofi", tier: "anchor", pose: "standing-full-body" },
+  { slug: "zulu", tier: "medium", pose: "three-quarter-wave" },
+  { slug: "lulu", tier: "medium", pose: "three-quarter-wave" },
+  { slug: "mango", tier: "small", pose: "three-quarter-wave" },
+];
 
 // All eight, named — balanced representation as a simple text line under
 // the group photo (see the corporate homepage's "Meet the cast" section
@@ -156,24 +171,10 @@ export function CampaignLanding({
         <Container>
           <div className={styles.heroGrid}>
             <div className={styles.heroImageLeft}>
-              <Image
-                src={HERO_IMAGE_LEFT.path}
-                alt={HERO_IMAGE_LEFT.alt}
-                fill
-                sizes="(min-width: 64rem) 16rem, 45vw"
-                className={styles.heroImage}
-                priority
-              />
+              <HeroCastCluster members={HERO_LEFT_CAST} />
             </div>
             <div className={styles.heroImageRight}>
-              <Image
-                src={HERO_IMAGE_RIGHT.path}
-                alt={HERO_IMAGE_RIGHT.alt}
-                fill
-                sizes="(min-width: 64rem) 16rem, 45vw"
-                className={styles.heroImage}
-                priority
-              />
+              <HeroCastCluster members={HERO_RIGHT_CAST} />
             </div>
             <div className={styles.heroContent}>
               <h1 className={styles.kicker}>{copy.kicker}</h1>

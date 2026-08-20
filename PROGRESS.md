@@ -4,6 +4,55 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-20 (session 5) — `/free30` hero: canon-scale character cluster
+
+- Task: owner feedback on session 4's branding pass — approved, but the
+  two hero side images (both full-cast group photos) read as "two
+  slightly different versions of the same cast" rather than one
+  deliberate composition, and the left photo had a real canon violation:
+  Zala (a giraffe) read about the same size as Nara, and Mango read too
+  large — flagged specifically, not a general "looks off."
+- Checked the finding against the master asset library's own audit
+  trail (`14-batch2-corrected/AUDIT-NOTES.md`) rather than assuming:
+  confirmed the owner-approved canonical scale table (Zala 1.90× Zulu,
+  down to Sid 0.25×) and that the specific left photo used
+  (`full-cast-01-group-portrait.png`) was flagged "scale unverifiable"
+  (a stacked headshot pose that hides the giraffe's actual height) —
+  consistent with the owner's observation, not contradicted by it.
+- Rather than searching for a single replacement group photo (none in
+  the library both matches the canonical scale for Zala/Nara/Mango _and_
+  shares a background/lighting treatment with the other side — checked
+  and ruled out), added `relativeScale` to `lib/characters.ts` (the real
+  approved canon figures, sourced directly from the audit trail) and
+  built a new `HeroCastCluster` component: each hero flank is now one
+  canonically-larger "anchor" character (full standing-body pose) above
+  three smaller "companion" characters — all built from the individual
+  approved character portraits already used everywhere else on the
+  site, not a group photo at all. This guarantees the scale hierarchy is
+  actually correct (sized in code from the canonical figures) rather
+  than dependent on any one photo's composition, and the two flanks
+  automatically read as one composition because every individual
+  character portrait already shares the same studio background/
+  lighting (same generation pipeline, confirmed by inspection).
+- Split all 8 characters once across the two flanks (no duplicates):
+  left anchored by Zala, right by Kofi (the two largest); Nara and Mango
+  — the two characters specifically flagged — land in different small
+  slots on opposite sides, nowhere near each other. `object-fit: contain`
+  throughout (never crop a character, same rule the corporate homepage
+  Hero already follows for Zulu).
+- Verified: lint/typecheck/format clean; clean rebuild (cleared `.next`
+  first) confirmed via direct HTML/CSS inspection that all 8 individual
+  character images render exactly once each with correct per-character
+  alt text, Zala/Kofi use the full standing pose and the other six a
+  smaller companion pose, no character is cropped
+  (`object-fit: contain` compiled once, no stale duplicates), and the
+  desktop hero grid/companion-row sizes were widened to actually fit
+  three companions across without overflow (checked the arithmetic, not
+  assumed). Cast section (a different, untouched full-cast photo),
+  offer copy, typography, brand mark, and palette all confirmed
+  unchanged. Production-parity build still 23 routes.
+- Not deployed to production — updated NON-PRODUCTION preview only.
+
 ## 2026-08-20 (session 4) — `/free30` branding: headline serif + tree mark
 
 - Task: owner feedback on session 3's lighter/image-led revision —
