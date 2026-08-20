@@ -25,13 +25,14 @@
 }
 
 .heading {
-  /* Mobile-only: the exact --text-4xl clamp() formula scaled by 0.875
-     (every term × 0.875) — a uniform, verifiable 12.5% reduction at any
-     viewport width the clamp is actually fluid at (owner mobile review:
-     the full-size heading read too large at ~390px). Restored to the
+  /* Mobile-only, second pass: the previous mobile clamp (0.875x
+     --text-4xl) scaled by a further 0.935 (every term x 0.935) — a
+     uniform, verifiable additional 6.5% reduction at any viewport width
+     the clamp is fluid at (owner mobile review: still slightly large at
+     ~390px). Net ~18.2% below the unscaled --text-4xl. Restored to the
      unscaled --text-4xl at 40rem+ below, so tablet/desktop are
      byte-for-byte unchanged. */
-  font-size: clamp(2.1875rem, 1.6625rem + 2.625vw, 3.5rem);
+  font-size: clamp(2.045rem, 1.554rem + 2.454vw, 3.273rem);
   line-height: var(--leading-tight);
   /* Deep cappuccino/espresso rather than the site-wide --color-text
      (near-black espresso) — a Hero-only warmer read that still clears
