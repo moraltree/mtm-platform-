@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Fraunces } from "next/font/google";
 import { Container } from "@/components/ui/Container";
 import { CHARACTER_GROUPS } from "@/lib/characterGroups";
+import { cx } from "@/lib/cx";
 import { SignupForm } from "./SignupForm";
 import {
   MoonIcon,
@@ -14,6 +16,19 @@ import {
   ShieldIcon,
 } from "./campaign-icons";
 import styles from "./CampaignLanding.module.css";
+
+// Headline-only display serif — warmer and more distinctive than the
+// site-wide Geist Sans (layout.tsx), scoped to this page's .kicker only
+// (body copy/form/tagline stay sans-serif, per the brief). Fraunces was
+// picked specifically for its soft, warm optical-size design (not a
+// stiff editorial serif like Playfair, not a playful nursery face) —
+// premium-storybook rather than corporate or cartoonish.
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  style: ["normal"],
+  variable: "--font-campaign-headline",
+});
 
 export interface CampaignLandingContent {
   eyebrow: string;
@@ -114,14 +129,26 @@ export function CampaignLanding({
   const copy = { ...DEFAULT_CONTENT, ...content };
 
   return (
-    <div className={styles.page}>
-      {/* Minimal brand mark, not corporate nav — a single non-navigating
-          wordmark so the page still reads as genuinely Moral Tree Media
-          (the brief's "family trusted" claim needs a visible brand),
-          without the full primary nav CorporateChromeGate suppresses. */}
+    <div className={cx(styles.page, fraunces.variable)}>
+      {/* Icon + wordmark lockup, not corporate nav — the Moral Tree
+          symbol itself (public/images/brand — see its README for
+          provenance), not just the words "Moral Tree Media", so a QR
+          visitor immediately recognises the brand rather than landing on
+          what could read as an anonymous bedtime-story service. Still no
+          full primary nav — CorporateChromeGate suppresses that. */}
       <div className={styles.brandBar}>
         <Container className={styles.brandBarInner}>
-          <span className={styles.brandMark}>{copy.eyebrow}</span>
+          <div className={styles.brandLockup}>
+            <span className={styles.brandTreeIcon}>
+              <Image
+                src="/images/brand/moral-tree-mark.png"
+                alt=""
+                fill
+                sizes="3rem"
+              />
+            </span>
+            <span className={styles.brandMark}>{copy.eyebrow}</span>
+          </div>
         </Container>
       </div>
 

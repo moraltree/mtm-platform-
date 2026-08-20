@@ -4,6 +4,44 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-20 (session 4) — `/free30` branding: headline serif + tree mark
+
+- Task: owner feedback on session 3's lighter/image-led revision —
+  structure and offer copy approved, two branding refinements only: (1)
+  the H1 typeface read as generic corporate sans, wanted something
+  warmer/more distinctive/premium for a children's storytelling brand
+  (not a nursery-playful font); (2) the brand bar was text-only ("Moral
+  Tree Media") with no actual tree symbol, so a QR visitor couldn't tell
+  this was Moral Tree Media at a glance.
+- Headline: added Fraunces (`next/font/google`, loaded directly in
+  `CampaignLanding.tsx`, scoped via a `--font-campaign-headline` CSS
+  variable to `.kicker` only — not a root-layout/site-wide font change).
+  Picked specifically for its soft, warm optical-size design over a
+  stiffer editorial serif (Playfair) or an actually-playful nursery
+  face — reads as premium-storybook, not corporate or cartoonish. Body
+  copy, tagline, and the signup form stay the site's existing Geist
+  Sans, per the brief.
+- Brand mark: found and used an existing, already-approved, already-
+  generated standalone Moral Tree illustration (`~/mtm-assets/.../
+11-moral-tree/moral-tree-hero-06-standalone-vertical-crop.png` — one
+  of six ✅ "DONE" images per the master library's own manifest,
+  distinct from the still-deferred "logo lockup" generation item) —
+  copied into `public/images/brand/moral-tree-mark.png`, used as a small
+  (3rem) circular icon paired with the existing text wordmark in the
+  brand bar. No new artwork generated; composed the lockup from
+  real HTML/CSS (icon + live text), not a flattened logo image.
+- Verified: lint/typecheck/format clean; clean rebuild (cleared `.next`
+  first, after session 3's stale-cache lesson) confirmed via direct HTML/
+  CSS inspection that `@font-face` for Fraunces compiled, `--font-
+campaign-headline` is declared and consumed by `.kicker`, the brand
+  mark image renders, and the "30 Nights Free Trial" headline/heading
+  hierarchy are otherwise unchanged (no structural changes, per the
+  brief). Production-parity build still 23 routes.
+- Not done (explicitly deferred by the owner to a later pass, not
+  skipped): reworking the two hero side images so they read as one
+  deliberately composed pairing rather than two similar cast shots.
+- Not deployed to production — updated NON-PRODUCTION preview only.
+
 ## 2026-08-20 (session 3) — `/free30` visual revision: light, image-led
 
 - Task: owner feedback on session 2's `/free30` — too dark, read as "a

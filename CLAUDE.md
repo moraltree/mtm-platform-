@@ -126,7 +126,15 @@ Implementation proceeded in work packages:
   already-approved full-cast group photos (`public/images/characters/
 full-cast/`, copied from the master library's `15-approved/`
   "website-use ready" subset, nothing generated) used in the hero and
-  cast section instead of small circular headshots.
+  cast section instead of small circular headshots. The brand bar is a
+  proper icon+wordmark lockup, not text-only — `public/images/brand/
+moral-tree-mark.png` (also an approved, already-generated asset, see
+  its own README) is the actual Moral Tree symbol, not just the words
+  "Moral Tree Media". The hero headline (`.kicker` only — body/tagline/
+  form stay Geist Sans) uses Fraunces, a warm display serif loaded via
+  `next/font/google` directly in `CampaignLanding.tsx` and scoped with a
+  CSS variable (`--font-campaign-headline`) rather than added to the
+  root layout — deliberately not a site-wide typography change.
   `/free30/page.tsx` is the one route built so far; adding `/blackpool`,
   `/pampers`, or `/chester-zoo` later means a thin `app/<slug>/page.tsx`
   rendering `<CampaignLanding campaign="<slug>" .../>` (optionally with a
