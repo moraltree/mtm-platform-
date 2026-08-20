@@ -107,7 +107,14 @@
 .hero {
   padding-block: var(--space-6) var(--space-8);
   /* Soft cream-to-ivory wash, not a flat colour — warm and bright without
-     being a new hue (both ends are existing surface tokens). */
+     being a new hue (both ends are existing surface tokens). Reads the
+     plain core token names on purpose (Phase 3) — a resolved Partner/
+     Story-World/Campaign theme re-declares `--color-surface`/
+     `--color-surface-subtle` on `.page` itself (see
+     lib/theme/resolveTheme.ts#themeToCssVariables' doc comment on why
+     that's safe); `/free30` never sets `themeStyle`, so `.page` never
+     redeclares them there and this resolves to the untouched `:root`
+     values exactly as before. */
   background: linear-gradient(
     180deg,
     var(--color-surface) 0%,
@@ -216,18 +223,23 @@
 }
 
 .kicker {
-  /* Fraunces (CampaignLanding.tsx's `fraunces` next/font/google load,
-     applied as a CSS variable on .page) — headline-only, body/tagline/
-     form stay the site-wide Geist Sans. Georgia is the fallback while
-     the variable font loads/if it fails, not a second real typeface
-     choice. */
-  font-family: var(--font-campaign-headline), Georgia, serif;
+  /* Fraunces by default (CampaignLanding.tsx's `fraunces` next/font/
+     google load, applied as `--font-campaign-headline` on .page) —
+     `--campaign-font-heading` (lib/theme/resolveTheme.ts) takes
+     precedence when a Story World/Campaign theme sets its own heading
+     font; unset for `/free30`, which is what keeps Fraunces in effect
+     there. Georgia is the final fallback while a variable font loads/if
+     it fails. Body/tagline/form stay the site-wide sans throughout. */
+  font-family:
+    var(--campaign-font-heading, var(--font-campaign-headline)), Georgia, serif;
   font-weight: var(--weight-bold);
   font-size: var(--text-3xl);
   line-height: var(--leading-tight);
   /* Same warm cappuccino emphasis token the corporate homepage's own
-     Hero headline uses (Hero.module.css) — deliberate consistency, not
-     a new colour. */
+     Hero headline uses (Hero.module.css) — reads the plain core token
+     name on purpose; see .hero's comment on why a resolved theme
+     overriding `--color-heading-accent` on `.page` is safe and doesn't
+     need a fallback chain here. */
   color: var(--color-heading-accent);
 }
 
@@ -572,6 +584,69 @@
   text-align: center;
   font-size: var(--text-xs);
   color: var(--color-text-muted);
+}
+
+/* --- Generic Story World mode (Phase 1) -------------------------------------
+   Used only when CampaignLanding receives a `storyWorld` prop (the new
+   /start/[storyWorld]/[campaign] route) — /free30 never passes one, so
+   none of this affects its existing rendering. Appended at file end so
+   `.heroGridCentered`'s rules win over `.heroGrid`'s own (including its
+   min-width: 64rem override above) by source order — both are single-
+   class selectors of equal specificity. */
+
+.heroGridCentered {
+  grid-template-columns: 1fr;
+  grid-template-areas: "content";
+}
+
+@media (min-width: 64rem) {
+  .heroGridCentered {
+    grid-template-columns: 1fr;
+    grid-template-areas: "content";
+    max-width: 42rem;
+    margin-inline: auto;
+  }
+}
+
+/* A plain, data-driven roster row — no tiered anchor/companion
+   composition (that's HeroCastCluster's bespoke, Zulu-specific art
+   direction, kept only for /free30 — see this component's own doc
+   comment on why a new Story World doesn't inherit it automatically). */
+.castRosterGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.castRosterItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 6.5rem;
+}
+
+.castRosterPortrait {
+  position: relative;
+  width: 5rem;
+  height: 5rem;
+  border-radius: var(--radius-full, 50%);
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+.castRosterPortraitImage {
+  object-fit: cover;
+}
+
+.castRosterName {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-brand-600);
+  text-align: center;
 }
 
 .minimalFooterInner a {

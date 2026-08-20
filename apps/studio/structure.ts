@@ -51,6 +51,11 @@ export const structure: StructureResolver = (S) =>
       S.documentTypeListItem("person").title("People"),
       S.documentTypeListItem("legalPage").title("Legal pages"),
       S.divider(),
+      // Campaign platform (see the architecture proposal) — schemas only
+      // as of Phase 0, no live route consumes these documents yet.
+      S.documentTypeListItem("partner").title("Partners"),
+      S.documentTypeListItem("campaign").title("Campaigns"),
+      S.divider(),
       S.documentTypeListItem("product").title("Products"),
       // Orders are written exclusively by the Stripe webhook (see
       // order.ts's doc comment) — read-only in practice, but Sanity has

@@ -3,9 +3,18 @@
 import { useActionState, useEffect, useRef } from "react";
 import { TextField } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
-import { submitFreeTrialSignup, initialFreeTrialSignupState } from "./actions";
+import {
+  submitFreeTrialSignup,
+  initialFreeTrialSignupState,
+  type FreeTrialSignupState,
+} from "./actions";
 import { cx } from "@/lib/cx";
 import styles from "./CampaignLanding.module.css";
+
+type SignupAction = (
+  prevState: FreeTrialSignupState,
+  formData: FormData,
+) => Promise<FreeTrialSignupState>;
 
 export interface SignupFormProps {
   campaign: string;
@@ -16,13 +25,19 @@ export interface SignupFormProps {
    * per instance, hence this rather than a hardcoded id. */
   instanceId: string;
   className?: string;
+  /** Overrides the default `/free30` Server Action — the generic
+   * `/start/...` route supplies its own, attribution-aware action
+   * instead (see that route's `actions.ts`). Defaults to
+   * `submitFreeTrialSignup` below, `/free30`'s existing, unchanged
+   * behaviour. */
+  action?: SignupAction;
+  initialState?: FreeTrialSignupState;
 }
 
-/** The one signup form every campaign route shares (currently just
- * `/free30` — see CampaignLanding's doc comment for the intended
- * `/blackpool`/`/pampers`/`/chester-zoo` reuse). `campaign` and `source`
- * travel through as hidden fields into the Server Action
- * (components/patterns/CampaignLanding/actions.ts) precisely so a future
+/** The one signup form every campaign route shares — `/free30` (WP8)
+ * and, as of Phase 1, every campaign served through `/start/[storyWorld]/
+ * [campaign]`. `campaign` and `source` travel through as hidden fields
+ * into whichever Server Action is in effect precisely so a future
  * analytics integration has real per-campaign/per-source data to key off
  * from day one, not something bolted on later. */
 export function SignupForm({
@@ -31,11 +46,10 @@ export function SignupForm({
   ctaLabel,
   instanceId,
   className,
+  action = submitFreeTrialSignup,
+  initialState = initialFreeTrialSignupState,
 }: SignupFormProps) {
-  const [state, formAction, pending] = useActionState(
-    submitFreeTrialSignup,
-    initialFreeTrialSignupState,
-  );
+  const [state, formAction, pending] = useActionState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {

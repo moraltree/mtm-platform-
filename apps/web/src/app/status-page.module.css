@@ -18,3 +18,12 @@
   color: var(--color-text-muted);
   line-height: var(--leading-relaxed);
 }
+
+/* Two CTAs (used by /campaign-unavailable) — wraps on narrow viewports
+   rather than overflowing, mobile-first like every other pattern in
+   this codebase. */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
