@@ -159,7 +159,7 @@ export function CampaignLanding({
                 src="/images/brand/moral-tree-mark.png"
                 alt=""
                 fill
-                sizes="3rem"
+                sizes="(min-width: 40rem) 5.25rem, 4.5rem"
               />
             </span>
             <span className={styles.brandMark}>{copy.eyebrow}</span>

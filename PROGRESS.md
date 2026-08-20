@@ -4,6 +4,40 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-20 (session 6) — `/free30` brand mark: increased prominence
+
+- Task: owner asked for the Moral Tree brand mark to be more prominent —
+  +60-80% on desktop/tablet, an "appropriate" (smaller) increase on
+  mobile to protect the above-the-fold layout, more vertical breathing
+  room, still centred, same artwork, same palette.
+- `.brandTreeIcon`: 3rem → 4.5rem on mobile (+50%), → 5.25rem from
+  tablet up (+75%, one `min-width: 40rem` breakpoint covers both tablet
+  and desktop since the brief asked for the same increase on both).
+  `.brandBar` padding-block: `--space-4` → `--space-5` (mobile) /
+  `--space-6` (tablet+) for breathing room around the bigger mark.
+  `.brandMark` wordmark bumped `text-sm` → `text-md` and
+  `.brandLockup`'s gap `space-3` → `space-4` so the lockup still reads
+  as one balanced mark rather than an oversized icon next to unchanged
+  tiny text. Same image file, no artwork touched; `.brandBarInner`
+  (`justify-content: center`) untouched, so it's still centred.
+- Verified: lint/typecheck/format clean; clean rebuild confirmed via
+  direct CSS inspection that both breakpoints compiled exactly as
+  written (4.5rem base / 5.25rem at `min-width: 40rem`, padding-block
+  `space-5`/`space-6`) and that nothing else on the page changed (offer
+  copy, all 8 hero cluster images, heading hierarchy all re-confirmed
+  present/unchanged). Production-parity build still 23 routes.
+- Honest limitation, not silently skipped: no headless-browser tool is
+  available in this environment, so "recheck at desktop/tablet/430/390"
+  was done by computing the resulting brand-bar height at each
+  breakpoint from the compiled CSS (padding + icon height) and estimating
+  its effect on the rest of the hero's stacked height, not by an actual
+  rendered screenshot. The mobile increase (+40px of total added height:
+  24px icon + 16px padding) is modest in absolute terms and was sized
+  specifically to stay conservative for that reason; the owner's own
+  visual check on a real device is the actual confirmation this method
+  can't fully replace.
+- Not deployed to production — updated NON-PRODUCTION preview only.
+
 ## 2026-08-20 (session 5) — `/free30` hero: canon-scale character cluster
 
 - Task: owner feedback on session 4's branding pass — approved, but the
