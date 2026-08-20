@@ -4,6 +4,66 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-20 (session 2) — Corporate homepage refinements + `/free30` (WP8)
+
+- Task: two objectives from the owner — (A) final homepage refinements
+  (mission statement in the Hero, mobile-only swipeable cast rail,
+  Publishing/Audiobooks/Animation copy that connects to the Story
+  World/cast) and (B) a new, visually/functionally separate QR-campaign
+  landing page at `/free30` built for one goal (free-trial signup
+  conversion), with the architecture ready to reuse for future variants
+  (`/blackpool`, `/pampers`, `/chester-zoo`). Full detail:
+  `logs/website-update/20260820-092504-corporate-refinements-and-free30-report.md`.
+- (A): `Hero` got a new optional `mission` prop (every other caller
+  unaffected); homepage's "Meet the cast" mobile layout changed from a
+  4-row stacked grid to a native `scroll-snap` swipe rail below 40rem,
+  tablet/desktop grid untouched; the three medium cards now name the
+  cast instead of describing generic services, with one copy fix so the
+  Story World teaser stopped contradicting the section beneath it.
+- (B): New `/free30` route + a reusable `CampaignLanding` pattern
+  component (hero/benefits/trust/cast-intro/repeated-CTA sections, all
+  copy matching the brief verbatim, no invented claims). No corporate
+  nav on this route via a new `CorporateChromeGate` — a client-side
+  `usePathname()` gate around server-rendered `Header`/`Footer`,
+  deliberately chosen over both a ~15-folder route-group restructure and
+  a `headers()`-based root-layout check (the latter would have forced
+  the _entire_ site into dynamic rendering — verified with a real build
+  that only `/free30` itself changed rendering mode, everything else
+  identical). Signup Server Action reuses ContactForm's exact
+  honeypot/rate-limit/inert-until-configured contract and notifies a
+  human by email once configured — it deliberately does **not**
+  provision an actual trial (no account/delivery system exists in this
+  codebase; flagged as the genuine unresolved dependency, not silently
+  invented). `campaign`/`source` route through to the Server Action as
+  hidden fields for future analytics.
+- Caught two real issues via direct verification rather than assumption:
+  `FormField`'s inline error text (`--color-danger`) measured 1.7–2.3:1
+  against the new dark hero background (badly failing WCAG) — fixed by
+  wrapping the signup field in a light card so it always sits on an
+  already-audited surface; and a doubled "Moral Tree Media" in the
+  `/free30` browser tab title from stacking a manual suffix on top of
+  the root layout's own title template.
+- Verified: lint/typecheck/format clean throughout; production-parity
+  build (`USE_MOCK_CONTENT=false`) went from 22 to 23 routes with every
+  prior route's rendering mode unchanged; `next start` + curl confirmed
+  `/free30` has zero corporate chrome while seven other existing routes
+  (home, leadership, shop, cart, contact, news, story-worlds,
+  checkout/cancelled) still render Header/Footer normally; compiled CSS
+  fetched and checked directly for the mobile-rail and dark-hero rules
+  at their exact breakpoints. No headless-browser tool is available in
+  this environment — responsive behaviour was verified via the compiled
+  CSS's own breakpoint values rather than a screenshot; flagged as a
+  real verification gap, not silently skipped.
+- Not built: `/blackpool`/`/pampers`/`/chester-zoo` (named "later
+  variants" in the brief — architecture is ready, routes aren't), any
+  analytics vendor (external-service decision, out of scope), or real
+  trial provisioning (needs a product decision first — see CLAUDE.md's
+  "Guidance for future sessions").
+- Not deployed to production — a NON-PRODUCTION Vercel preview was
+  created instead per the brief; rollback tag
+  `pre-wp8-campaign-funnel-20260820-092504` precedes this session's
+  commit on `main`.
+
 ## 2026-08-20 — Homepage "Meet the cast": wired up the unused ensemble helper
 
 - Task: resume the website update plan from the current state (brown/cream

@@ -33,6 +33,17 @@
   color: var(--color-heading-accent);
 }
 
+/* Visually important but still subordinate to .heading (text-4xl): sized
+   between the headline and the muted .subheading below it, semibold, and
+   in the brand cocoa colour (the same interactive/emphasis colour used
+   for links/buttons) rather than muted grey — a statement, not a caption. */
+.mission {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  color: var(--color-brand-600);
+}
+
 .subheading {
   font-size: var(--text-md);
   line-height: var(--leading-relaxed);

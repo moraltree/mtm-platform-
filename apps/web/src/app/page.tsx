@@ -37,6 +37,13 @@ const CAST_MEMBERS = getEnsembleCharacters().map((character) => ({
   pose: getCharacterPose(character.slug, "close-up-headshot"),
 }));
 
+// A small, purely decorative Zulu "stamp" inline with the mediums-section
+// heading (alt="" — the heading already carries the accessible name) —
+// a repeated brand mark rather than a new per-medium mapping, since
+// nothing in this repo's canon assigns individual characters to
+// Publishing/Audiobooks/Animation specifically.
+const MEDIUMS_STAMP = getCharacterPose("zulu", "playful-tilt");
+
 // Home is the site's front door — unlike the pure-editorial pages, a
 // missing `page` document falls back to a real, premium homepage built
 // from hand-authored (not fabricated) positioning copy and clearly-marked
@@ -57,23 +64,28 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata(page.seo?.metaTitle, page.seo);
 }
 
+// Deliberately written to name the cast (now introduced above, in "Meet
+// the cast") rather than describe Publishing/Audiobooks/Animation as
+// three interchangeable services — the same Story World and characters
+// carry across all three, this just says so, without revealing the
+// still-unannounced setting/synopsis/title (see the teaser section above).
 const MEDIUMS = [
   {
     Icon: BookIcon,
     title: "Publishing",
-    body: "Picture books and middle-grade fiction built to be read again, not once and shelved.",
+    body: "Follow Zulu and his circle of friends into picture books and middle-grade fiction built to be read again, not once and shelved.",
     href: "/publishing",
   },
   {
     Icon: HeadphonesIcon,
     title: "Audiobooks",
-    body: "Narrated editions that carry each Story World into the car, the bedtime routine, and beyond.",
+    body: "Hear their story narrated for the car, the bedtime routine, and beyond.",
     href: "/audiobooks",
   },
   {
     Icon: FilmIcon,
     title: "Animation",
-    body: "Animated adaptations in development, extending each Story World to the screen.",
+    body: "Watch their world take shape for the screen — animated adaptations in development.",
     href: "/animation",
   },
 ];
@@ -87,6 +99,7 @@ export default async function Home() {
         <Hero
           eyebrow="Moral Tree Media"
           heading="Story worlds with a moral centre, told across every medium."
+          mission="Helping children become great citizens of the world — kind, equal, and proud of their differences."
           subheading="We build children's story worlds — and the publishing, audiobook, and animation experiences that carry them into the real world — for families who want stories that mean something."
           media={
             HOME_HERO_IMAGE
@@ -185,6 +198,9 @@ export default async function Home() {
                 you&rsquo;ll be meeting.
               </p>
             </div>
+            <p className={styles.castSwipeHint} aria-hidden="true">
+              Swipe to meet everyone →
+            </p>
             <ul className={styles.castGrid}>
               {CAST_MEMBERS.map(({ character, pose }) => (
                 <li key={character.slug} className={styles.castMember}>
@@ -209,11 +225,24 @@ export default async function Home() {
         <section className={cx(styles.section, styles.sectionSubtle)}>
           <Container>
             <div className={styles.sectionHead}>
-              <h2 className={styles.sectionHeading}>
-                How our stories reach families
-              </h2>
+              <div className={styles.mediumsHeadingRow}>
+                {MEDIUMS_STAMP && (
+                  <span className={styles.mediumsStamp}>
+                    <Image
+                      src={MEDIUMS_STAMP.path}
+                      alt=""
+                      fill
+                      sizes="2.5rem"
+                    />
+                  </span>
+                )}
+                <h2 className={styles.sectionHeading}>
+                  How our stories reach families
+                </h2>
+              </div>
               <p className={styles.sectionBody}>
-                One Story World, three ways to experience it.
+                One Story World, three ways to experience it — the same
+                characters you just met, carried into every medium.
               </p>
             </div>
             <div className={styles.pillarGrid}>

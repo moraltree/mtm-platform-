@@ -103,6 +103,39 @@ Implementation proceeded in work packages:
   see "Guidance for future sessions" for what going live actually requires.
   No real Stripe account exists yet; nothing here has processed a real
   charge.
+- **WP8 — Consumer campaign funnel (partial, `/free30` only)** 🚧 A second,
+  deliberately separate visual/functional system for QR-code and
+  direct-link traffic, alongside (not replacing) the corporate site.
+  `lib/campaignRoutes.ts` is the hand-maintained registry of which routes
+  count as "campaign" routes (currently just `/free30`); `CorporateChromeGate`
+  (`components/patterns/CorporateChromeGate`) reads it to suppress the
+  corporate `Header`/`Footer` on those routes only — a client-side
+  `usePathname()` gate around Server-Component-rendered children, chosen
+  specifically so it doesn't force any route (campaign or corporate) into
+  dynamic/per-request rendering (see its own doc comment for why that
+  ruled out reading `headers()`/pathname in the shared root layout).
+  `components/patterns/CampaignLanding` is the reusable landing-page
+  template (`CampaignLanding.tsx` + `SignupForm.tsx` + `actions.ts` +
+  `campaign-icons.tsx`) — `campaign`/`source` route through the page into
+  the signup Server Action as hidden fields, so a later analytics
+  integration has real per-campaign/per-source data from day one.
+  `/free30/page.tsx` is the one route built so far; adding `/blackpool`,
+  `/pampers`, or `/chester-zoo` later means a thin `app/<slug>/page.tsx`
+  rendering `<CampaignLanding campaign="<slug>" .../>` (optionally with a
+  partial `content` override) plus adding `<slug>` to
+  `CAMPAIGN_ROUTE_SLUGS` — don't forget the latter, or that route quietly
+  keeps the full corporate nav. `robots: {index:false, follow:true}` is a
+  deliberate default (not a hard requirement), same carve-out as
+  `/cart`/checkout routes sitting outside the three null-handling rules —
+  flip it if the owner wants a campaign page discoverable via search too.
+  **The signup action does not provision an actual trial** — no customer
+  account/audiobook-delivery/CRM system exists anywhere in this codebase.
+  It validates, rate-limits, and honeypots exactly like `ContactForm`,
+  then (inert-until-configured on `FREE_TRIAL_TO_EMAIL`/
+  `CONTACT_FORM_FROM_EMAIL`, same contract as WP4/WP7) emails a human to
+  follow up by hand. Building real automated provisioning is the
+  genuinely unresolved dependency this WP stopped short of — see
+  "Guidance for future sessions."
 
 ## Repository structure
 
@@ -323,7 +356,11 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   shared editorial content, so all three are `noindex` and none of them
   404 (an empty cart, an unrecognised/missing `session_id`, and a plain
   "you weren't charged" message are all just rendered directly rather than
-  mapped onto rule 1/2/3).
+  mapped onto rule 1/2/3). `/free30` (WP8) sits outside it for a different
+  reason — it's not Sanity-backed content at all, editorial or otherwise;
+  it's a hand-authored, always-on campaign landing page, `noindex` by
+  default (a judgement call, not a rule) since it's built for QR/
+  direct-link traffic rather than organic search.
 
 - `page` documents use a fixed `pageId` (see the option list in
   `apps/studio/schemaTypes/documents/page.ts` and `PAGE_IDS` in
@@ -384,6 +421,21 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
 
 - Keep this file's work-package checklist current as WPs land.
 - Do not touch `backend/` — see above.
+- **`/free30`'s signup does not grant an actual free trial** (see WP8) —
+  it notifies a human by email, nothing more. Making "free for 30 nights"
+  real needs a genuine decision + build: some kind of customer
+  account/access-grant system and a way to actually deliver audiobook
+  content (a member area? emailed links? a third-party platform?). That's
+  a real product/architecture decision for the owner, not something to
+  infer and build unprompted. Don't add fake "trial activated" UI states
+  before that system exists.
+- Adding a new campaign/QR landing route (`/blackpool`, `/pampers`,
+  `/chester-zoo` are the named examples) means: a thin
+  `app/<slug>/page.tsx` rendering `<CampaignLanding campaign="<slug>" />`
+  (see WP8), **and** adding `<slug>` to `lib/campaignRoutes.ts`'s
+  `CAMPAIGN_ROUTE_SLUGS` — skipping the second step leaves the full
+  corporate nav showing on what's supposed to be a stripped-down
+  conversion page.
 - **Hosting is now a firm decision, not a placeholder**: Vercel, canonical
   domain `moraltree.media` — see `DEPLOYMENT.md` for exactly what's done
   in code versus what still needs Vercel account access/DNS. Don't

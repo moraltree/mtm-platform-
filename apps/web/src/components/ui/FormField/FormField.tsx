@@ -5,6 +5,7 @@ import {
 } from "react";
 import styles from "./FormField.module.css";
 import { cx } from "@/lib/cx";
+import { VisuallyHidden } from "@/components/ui/VisuallyHidden";
 
 interface BaseFieldProps {
   label: string;
@@ -21,13 +22,21 @@ function useFieldIds(hint?: string, error?: string) {
   return { id, hintId, errorId, describedBy };
 }
 
-type TextFieldProps = BaseFieldProps &
-  Omit<InputHTMLAttributes<HTMLInputElement>, "id" | "className">;
+type TextFieldProps = BaseFieldProps & {
+  /** Keeps `label` in the accessibility tree (still programmatically
+   * associated via `htmlFor`) but hides it visually — for compact forms
+   * where a `placeholder` carries the visible hint instead (e.g. a
+   * single-field email-capture bar). Off by default; every existing
+   * caller renders its label exactly as before. `TextField`-only: a
+   * `TextArea` always needs a visible label. */
+  hideLabel?: boolean;
+} & Omit<InputHTMLAttributes<HTMLInputElement>, "id" | "className">;
 
 /** Self-contained labelled text input — label, hint, and error are all
  * programmatically associated (WCAG 3.3.2, 4.1.2). */
 export function TextField({
   label,
+  hideLabel,
   hint,
   error,
   required,
@@ -35,15 +44,24 @@ export function TextField({
   ...rest
 }: TextFieldProps) {
   const { id, hintId, errorId, describedBy } = useFieldIds(hint, error);
+  const labelContent = (
+    <>
+      {label}
+      {required && (
+        <span aria-hidden="true" className={styles.required}>
+          {" "}
+          *
+        </span>
+      )}
+    </>
+  );
   return (
     <div className={cx(styles.field, className)}>
       <label htmlFor={id} className={styles.label}>
-        {label}
-        {required && (
-          <span aria-hidden="true" className={styles.required}>
-            {" "}
-            *
-          </span>
+        {hideLabel ? (
+          <VisuallyHidden>{labelContent}</VisuallyHidden>
+        ) : (
+          labelContent
         )}
       </label>
       {hint && (

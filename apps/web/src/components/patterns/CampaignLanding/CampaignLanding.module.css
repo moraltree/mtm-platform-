@@ -1,0 +1,415 @@
+/*
+ * Shared campaign/QR landing page template (CampaignLanding.tsx). Mobile-
+ * first throughout — most QR scans arrive on a phone — with `min-width`
+ * enhancements for tablet/desktop, same convention as every other CSS
+ * module in this codebase. Deliberately its own visual system, not the
+ * corporate `home.module.css` patterns: this page has no corporate
+ * Header/Footer (CorporateChromeGate) and a single conversion goal, so it
+ * doesn't need to look like the rest of the site's page chrome — it does
+ * still consume the same design tokens (tokens.css) throughout, so the
+ * warm cream/cocoa/espresso brand system carries over intact.
+ *
+ * New dark-background text pairings introduced here (existing tokens,
+ * verified by relative luminance — same method as tokens.css's own
+ * audit — rather than assumed):
+ *   --color-on-brand (cream) on --color-ink-900 (espresso): 15.70:1
+ *   --color-on-brand (cream) on --color-brand-700 (cocoa): 11.73:1 (already
+ *     audited in tokens.css for the CtaPanel/ConsentBanner use of this
+ *     exact pair)
+ *   --color-accent-gold on --color-ink-900: 4.45:1
+ *   --color-accent-gold on --color-brand-700: 3.32:1
+ *   Both accent-gold pairings are used ONLY for the large, bold .tagline
+ *   (>=24px) — large-text WCAG AA needs 3:1, not 4.5:1 — matching
+ *   tokens.css's existing rule that accent-gold is a decorative/
+ *   large-emphasis colour, never body text, regardless of background.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Minimal brand bar (not corporate nav) ------------------------------ */
+
+.brandBar {
+  padding-block: var(--space-4);
+  background: var(--color-ink-900);
+}
+
+.brandBarInner {
+  display: flex;
+  justify-content: center;
+}
+
+.brandMark {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-on-brand);
+  opacity: 0.85;
+}
+
+/* --- Hero ---------------------------------------------------------------- */
+
+.hero {
+  padding-block: var(--space-8) var(--space-9);
+  /* Warm "bedtime sky" gradient — dark cocoa into deep espresso, both
+     already-audited dark tokens (see file comment), not a new colour. */
+  background: linear-gradient(
+    180deg,
+    var(--color-brand-700) 0%,
+    var(--color-ink-900) 100%
+  );
+  color: var(--color-on-brand);
+  text-align: center;
+}
+
+.heroInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 34rem;
+}
+
+.kicker {
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  color: inherit;
+}
+
+.tagline {
+  margin-top: var(--space-3);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent-gold);
+}
+
+.description {
+  margin-top: var(--space-4);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: inherit;
+  opacity: 0.92;
+}
+
+.heroForm {
+  margin-top: var(--space-6);
+  width: 100%;
+}
+
+@media (min-width: 48rem) {
+  .kicker {
+    font-size: var(--text-4xl);
+  }
+}
+
+/* --- Signup form (used twice: hero + finalCta) --------------------------- */
+
+.signupForm {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.signupCard {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-md);
+}
+
+.signupRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.signupField {
+  flex: 1;
+}
+
+.signupButton {
+  white-space: normal;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.01em;
+}
+
+.reassurance {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  color: inherit;
+  opacity: 0.85;
+}
+
+.formError {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-danger);
+  background: var(--color-danger-surface);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.formSuccess {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-success);
+  background: var(--color-on-brand);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+@media (min-width: 40rem) {
+  .signupRow {
+    flex-direction: row;
+  }
+}
+
+/* --- Benefits ------------------------------------------------------------ */
+
+.benefits {
+  padding-block: var(--space-7);
+  background: var(--color-surface);
+}
+
+.benefitsHeading {
+  font-size: var(--text-lg);
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
+.benefitList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-5);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.benefitItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.benefitIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  flex: none;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-100);
+  color: var(--color-accent-gold);
+}
+
+.benefitLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+@media (min-width: 40rem) {
+  .benefitList {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* --- Trust ---------------------------------------------------------------- */
+
+.trust {
+  padding-block: var(--space-7);
+  background: var(--color-surface-subtle);
+  text-align: center;
+}
+
+.trustInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 34rem;
+}
+
+.trustBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-100);
+  color: var(--color-accent-gold);
+}
+
+.trustHeadline {
+  margin-top: var(--space-4);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
+}
+
+.trustBody {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+}
+
+.deviceIntro {
+  margin-top: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.deviceList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-5);
+  margin-top: var(--space-3);
+  list-style: none;
+  padding: 0;
+}
+
+.deviceItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+}
+
+.deviceIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+  color: var(--color-brand-600);
+}
+
+/* --- Cast intro ------------------------------------------------------------ */
+
+.cast {
+  padding-block: var(--space-7);
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.castInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 34rem;
+}
+
+.castHeading {
+  font-size: var(--text-lg);
+}
+
+.castBody {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+}
+
+.castRow {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+  list-style: none;
+  padding: 0;
+}
+
+.castMember {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.castPortrait {
+  position: relative;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+.castImage {
+  object-fit: cover;
+}
+
+.castName {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+/* --- Final CTA -------------------------------------------------------------- */
+
+.finalCta {
+  padding-block: var(--space-8);
+  background: var(--color-ink-900);
+  color: var(--color-on-brand);
+  text-align: center;
+}
+
+.finalCtaInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 30rem;
+}
+
+.finalCtaHeading {
+  font-size: var(--text-2xl);
+  color: inherit;
+  margin-bottom: var(--space-5);
+}
+
+/* --- Minimal footer (not the corporate Footer) ------------------------------ */
+
+.minimalFooter {
+  padding-block: var(--space-5);
+  background: var(--color-ink-900);
+  border-top: var(--border-width-sm) solid rgba(255, 248, 236, 0.12);
+}
+
+.minimalFooterInner {
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--color-on-brand);
+  opacity: 0.75;
+}
+
+.minimalFooterInner a {
+  color: inherit;
+  text-decoration: underline;
+}

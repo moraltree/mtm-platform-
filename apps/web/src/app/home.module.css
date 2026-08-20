@@ -97,18 +97,49 @@
 
 /* --- Meet the cast ----------------------------------------------------- */
 
+/* Mobile (below 40rem/640px, i.e. the "mobile only" scope): a horizontally
+   swipeable rail instead of the tall stacked 2-column grid this used to
+   be at this width (7 items / 2 columns = 4 wrapped rows — the "long
+   stacked cast layout" the brief asked to replace). scroll-snap gives a
+   native, no-JS swipe gesture; tablet/desktop below are the prior
+   session's grid, untouched. */
 .castGrid {
-  display: grid;
-  gap: var(--space-5);
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
   list-style: none;
-  padding: 0;
   margin: 0;
+  padding: 0 0 var(--space-2);
+  /* Firefox: hide the scrollbar (still fully scrollable/swipeable) so it
+     reads as a rail, not an overflowing grid. */
+  scrollbar-width: none;
+}
+
+.castGrid::-webkit-scrollbar {
+  display: none;
+}
+
+.castSwipeHint {
+  margin-top: calc(-1 * var(--space-3));
+  margin-bottom: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
 }
 
 @media (min-width: 40rem) {
   .castGrid {
+    display: grid;
     grid-template-columns: repeat(4, 1fr);
+    overflow-x: visible;
+    scroll-snap-type: none;
+    padding-bottom: 0;
+  }
+
+  .castSwipeHint {
+    display: none;
   }
 }
 
@@ -124,6 +155,19 @@
   align-items: center;
   gap: var(--space-3);
   text-align: center;
+  scroll-snap-align: start;
+  /* Fixed-width rail tile on mobile so ~2.5 members peek into view (a
+     swipe affordance); tablet/desktop below revert to the grid's own
+     auto sizing. */
+  flex: 0 0 6.5rem;
+  width: 6.5rem;
+}
+
+@media (min-width: 40rem) {
+  .castMember {
+    flex: initial;
+    width: auto;
+  }
 }
 
 .castPortrait {
@@ -144,6 +188,30 @@
 .castName {
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
+}
+
+/* --- Mediums heading stamp ---------------------------------------------- */
+
+.mediumsHeadingRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mediumsStamp {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+  background: var(--color-surface-subtle);
+}
+
+.mediumsStamp img {
+  object-fit: cover;
 }
 
 /* --- Mediums / pillars ----------------------------------------------- */
