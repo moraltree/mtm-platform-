@@ -13,6 +13,10 @@ import {
 } from "../mockContent";
 import { defaultCampaignRepository } from "../repository";
 import {
+  getStoryWorldFromRegistry,
+  STORY_WORLD_REGISTRY,
+} from "../storyWorlds/registry";
+import {
   campaignBelongsToPartner as ruleCampaignBelongsToPartner,
   isCampaignEffectivelyActive,
   isStoryWorldPermitted as ruleIsStoryWorldPermitted,
@@ -141,6 +145,12 @@ export async function getPageByPageId(pageId: PageId) {
   return useMockContent ? getMockPage(pageId) : null;
 }
 
+// Fallback order below is deliberate and the same at each function: a
+// real Sanity result always wins; failing that, STORY_WORLD_REGISTRY's
+// real (production-visible, ungated) seed content; only failing *that*
+// does mockStoryWorlds' fictional/dev-only data apply, and only when
+// USE_MOCK_CONTENT is on. See lib/storyWorlds/registry.ts's doc comment.
+
 export async function getStoryWorlds() {
   const result = await sanityFetch<StoryWorldDoc[]>(`
     *[_type == "storyWorld"] | order(order asc) {
@@ -148,7 +158,10 @@ export async function getStoryWorlds() {
     }
   `);
   if (result) return result;
-  return useMockContent ? mockStoryWorlds : null;
+  const seeded = useMockContent
+    ? [...STORY_WORLD_REGISTRY, ...mockStoryWorlds]
+    : STORY_WORLD_REGISTRY;
+  return seeded.length > 0 ? seeded : null;
 }
 
 export async function getFeaturedStoryWorlds() {
@@ -158,18 +171,24 @@ export async function getFeaturedStoryWorlds() {
     }
   `);
   if (result) return result;
-  return useMockContent ? mockStoryWorlds.filter((sw) => sw.featured) : null;
+  const seeded = useMockContent
+    ? [...STORY_WORLD_REGISTRY, ...mockStoryWorlds].filter((sw) => sw.featured)
+    : STORY_WORLD_REGISTRY.filter((sw) => sw.featured);
+  return seeded.length > 0 ? seeded : null;
 }
 
 export async function getStoryWorldBySlug(slug: string) {
   const result = await sanityFetch<StoryWorldDoc>(
     `*[_type == "storyWorld" && slug.current == $slug][0] {
       _id, title, slug, tagline, formats, status, heroImage,
-      synopsis, gallery, ${SECTIONS_PROJECTION}, ${SEO_PROJECTION}
+      synopsis, gallery, characterRoster,
+      ${SECTIONS_PROJECTION}, ${SEO_PROJECTION}
     }`,
     { slug },
   );
   if (result) return result;
+  const seeded = getStoryWorldFromRegistry(slug);
+  if (seeded) return seeded;
   return useMockContent
     ? (mockStoryWorlds.find((sw) => sw.slug.current === slug) ?? null)
     : null;

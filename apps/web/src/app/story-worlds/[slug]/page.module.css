@@ -55,3 +55,57 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+.characters {
+  padding-bottom: var(--space-7);
+}
+
+.charactersHeading {
+  margin-bottom: var(--space-4);
+}
+
+.characterGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+.characterCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.characterPortrait {
+  position: relative;
+  width: 100%;
+  max-width: 8rem;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+.characterImage {
+  object-fit: cover;
+}
+
+.characterName {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+@media (min-width: 40rem) {
+  .characterGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 64rem) {
+  .characterGrid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}

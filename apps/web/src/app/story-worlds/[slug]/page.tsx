@@ -119,6 +119,36 @@ export default async function StoryWorldPage(
         </Container>
       )}
 
+      {storyWorld.characterRoster && storyWorld.characterRoster.length > 0 && (
+        <Container className={styles.characters}>
+          <h2 className={styles.charactersHeading}>Meet the cast</h2>
+          <div className={styles.characterGrid}>
+            {storyWorld.characterRoster.map((member, index) => {
+              const src = urlFor(member.portrait)?.width(300).url();
+              return (
+                <div
+                  key={member.name ?? index}
+                  className={styles.characterCard}
+                >
+                  {src && (
+                    <div className={styles.characterPortrait}>
+                      <Image
+                        src={src}
+                        alt={member.portrait?.alt || member.name}
+                        fill
+                        sizes="8rem"
+                        className={styles.characterImage}
+                      />
+                    </div>
+                  )}
+                  <p className={styles.characterName}>{member.name}</p>
+                </div>
+              );
+            })}
+          </div>
+        </Container>
+      )}
+
       <PageSections sections={sections} />
     </>
   );

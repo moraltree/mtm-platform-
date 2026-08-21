@@ -184,6 +184,47 @@ moral-tree-mark.png` (also an approved, already-generated asset, see
   environment right now (no real storefront URL was available yet), so
   "Shop" is currently omitted from nav entirely rather than falling back
   to the legacy internal route — set the var to make it appear.
+- **WP10 — Story Worlds: Savannah Seven seed content** ✅ The `/story-
+worlds` route/template (WP6) was already fully generic — no page/
+  component changes were needed for multi-Story-World support, only a
+  data layer. `lib/storyWorlds/registry.ts` is a new, real (not mock/
+  dev-gated) `StoryWorldDoc` fallback — `queries.ts`'s
+  `getStoryWorlds`/`getFeaturedStoryWorlds`/`getStoryWorldBySlug` try a
+  real Sanity result first, then this registry, then (only with
+  `USE_MOCK_CONTENT=true`) `mockContent.ts`'s fictional fixtures — same
+  "no page document → real hand-authored fallback" precedent Home's own
+  null-state already established, applied per-Story-World here instead
+  of site-wide. It is temporary seed content, not a second CMS: the
+  moment a real Sanity `storyWorld` document exists for a slug, Sanity's
+  result wins automatically and the registry entry is never consulted
+  again for that slug — nothing to migrate by hand. `lib/sanity/
+image.ts#urlFor` gained one additive `local-file:` sentinel branch so
+  the registry's images (real files under `public/`, not Sanity CDN
+  assets) resolve through the exact same `urlFor(x)?.width(n).url()`
+  call every other image consumer already uses — zero effect on any real
+  Sanity ref or existing mock ref anywhere else in the codebase.
+  `SAVANNAH_SEVEN_STORY_WORLD` (`key: "zulu"`, `slug: "savannah-seven"`)
+  is the one populated entry — real character roster generated directly
+  from `lib/characters.ts#getAllCharacters()` (one source of truth, not
+  re-typed), hero art copied unmodified from the master asset library's
+  own purpose-made `hero-03-story-worlds-index-card-crop-16x9.png` (see
+  `public/images/story-worlds/savannah-seven/README.md` for the crop-
+  choice reasoning), gallery reusing the full-cast photos already in
+  `public/images/characters/full-cast/`. Copy is limited to lines already
+  approved/live elsewhere on the site (the /free30 tagline). River
+  Rangers/Firefly Hollow/Ocean World are deliberately **not** stubbed in
+  — no entry means the existing honest empty-list/404 behavior applies,
+  same as any other unpopulated listing in this codebase; add each once
+  it has real approved content, never a placeholder. The reusable detail
+  template (`story-worlds/[slug]/page.tsx`) gained one generic "Meet the
+  cast" section reading `storyWorld.characterRoster` (previously rendered
+  by no corporate-route template at all — only the campaign platform's
+  `/start/[storyWorld]/[campaign]` read it) — `characterRoster` was also
+  added to `getStoryWorldBySlug`'s GROQ projection so a real Sanity
+  document populates the same section identically once one exists.
+  `mockContent.ts`, `devRecords.ts` (River Rangers' own campaign-platform
+  fixture), the campaign platform, `/free30`, and Shopify/Stripe/Vercel
+  config are all untouched.
 
 ## Repository structure
 

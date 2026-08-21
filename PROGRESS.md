@@ -4,6 +4,86 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-21 (session 2) — WP10: Story Worlds — Savannah Seven seed content
+
+- Task: resume the corporate website build, Story Worlds first, following
+  a read-only audit + approved proposal (Decisions A–D). Scope: make
+  Savannah Seven genuinely visible on the live `/story-worlds` route now,
+  keep the architecture multi-Story-World-ready, use only already-
+  approved repo assets/copy, touch nothing Shopify/Stripe/`/free30`/
+  campaign/Vercel-related.
+- Audit found the WP6 route/template already fully generic (zero
+  Savannah-specific code) — the actual gap was content, not page design.
+  `getStoryWorlds()`/`getStoryWorldBySlug()` only ever fell back to
+  `mockContent.ts`'s three fictional placeholders, gated off in
+  production; Savannah's real, approved 8-character/6-pose asset library
+  (`lib/characters.ts`) was wired only into `/free30` and the homepage,
+  completely disconnected from the `storyWorld` schema/route. River
+  Rangers already had a real, schema-shaped fixture
+  (`lib/devRecords.ts`) but only reachable through the campaign
+  platform's key-based lookup, not the corporate slug-based one.
+- New `lib/storyWorlds/registry.ts`: a real (non-mock, non-gated)
+  `StoryWorldDoc` fallback, consulted by `queries.ts` after a real Sanity
+  result and before the mock-content fictional fixtures — explicitly
+  temporary seed content, not a second CMS (a real Sanity document for a
+  slug wins automatically the moment one exists). `lib/sanity/
+image.ts#urlFor` gained one additive `local-file:` branch so the
+  registry's real `public/` images resolve through the same
+  `urlFor(x)?.width(n).url()` call site every other image already uses —
+  verified this has zero effect on any existing Sanity/mock image
+  anywhere else (the sentinel prefix can never collide with a real ref or
+  `mockImage()`'s `"image-mock-…"` ref).
+- Populated one entry: Zulu the Zebra & The Savannah Seven (`key:
+"zulu"`, matching the schema's own established example; `slug:
+"savannah-seven"`). `characterRoster` generated from
+  `lib/characters.ts#getAllCharacters()` directly (not hand-duplicated —
+  one source of truth for name/scale/image path). Hero image copied
+  unmodified from the master asset library's own purpose-made
+  `hero-03-story-worlds-index-card-crop-16x9.png` (`PRODUCTION_MANIFEST.md`
+  Section 8, item 3 — produced specifically for `storyWorld.heroImage`);
+  chose the 16:9 crop over the also-available 4:3 one because the current
+  single-`heroImage`-field schema serves both the 4:3 index card and the
+  16:9 detail hero from one asset, and a wide source cropped narrower by
+  CSS preserves the manifest's deliberate top-biased framing better than
+  the reverse (see the new `public/images/story-worlds/savannah-seven/
+README.md`). Gallery reuses the full-cast photos already in `public/
+images/characters/full-cast/` — no new copying. Tagline/shortDescription
+  reuse the exact line already approved and live on `/free30`
+  ("Stories inspired by Zulu the Zebra and the Savannah Seven."); synopsis
+  is two short, factual sentences (cast roll-call + "in development") —
+  no invented plot/lore/marketing claims. River Rangers/Firefly Hollow/
+  Ocean World were deliberately left unstubbed — no repo content/assets
+  exist for them yet, so the existing honest empty-list/404 behavior
+  covers "coming soon" without fabricating placeholder entries.
+- Found and fixed a real gap while implementing: the reusable detail
+  template never rendered `characterRoster` at all (only the campaign
+  platform's `/start/[storyWorld]/[campaign]` route read that field) —
+  "characters" was one of the fields explicitly required to be exposable.
+  Added one generic "Meet the cast" section (`story-worlds/[slug]/
+page.tsx` + matching `page.module.css`, styled consistently with the
+  existing gallery section and the homepage's own cast-grid convention)
+  driven entirely by `storyWorld.characterRoster` — benefits every future
+  Story World, not Savannah-specific. Also added `characterRoster` to
+  `getStoryWorldBySlug`'s GROQ projection so a real future Sanity
+  document populates the same section identically, not just the seed
+  fallback.
+- Verified: lint/typecheck/format clean; production-parity build
+  (`USE_MOCK_CONTENT=false`) went from 24 to 25 routes
+  (`/story-worlds/savannah-seven` now statically generated); `next
+start` + curl confirmed the index lists exactly one card (Savannah),
+  the detail page renders hero/badges/tagline/synopsis/gallery/all 8
+  character portraits+names, `/story-worlds/{river-rangers,firefly-
+hollow,ocean-world}` all honestly 404 (not fabricated), and every
+  previously-verified route/behaviour (`/`, `/free30`, `/shop`, `/cart`,
+  `/contact`, `/leadership`, `/news`, `/checkout/cancelled`,
+  `/campaign-unavailable`, the Shopify nav link, no cart icon) is
+  unchanged.
+- Not touched: `mockContent.ts`'s fictional fixtures, `devRecords.ts`
+  (River Rangers' campaign-platform fixture), the campaign platform,
+  `/free30`, Shopify integration, Stripe/legacy shop code, Vercel
+  config. Not deployed — local implementation only, per instruction;
+  stopped for review before any deploy.
+
 ## 2026-08-21 — WP9: Shopify merch integration, Phase 1 (nav link only)
 
 - Task: resume the website build following the owner's Shopify audit
