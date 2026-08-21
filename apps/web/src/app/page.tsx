@@ -176,6 +176,7 @@ export default async function Home() {
                       alt={savannahSeven?.gallery?.[0]?.alt || ""}
                       fill
                       sizes="(min-width: 64rem) 40vw, 100vw"
+                      className={styles.storyWorldMediaImage}
                     />
                   )}
                 </div>

@@ -74,6 +74,16 @@
   background: var(--color-surface-subtle);
 }
 
+/* Fix (WP11 visual QA): this image had no object-fit at all, so the
+   browser's default (fill — stretch to the box in both dimensions,
+   ignoring aspect ratio) silently squashed the ensemble photo to this
+   box's 16/10 ratio. contain preserves the photo's real proportions —
+   every character keeps their real shape — letterboxing within the box
+   rather than distorting to fill it. */
+.storyWorldMediaImage {
+  object-fit: contain;
+}
+
 .storyWorldBody {
   display: flex;
   flex-direction: column;

@@ -4,6 +4,37 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-21 (session 4) — WP11 fix: image distortion/cropping from the refinement pass
+
+- Task: owner visual QA on WP11 (below) rejected it — the Hero crop cut
+  into Zulu's lower body/raised hoof, and the Story World teaser's
+  ensemble photo looked visibly squashed. Fix only, no redesign.
+- Hero (`Hero.module.css`): reverted `.image` from `object-fit: cover` +
+  `object-position: top` back to `object-fit: contain` (no cropping,
+  full character always visible), and `.media`'s aspect-ratio from 4/3
+  back to 4/5 (the source photo's own natural ~0.803 ratio, so `contain`
+  needs no letterboxing). The `max-width: 22rem` mobile cap introduced in
+  WP11 — the actual, correct fix for "oversized on mobile" — was kept
+  unchanged; it alone (no crop needed) solves that complaint.
+- Story World teaser image (`home.module.css`, `page.tsx`): root cause
+  was a real bug, not a design choice — the `<Image fill>` for the
+  ensemble photo had **no `object-fit` set at all**, so the browser's
+  CSS-initial default (`fill`, i.e. stretch-to-box ignoring aspect
+  ratio) silently squashed it to `.storyWorldMedia`'s 16/10 box. Added a
+  new `.storyWorldMediaImage { object-fit: contain; }` class and applied
+  it via `className` — same bug would have existed with the old
+  `/placeholder.png` too, just unnoticed. `.storyWorldMedia`'s own 16/10
+  box, all copy, badges, CTAs, and title styling from WP11 are
+  unchanged.
+- Verified: lint/typecheck/format clean; production-parity build; `next
+start` + curl confirmed the compiled CSS has zero `object-position:top`
+  occurrences and the correct `object-fit:contain`/`aspect-ratio:4/5`
+  rules, both images still resolve to the correct real source files, and
+  every previously-verified route/behaviour (Shopify nav, no cart icon,
+  `/free30`, campaign routes, honest 404s, detail page's 8 characters)
+  is unchanged. Not deployed — a fresh preview created for owner
+  re-review.
+
 ## 2026-08-21 (session 3) — WP11: Story Worlds visual refinement pass
 
 - Task: owner visual QA on WP10 found the _homepage's_ Hero and "Story
