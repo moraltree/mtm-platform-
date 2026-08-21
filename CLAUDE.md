@@ -164,6 +164,26 @@ moral-tree-mark.png` (also an approved, already-generated asset, see
   follow up by hand. Building real automated provisioning is the
   genuinely unresolved dependency this WP stopped short of — see
   "Guidance for future sessions."
+- **WP9 — Shopify merch integration, Phase 1 (nav link only)** ✅ Owner
+  decision (2026-08-21, following a repo audit): a real Shopify store now
+  exists (Shopify Payments active, GBP payouts enabled) and is the system
+  of record for merchandise — catalogue, SKUs, variants, inventory,
+  pricing, checkout, orders, fulfilment. This repo's only role in Phase 1
+  is linking primary nav's "Shop" item straight to the Shopify-hosted
+  storefront (`lib/shop.ts`'s `NEXT_PUBLIC_SHOP_URL`, resolved in
+  `siteDefaults.ts`'s `DEFAULT_PRIMARY_NAV` — external link, opens in a
+  new tab, same disclosure-nav markup serves desktop and mobile). No
+  local cart count is shown (Header's cart icon/badge removed) since
+  Shopify owns the cart now. WP7's Sanity `product`/`order` schemas,
+  `/shop`, `/shop/[slug]`, `/cart`, `/checkout/*`, `lib/cart.ts`, and the
+  Stripe webhook are **left in place but unlinked from nav** — dormant,
+  not deleted, until this integration is proven in production (see
+  "Guidance for future sessions"). No Storefront API/headless integration
+  yet (Phase 3, not started) — see the audit report for the full A/B/C
+  comparison and phased plan. `NEXT_PUBLIC_SHOP_URL` is unset in every
+  environment right now (no real storefront URL was available yet), so
+  "Shop" is currently omitted from nav entirely rather than falling back
+  to the legacy internal route — set the var to make it appear.
 
 ## Repository structure
 
@@ -499,3 +519,19 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   in-memory/single-instance caveat as the contact form's — same fix
   (shared store) applies to both if/when it becomes a real problem, not
   two separate efforts.
+- **Shopify is now the merch commerce backend (WP9)** — don't restore or
+  extend the WP7 Stripe checkout flow, and don't build a new bespoke
+  product database/cart/checkout. Set `NEXT_PUBLIC_SHOP_URL`
+  (`apps/web/.env.example`) to make "Shop" reappear in nav, pointed at
+  Shopify. Do not touch `campaign.offer.stripePriceId` or any Stripe
+  usage under the campaign/attribution architecture when working on this
+  — that's a separate, unrelated content-subscription/trial-entitlement
+  feature (owned by the shared platform backend), not the merch shop.
+  Next steps (not started, wait for explicit approval): Phase 2 is a
+  branded storefront domain (`shop.moraltree.media`, just a
+  `NEXT_PUBLIC_SHOP_URL` value + DNS, no code change); Phase 3 is headless
+  (Shopify Storefront API rendered through the existing `Card`/
+  `CardGrid` components, replacing this nav-link-only integration) —
+  only once the Phase 1 link has been proven in production and the owner
+  asks for it; formal removal of the dormant WP7 code is its own later,
+  deliberate cleanup, not bundled into either phase above.

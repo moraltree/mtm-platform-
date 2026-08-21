@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { VisuallyHidden } from "@/components/ui/VisuallyHidden";
-import { useCart } from "@/lib/cart";
 import { cx } from "@/lib/cx";
 import styles from "./Header.module.css";
 
@@ -27,7 +26,6 @@ export interface HeaderProps {
  */
 export function Header({ siteTitle, nav }: HeaderProps) {
   const [open, setOpen] = useState(false);
-  const { itemCount } = useCart();
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -45,32 +43,11 @@ export function Header({ siteTitle, nav }: HeaderProps) {
         </Link>
 
         <div className={styles.actions}>
-          <Link
-            href="/cart"
-            className={styles.cartLink}
-            aria-label={`Cart${itemCount > 0 ? `, ${itemCount} item${itemCount === 1 ? "" : "s"}` : ""}`}
-          >
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M6 8h12l-1 12H7L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg>
-            {itemCount > 0 && (
-              <span className={styles.cartBadge} aria-hidden="true">
-                {itemCount}
-              </span>
-            )}
-          </Link>
-
+          {/* No cart icon here: Shopify owns the cart in this phase (Phase
+              1 Shopify integration, see lib/shop.ts) — showing one backed
+              by the dormant local lib/cart.ts would be a fake/misleading
+              count. Re-add only if a future phase makes this repo cart-
+              aware again (e.g. Storefront API cart, Phase 3+). */}
           <button
             type="button"
             className={styles.toggle}

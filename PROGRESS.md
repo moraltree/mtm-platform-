@@ -4,6 +4,59 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-21 — WP9: Shopify merch integration, Phase 1 (nav link only)
+
+- Task: resume the website build following the owner's Shopify audit
+  approval — a real Shopify store now exists (Shopify Payments active,
+  GBP payouts enabled, first test product created). Scope was
+  deliberately narrow: point the primary "Shop" nav link at the Shopify
+  storefront, nothing else. No Storefront API/headless work, no Shopify
+  product/inventory changes, no legacy code deletion.
+- Reinspected the repo first: found `main` (local) 8 commits ahead of
+  `origin/main` (unpushed), and the actually-checked-out
+  `backup/platform-phase-0-5-2026-08-20` branch one checkpoint commit
+  ahead of local `main` and already in sync with its own origin — flagged
+  to the owner as an observation, not resolved here (out of this
+  session's scope). Did this session's work on a new branch off that
+  branch (`feature/shopify-storefront-nav-link`) rather than touching
+  either `main` or the backup branch.
+- Added `lib/shop.ts` (`NEXT_PUBLIC_SHOP_URL`/`isShopConfigured`) as the
+  one isolated config point — swapping the `myshopify.com` URL for a
+  branded domain later (`shop.moraltree.media`) needs only an env var
+  change. `siteDefaults.ts`'s `DEFAULT_PRIMARY_NAV` now renders "Shop" as
+  an external link to that URL, in its existing nav position, and omits
+  it entirely (rather than falling back to the legacy internal `/shop`)
+  when the var is unset — same honest inert-until-configured contract
+  every other integration here already uses. `Header.tsx`'s external-link
+  branch already opens in a new tab and is the same markup for desktop
+  and mobile (CSS-only breakpoint), so no separate mobile handling was
+  needed.
+- Removed the Header's cart icon/badge (`useCart` import and the
+  `/cart` link) per explicit instruction — Shopify owns the cart in this
+  phase, and a badge backed by the now-unlinked local `lib/cart.ts` would
+  be a fake count. `lib/cart.ts` itself, `CartView`, WP7's Sanity
+  `product`/`order` schemas, `/shop`, `/shop/[slug]`, `/cart`,
+  `/checkout/*`, and the Stripe webhook are all untouched — left dormant,
+  not deleted, per instruction.
+- Did not touch `campaign.offer.stripePriceId` or any campaign/attribution
+  Stripe usage (a separate content-subscription feature, unrelated to
+  merch) or the `/free30`/`/start/[storyWorld]/[campaign]`/Phase 0–5
+  architecture.
+- `NEXT_PUBLIC_SHOP_URL` documented in `.env.example`, left unset (no real
+  storefront URL was available this session) — "Shop" is currently
+  omitted from live nav until the owner sets it.
+- Verified: lint/typecheck/format clean; production-parity build; `next
+start` + curl confirmed every other route (`/`, `/free30`, `/shop`
+  directly, corporate pages) unchanged, "Shop" absent from rendered nav
+  with the var unset, and present as an external `target="_blank"` link
+  to a placeholder URL with it set (temporarily, for verification only —
+  reverted before committing). See the owner-facing report for the exact
+  file list and rendered-nav evidence.
+- Not done, per explicit instruction: legacy WP7/Stripe cleanup,
+  Storefront API/headless work, any Shopify-side product/inventory
+  change, a branded `shop.moraltree.media` domain, pushing/merging this
+  branch anywhere.
+
 ## 2026-08-20 (session 7) — Homepage mobile polish: Hero heading + section gaps
 
 - Task: owner's mobile (~390px) visual review of the corporate homepage

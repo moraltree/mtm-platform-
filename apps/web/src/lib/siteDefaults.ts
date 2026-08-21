@@ -1,5 +1,6 @@
 import type { ResolvedLink } from "./links";
 import { PAGE_ID_PATHS } from "./links";
+import { SHOP_URL, isShopConfigured } from "./shop";
 
 /**
  * Fallback global chrome used whenever `getSiteSettings()` returns `null`
@@ -11,6 +12,15 @@ import { PAGE_ID_PATHS } from "./links";
  */
 export const DEFAULT_SITE_TITLE = "Moral Tree Media";
 
+/**
+ * "Shop" links out to the Shopify-hosted storefront (`lib/shop.ts`), not
+ * the legacy internal `/shop` route — omitted entirely rather than
+ * falling back to that route when `NEXT_PUBLIC_SHOP_URL` is unset (see
+ * `lib/shop.ts`'s doc comment). If/when a real Sanity `siteSettings`
+ * project supplies its own primary nav instead of this fallback, the same
+ * decision needs applying there too — not done here, out of scope until
+ * that project exists.
+ */
 export const DEFAULT_PRIMARY_NAV: ResolvedLink[] = [
   { label: "About", href: PAGE_ID_PATHS.about, external: false },
   {
@@ -21,7 +31,9 @@ export const DEFAULT_PRIMARY_NAV: ResolvedLink[] = [
   { label: "Publishing", href: PAGE_ID_PATHS.publishing, external: false },
   { label: "Audiobooks", href: PAGE_ID_PATHS.audiobooks, external: false },
   { label: "Animation", href: PAGE_ID_PATHS.animation, external: false },
-  { label: "Shop", href: PAGE_ID_PATHS.shop, external: false },
+  ...(isShopConfigured
+    ? [{ label: "Shop", href: SHOP_URL as string, external: true }]
+    : []),
   { label: "News", href: PAGE_ID_PATHS.news, external: false },
   { label: "Contact", href: PAGE_ID_PATHS.contact, external: false },
 ];
