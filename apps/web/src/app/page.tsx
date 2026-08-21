@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Hero } from "@/components/patterns/Hero";
 import { CtaPanel } from "@/components/patterns/CtaPanel";
 import { PageSections } from "@/components/patterns/PageSections";
-import { getPageByPageId } from "@/lib/sanity/queries";
+import { getPageByPageId, getStoryWorldBySlug } from "@/lib/sanity/queries";
+import { urlFor } from "@/lib/sanity/image";
 import { adaptSections } from "@/lib/pageSections";
 import { buildMetadata } from "@/lib/metadata";
 import { cx } from "@/lib/cx";
@@ -43,6 +44,14 @@ const CAST_MEMBERS = getEnsembleCharacters().map((character) => ({
 // nothing in this repo's canon assigns individual characters to
 // Publishing/Audiobooks/Animation specifically.
 const MEDIUMS_STAMP = getCharacterPose("zulu", "playful-tilt");
+
+// Mirrors story-worlds/[slug]/page.tsx's own STATUS_LABELS — kept as a
+// separate, tiny copy rather than a shared import across route files.
+const TEASER_STATUS_LABELS: Record<string, string> = {
+  "in-development": "In development",
+  released: "Released",
+  announced: "Announced",
+};
 
 // Home is the site's front door — unlike the pure-editorial pages, a
 // missing `page` document falls back to a real, premium homepage built
@@ -92,6 +101,16 @@ const MEDIUMS = [
 
 export default async function Home() {
   const page = await getPageByPageId("home");
+  // Real, not mock/placeholder — see lib/storyWorlds/registry.ts. Sanity
+  // first, then the seed registry, same fallback chain the corporate
+  // /story-worlds pages already use; the moment a real Sanity home `page`
+  // document exists this whole branch (and this fetch) stops rendering.
+  const savannahSeven = !page
+    ? await getStoryWorldBySlug("savannah-seven")
+    : null;
+  const savannahSevenImage = savannahSeven?.gallery?.[0]
+    ? urlFor(savannahSeven.gallery[0])?.width(800).url()
+    : undefined;
 
   if (!page) {
     return (
@@ -151,37 +170,55 @@ export default async function Home() {
             <div className={styles.storyWorldLayout}>
               <div className={styles.storyWorldCard}>
                 <div className={styles.storyWorldMedia}>
-                  <Image
-                    src="/placeholder.png"
-                    alt="Placeholder — final Story World artwork pending"
-                    fill
-                    sizes="(min-width: 64rem) 40vw, 100vw"
-                  />
-                  <span className={styles.storyWorldMediaBadge}>
-                    <Badge tone="neutral">Placeholder artwork</Badge>
-                  </span>
+                  {savannahSevenImage && (
+                    <Image
+                      src={savannahSevenImage}
+                      alt={savannahSeven?.gallery?.[0]?.alt || ""}
+                      fill
+                      sizes="(min-width: 64rem) 40vw, 100vw"
+                    />
+                  )}
                 </div>
                 <div className={styles.storyWorldBody}>
-                  <Badge tone="brand">Coming soon</Badge>
+                  {savannahSeven?.status && (
+                    <Badge tone="brand">
+                      {TEASER_STATUS_LABELS[savannahSeven.status] ??
+                        savannahSeven.status}
+                    </Badge>
+                  )}
                   <h3 className={styles.storyWorldTitle}>
-                    Story World reveals coming soon
+                    {savannahSeven?.title ?? "Story World reveals coming soon"}
                   </h3>
                   <p className={styles.storyWorldText}>
-                    Setting and synopsis details are still in development and
-                    will be announced here and on our Story Worlds page once
-                    approved — meet the characters below in the meantime.
+                    {savannahSeven?.tagline ??
+                      "Setting and synopsis details are still in development and will be announced here and on our Story Worlds page once approved — meet the characters below in the meantime."}
                   </p>
                 </div>
               </div>
               <div>
                 <p className={styles.sectionBody}>
-                  Visit the Story Worlds page for the current catalogue as each
-                  world is confirmed and published.
+                  {savannahSeven
+                    ? "See the full cast and details, or browse the catalogue as more Story Worlds are announced."
+                    : "Visit the Story Worlds page for the current catalogue as each world is confirmed and published."}
                 </p>
                 <div className={styles.sectionLinks}>
-                  <Button href="/story-worlds" variant="primary">
-                    Visit Story Worlds
+                  <Button
+                    href={
+                      savannahSeven
+                        ? `/story-worlds/${savannahSeven.slug.current}`
+                        : "/story-worlds"
+                    }
+                    variant="primary"
+                  >
+                    {savannahSeven
+                      ? "Explore Savannah Seven"
+                      : "Visit Story Worlds"}
                   </Button>
+                  {savannahSeven && (
+                    <Button href="/story-worlds" variant="secondary">
+                      See all Story Worlds
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

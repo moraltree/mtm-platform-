@@ -72,29 +72,48 @@
 
 .media {
   position: relative;
-  /* Matches the approved character portrait assets' own aspect ratio
-     (e.g. Zulu's hero pose is 912x1136, ~0.8) rather than a generic
-     landscape 4:3 — with the previous 4:3 box, object-fit: cover forced
-     a wide crop onto a tall portrait image and cut into the character's
-     ears/head. object-fit: contain below guarantees no cropping
-     regardless of a future asset's exact ratio; this ratio just keeps
-     the frame close-fitting so there's no visible letterboxing. */
-  aspect-ratio: 4 / 5;
+  /* Visual-refinement pass: the previous 4/5 box at up to 100vw width
+     (mobile, single-column .inner) rendered as a near-full-viewport
+     panel — the box ratio (0.8) barely differed from the source photo's
+     own (~0.803, 912x1136), so object-fit: contain wasn't adding
+     letterboxing to trim; the box itself was just too big. 4/3 (shorter
+     for the same width) + a capped max-width below the two-column
+     breakpoint below shrink the rendered footprint substantially while
+     .image's top-anchored cover crop (below) keeps the character's full
+     face/ears/mane in frame regardless — same source image, no new
+     artwork, no regeneration. */
+  aspect-ratio: 4 / 3;
+  max-width: 22rem;
+  margin-inline: auto;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--color-surface-subtle);
 }
 
 .image {
-  /* contain, not cover: the character must never be cropped (full head,
-     both ears, waving hoof all need to stay visible) — see the .media
-     comment above for why cover was cropping the top of the frame. */
-  object-fit: contain;
+  /* cover + top-anchored: this box (4/3, wider-for-its-height than the
+     source photo's ~0.8 ratio) only ever needs to crop the vertical
+     dimension, never horizontal — so object-position: top trims from
+     below the shoulders only. Face/ears/mane, and both ears' full width,
+     stay untouched at the top of the frame at every size; only the
+     lower torso/legs are trimmed. A deliberate, moderate crop (not a
+     tight headshot zoom) — see this file's WP11 note in PROGRESS.md for
+     why 4/3 rather than a tighter ratio was chosen. */
+  object-fit: cover;
+  object-position: top center;
 }
 
 @media (min-width: 64rem) {
   .inner {
     grid-template-columns: 1fr 1fr;
     gap: var(--space-8);
+  }
+
+  .media {
+    /* Two-column grid already gives this a sensible, non-full-bleed
+       width (roughly half the container) — the mobile-only cap above
+       would just needlessly shrink it further here. */
+    max-width: none;
+    margin-inline: 0;
   }
 }

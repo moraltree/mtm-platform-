@@ -74,12 +74,6 @@
   background: var(--color-surface-subtle);
 }
 
-.storyWorldMediaBadge {
-  position: absolute;
-  top: var(--space-3);
-  right: var(--space-3);
-}
-
 .storyWorldBody {
   display: flex;
   flex-direction: column;
@@ -88,8 +82,13 @@
   padding: var(--space-5);
 }
 
+/* Deliberately stronger than .sectionHeading/.sectionBody around it — this
+   is the one real, live Story World, and should read as such rather than
+   blend into the surrounding corporate copy. */
 .storyWorldTitle {
-  font-size: var(--text-lg);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-heading-accent);
 }
 
 .storyWorldText {

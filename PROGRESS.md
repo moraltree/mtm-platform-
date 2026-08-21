@@ -4,6 +4,71 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-21 (session 3) — WP11: Story Worlds visual refinement pass
+
+- Task: owner visual QA on WP10 found the _homepage's_ Hero and "Story
+  World teaser" section — not the `/story-worlds` pages themselves —
+  still showed stale placeholder treatment (a "Placeholder artwork"
+  badge, a generic "Coming soon"/"Story World reveals coming soon" card,
+  an oversized Zulu hero image) now that Savannah Seven is real. Scoped
+  and approved: homepage Hero + Story World teaser, plus a small status
+  badge on the `/story-worlds` index card. Detail page left untouched
+  (no regression found, none needed).
+- Homepage Story World teaser (`app/page.tsx`, `home.module.css`): now
+  fetches the real `savannah-seven` Story World via the same
+  `getStoryWorldBySlug` fallback chain WP10 built (Sanity → seed registry
+  → mock), rather than hardcoding placeholder markup. Removed
+  `/placeholder.png` and the "Placeholder artwork"/"Coming soon" badges
+  entirely; card now shows the real title ("Zulu the Zebra & The
+  Savannah Seven"), the approved tagline (reused verbatim from
+  `/free30`), an honest "In development" status badge, and the full-cast
+  ensemble photo already used elsewhere (via the Story World's own
+  `gallery[0]`, not a separately hardcoded path — one source of truth).
+  Title styling strengthened (`--text-2xl`, bold, `--color-heading-
+accent` — same token as the Hero headline, contrast-audited against
+  both backgrounds it now appears on; updated that token's own doc
+  comment in `tokens.css` to reflect the second usage). Primary CTA now
+  deep-links to `/story-worlds/savannah-seven`; a new secondary CTA links
+  to `/story-worlds`. A null-`savannahSeven` fallback (generic "coming
+  soon" markup) is kept for honest degradation if the registry entry is
+  ever removed — not expected to trigger today.
+- Homepage Hero (`Hero.module.css`, `Hero.tsx`) — same source image, no
+  new artwork: `.media`'s aspect-ratio changed 4/5 → 4/3 and gained a
+  `max-width: 22rem` (removed again at the existing 64rem two-column
+  breakpoint, where the grid already sizes it reasonably) — the box
+  itself, not letterboxing, was the real cause of the "almost a full
+  viewport" complaint (previous 4/5 ratio was already within ~0.4% of
+  the source photo's own ~0.803 ratio, so `object-fit: contain` had
+  almost no letterbox to remove). `.image` switched `contain` → `cover`
+  - `object-position: top center`: because the new box is wider-for-its-
+    height than the source photo, `cover` only ever crops the vertical
+    axis here, never horizontal — face/ears/mane and both ears' full width
+    stay completely in frame at the top; only the lower torso/legs are
+    trimmed. `sizes` updated to match (`22rem` mobile hint instead of
+    `100vw`). Also used by `/style-guide` (an internal, noindexed
+    design-system reference page) via the same shared component — flagged,
+    not avoided, since that page exists specifically to reflect the real
+    component styling.
+- `/story-worlds` index (`page.tsx`): added the same "In development"
+  status badge to the Card via its existing (previously unused) `meta`
+  prop — already documented in `Card.tsx` as built for exactly this
+  ("a status badge row (Story Worlds)").
+- Verified: lint/typecheck/format clean; production-parity build
+  (`USE_MOCK_CONTENT=false`); `next start` + curl confirmed zero
+  placeholder references remain, real title/tagline/badge/ensemble image
+  render, both CTAs point correctly, the compiled CSS contains the new
+  `22rem`/`object-position:top` rules, the Savannah Seven detail page is
+  byte-for-byte unchanged in content (hero, all 8 characters, badges),
+  and every previously-verified route/behaviour (`/free30`, `/shop`,
+  `/cart`, `/contact`, `/leadership`, `/news`, `/checkout/cancelled`,
+  `/campaign-unavailable`, the Shopify nav link, no cart icon, honest
+  404s for River Rangers/Firefly Hollow/Ocean World) is unchanged.
+- Not touched: Shopify integration, Stripe/legacy shop code, `/free30`,
+  campaign routes, Vercel config, audiobook/player infrastructure,
+  accounts/entitlements, Publishing/Audiobooks/Animation section, any
+  other corporate page. Not deployed to production — a fresh preview
+  deployment was created instead for owner visual review.
+
 ## 2026-08-21 (session 2) — WP10: Story Worlds — Savannah Seven seed content
 
 - Task: resume the corporate website build, Story Worlds first, following

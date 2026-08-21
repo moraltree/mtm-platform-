@@ -63,7 +63,7 @@ export function Hero({
               src={media.src}
               alt={media.alt}
               fill
-              sizes="(min-width: 64rem) 40vw, 100vw"
+              sizes="(min-width: 64rem) 40vw, 22rem"
               className={styles.image}
               priority
             />
