@@ -70,16 +70,24 @@
 
 .storyWorldMedia {
   position: relative;
-  aspect-ratio: 16 / 10;
+  /* Fix (final visual pass): this box was 16/10 (1.6, landscape) against
+     the actual photo's 912x1136 (~0.8, portrait) — nearly double the
+     aspect-ratio mismatch, so object-fit: contain (below) was correct
+     but had a huge amount of box to letterbox into, reading as
+     "excessive empty space" around the artwork. 4/5 matches the source
+     photo almost exactly (same ratio Hero.module.css's own .media uses
+     for the same reason) — contain now needs little to no letterboxing,
+     so the visible artwork itself fills far more of the box. */
+  aspect-ratio: 4 / 5;
   background: var(--color-surface-subtle);
 }
 
 /* Fix (WP11 visual QA): this image had no object-fit at all, so the
    browser's default (fill — stretch to the box in both dimensions,
    ignoring aspect ratio) silently squashed the ensemble photo to this
-   box's 16/10 ratio. contain preserves the photo's real proportions —
-   every character keeps their real shape — letterboxing within the box
-   rather than distorting to fill it. */
+   box's ratio. contain preserves the photo's real proportions — every
+   character keeps their real shape — letterboxing within the box rather
+   than distorting to fill it. */
 .storyWorldMediaImage {
   object-fit: contain;
 }
@@ -109,8 +117,15 @@
 
 @media (min-width: 64rem) {
   .storyWorldLayout {
-    grid-template-columns: 1fr 1fr;
+    /* Moderate skew toward the artwork (was 1fr 1fr) — more visual
+       presence for the one real, live Story World, still comfortably
+       roomy for the copy/CTAs beside it. */
+    grid-template-columns: 6fr 5fr;
     gap: var(--space-8);
+    /* The now-taller (4/5) card can exceed the text column's natural
+       height — center rather than start so the shorter column doesn't
+       just sit pinned to the top with dead space below it. */
+    align-items: center;
   }
 }
 

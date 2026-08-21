@@ -4,6 +4,37 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-21 (session 5) — WP11 final pass: Story Worlds card sizing/balance
+
+- Task: with the distortion/cropping fix (below) approved, one more
+  homepage-only refinement — enlarge the Savannah Seven artwork
+  moderately, reduce dead space around it, keep proportions/copy/CTAs/
+  data exactly as they are, Hero untouched.
+- Root cause found: `.storyWorldMedia`'s box was `aspect-ratio: 16/10`
+  (1.6, landscape) against the actual ensemble photo's real 912x1136
+  (~0.8, portrait, confirmed by reading the file directly — same fixed
+  canvas size as every other asset in this pipeline, including Zulu's
+  own hero pose). `object-fit: contain` was already correct, but had to
+  letterbox nearly half the box away to fit a portrait image into a
+  landscape frame — that gap _was_ the "excessive empty space."
+- One CSS-only fix (`home.module.css`): `.storyWorldMedia`'s
+  aspect-ratio → `4/5` (matches the real photo almost exactly, same
+  ratio `Hero.module.css`'s `.media` already uses for the same reason —
+  no letterboxing left to speak of, so the artwork itself reads
+  noticeably larger for free). At the existing 64rem breakpoint,
+  `.storyWorldLayout`'s `grid-template-columns` changed `1fr 1fr` → `6fr
+5fr` (moderate skew toward the artwork) and gained `align-items: center`
+  (the now-taller portrait card can exceed the shorter text column's
+  height; centering avoids the text column pinning to the top with dead
+  space beneath it). No other property changed.
+- Verified: lint/typecheck/format clean; production-parity build; `next
+start` + curl confirmed the compiled CSS has the new `4/5`/`6fr 5fr`/
+  `center` rules, `.storyWorldMediaImage`/Hero's `.image` both still
+  compile to `object-fit:contain` (zero `cover`), all copy/badges/CTAs/
+  routes unchanged, the Savannah Seven detail page and Hero are
+  untouched, and every previously-verified route/behaviour is unchanged.
+  Not deployed — a fresh preview created for owner visual QA.
+
 ## 2026-08-21 (session 4) — WP11 fix: image distortion/cropping from the refinement pass
 
 - Task: owner visual QA on WP11 (below) rejected it — the Hero crop cut
