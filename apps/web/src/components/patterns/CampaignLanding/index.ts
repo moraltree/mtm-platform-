@@ -5,3 +5,4 @@ export type {
   GenericStoryWorldContent,
   SuppressibleSection,
 } from "./CampaignLanding";
+export type { SignupFormOfferHints } from "./SignupForm";

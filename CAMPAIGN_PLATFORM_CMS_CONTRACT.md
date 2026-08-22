@@ -231,23 +231,24 @@ comment and the accessibility section below for why.
 
 ### `CampaignDoc`
 
-| Field                                                                                  | Type                                                                                                                          | Admin-editable?                                                                          |
-| -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `key`                                                                                  | `string`, **globally unique, immutable** (owner-confirmed Phase 1 decision)                                                   | Set once                                                                                 |
-| `slug`                                                                                 | `string`, editable, scoped for routing display only                                                                           | Yes                                                                                      |
-| `partner`, `storyWorld`                                                                | references, both optional                                                                                                     | Yes                                                                                      |
-| `theme`                                                                                | `ThemeTokensFields`                                                                                                           | Yes                                                                                      |
-| `offer.trialLengthDays`, `offer.stripePriceId`, `offer.discountCode`                   | —                                                                                                                             | Yes (`stripePriceId` is display/checkout-initiation only — see the Stripe section below) |
-| `headline`, `subheadline`, `heroImageOverride`, `ctaWording`, `supportingCopyOverride` | —                                                                                                                             | Yes                                                                                      |
-| `sectionOverrides`                                                                     | `Array<"offer" \| "benefits" \| "storyWorldIntro" \| "trust">`                                                                | Yes                                                                                      |
-| `startDate`, `endDate`                                                                 | ISO 8601, both optional (no expiry if `endDate` unset)                                                                        | Yes                                                                                      |
-| `timezone`                                                                             | `string?`, IANA zone — display/input convenience only, see lifecycle section                                                  | Yes                                                                                      |
-| `status`                                                                               | `"draft" \| "scheduled" \| "active" \| "paused" \| "archived"` — never `"expired"`, which is computed (see lifecycle section) | Yes                                                                                      |
-| `trackingIdentifiers`                                                                  | `{internalCode, defaultUtm}`                                                                                                  | Yes                                                                                      |
-| `acquisitionSources`                                                                   | `AcquisitionSourceField[]`                                                                                                    | Yes — see below                                                                          |
-| `customDomain`                                                                         | `{domain, verified?}?` — see custom-domains section                                                                           | Yes                                                                                      |
-| `unavailableMessage`                                                                   | `string?` — see Campaign Unavailable section                                                                                  | Yes                                                                                      |
-| `internalNotes`                                                                        | `string?`                                                                                                                     | Yes                                                                                      |
+| Field                                                                                                                                            | Type                                                                                                                          | Admin-editable?                                                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `key`                                                                                                                                            | `string`, **globally unique, immutable** (owner-confirmed Phase 1 decision)                                                   | Set once                                                                                                                                                                             |
+| `slug`                                                                                                                                           | `string`, editable, scoped for routing display only                                                                           | Yes                                                                                                                                                                                  |
+| `partner`, `storyWorld`                                                                                                                          | references, both optional                                                                                                     | Yes                                                                                                                                                                                  |
+| `theme`                                                                                                                                          | `ThemeTokensFields`                                                                                                           | Yes                                                                                                                                                                                  |
+| `offer.offerType`                                                                                                                                | `"free-trial" \| "percentage-discount" \| "fixed-offer" \| "reward-linked"`, optional                                         | Yes — see the registration-journey section below for backward compatibility                                                                                                          |
+| `offer.trialLengthDays`, `offer.discountPercentage`, `offer.fixedOfferLabel`, `offer.rewardRuleKey`, `offer.stripePriceId`, `offer.discountCode` | —                                                                                                                             | Yes (`stripePriceId` is display/checkout-initiation only — see the Stripe section below; `rewardRuleKey` is an opaque, unvalidated reference — see the registration-journey section) |
+| `headline`, `subheadline`, `heroImageOverride`, `ctaWording`, `supportingCopyOverride`                                                           | —                                                                                                                             | Yes                                                                                                                                                                                  |
+| `sectionOverrides`                                                                                                                               | `Array<"offer" \| "benefits" \| "storyWorldIntro" \| "trust">`                                                                | Yes                                                                                                                                                                                  |
+| `startDate`, `endDate`                                                                                                                           | ISO 8601, both optional (no expiry if `endDate` unset)                                                                        | Yes                                                                                                                                                                                  |
+| `timezone`                                                                                                                                       | `string?`, IANA zone — display/input convenience only, see lifecycle section                                                  | Yes                                                                                                                                                                                  |
+| `status`                                                                                                                                         | `"draft" \| "scheduled" \| "active" \| "paused" \| "archived"` — never `"expired"`, which is computed (see lifecycle section) | Yes                                                                                                                                                                                  |
+| `trackingIdentifiers`                                                                                                                            | `{internalCode, defaultUtm}`                                                                                                  | Yes                                                                                                                                                                                  |
+| `acquisitionSources`                                                                                                                             | `AcquisitionSourceField[]`                                                                                                    | Yes — see below                                                                                                                                                                      |
+| `customDomain`                                                                                                                                   | `{domain, verified?}?` — see custom-domains section                                                                           | Yes                                                                                                                                                                                  |
+| `unavailableMessage`                                                                                                                             | `string?` — see Campaign Unavailable section                                                                                  | Yes                                                                                                                                                                                  |
+| `internalNotes`                                                                                                                                  | `string?`                                                                                                                     | Yes                                                                                                                                                                                  |
 
 ### `AcquisitionSourceField`
 
@@ -343,13 +344,69 @@ whoever authored it (today this only reaches a server log — see the
 Phase 1 report's deferred items) but must not attempt to bypass or
 duplicate the check itself.
 
+## Adult registration, consent, and the subscription-ready handoff
+
+Item 3–9 of the owner's registration-journey brief (adult-only
+registration, communications consent, offer types, the handoff contract,
+reward/voucher typed contracts, and conversion events) extend the
+existing campaign platform rather than replacing any part of it — no QR/
+short-code/attribution/landing-page architecture changed. Summary, with
+the exact types as the source of truth:
+
+- **Registration form** (`components/patterns/CampaignLanding/
+SignupForm.tsx`) — the same form both `/free30` and every
+  `/start/[storyWorld]/[campaign]` campaign share now collects the
+  registering **adult**'s first/last name, email, and (optional) country,
+  plus required adult/guardian confirmation and Terms/Privacy acceptance,
+  and a separate, optional, unchecked-by-default marketing checkbox.
+  Validation is shared (`lib/registration/validate.ts`) so both routes
+  can't drift into two different definitions of "a valid registration."
+- **Consent contract** (`lib/registrationConsent.ts`) —
+  `RegistrationConsentState`, deliberately separate from `lib/consent.ts`
+  (cookie-banner consent — an unrelated concern; see that file's own doc
+  comment). Records `adultConfirmed`/`guardianConfirmed`, `termsAccepted`/
+  `termsVersion`/`termsAcceptedAt`, `privacyAccepted`/`privacyVersion`/
+  `privacyAcceptedAt`, and `marketingConsent`/`marketingConsentAt` —
+  marketing consent is never a precondition for operational/service
+  communications (trial reminders, subscription information, service
+  notices).
+- **Offer types** — `CampaignDoc.offer.offerType` (`"free-trial" |
+"percentage-discount" | "fixed-offer" | "reward-linked"`) is additive
+  and optional; every campaign created before this field existed has no
+  value here, and every consumer treats a missing value as `"free-trial"`
+  (its actual behaviour before this field existed) — no existing campaign
+  needs a data migration.
+- **Reward/voucher contract** (`lib/rewards/types.ts`) — **typed only, no
+  redemption system**. `PartnerRewardRule`, `RewardTrigger`,
+  `RewardEligibilityState`, `RewardEligibilityMetadata`. Deliberately not
+  a Sanity document type yet (see that file's doc comment) — a real
+  reward programme is a future, separately-approved admin/schema
+  addition, not implied by this contract's existence.
+- **Subscription-ready handoff** — `StartTrialRequest`
+  (`lib/platform/contract.ts`) now carries the adult's identity
+  (`AdultIdentity`), `partnerId`/`storyWorldId`/`campaignId`/
+  `acquisitionSource`, an `OfferIdentity`, the full `attribution`
+  (unchanged), `consent: RegistrationConsentState`, and an optional
+  `rewardEligibility: RewardEligibilityMetadata`. The one implementation,
+  `emailStandInPlatformClient`, still only emails a human — no account,
+  entitlement, subscription, or reward is created or persisted anywhere.
+- **Conversion events** (`lib/analytics/events.ts`) — a typed
+  `ConversionEvent` union (landing viewed, CTA clicked, registration
+  started/completed, trial activated, subscription handoff started, a
+  subscription-outcome placeholder, reward eligibility), logged only
+  (`consoleConversionEventSink`) until a real destination is chosen.
+  Every event carries opaque IDs only — no name, email, or other PII, by
+  construction of the types.
+
 ## Explicitly out of scope for this contract
 
 Everything the architecture proposal assigns to the shared platform
 backend or the external audiobook platform — accounts, auth,
 entitlements, subscriptions, real trial provisioning, catalogue,
-playback — is a **separate** contract (`apps/web/src/lib/platform/
-contract.ts`'s `PlatformClient` interface), not this one. This document
-is about where Partner/Story-World/Campaign/AcquisitionSource
-_configuration_ comes from; it says nothing about accounts or billing,
-and nothing here should be read as proposing that it should.
+playback, and real reward issuance/redemption — is a **separate**
+contract (`apps/web/src/lib/platform/contract.ts`'s `PlatformClient`
+interface, and `lib/rewards/types.ts` for reward eligibility), not this
+one. This document is about where Partner/Story-World/Campaign/
+AcquisitionSource _configuration_ comes from; it says nothing about
+accounts or billing, and nothing here should be read as proposing that
+it should.

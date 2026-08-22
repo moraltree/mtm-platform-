@@ -1,54 +1,47 @@
 "use server";
 
 import { headers } from "next/headers";
-import { sendEmail } from "@/lib/email";
+import { buildFallbackAttributionPayload } from "@/lib/attribution/fallback";
+import { buildRegistrationConsentState } from "@/lib/registrationConsent";
+import {
+  parseAndValidateRegistration,
+  type RegistrationFieldErrors,
+} from "@/lib/registration/validate";
+import type { RegistrationConsentErrors } from "@/lib/registrationConsent";
+import { asAcquisitionSourceCode, asCampaignId } from "@/lib/platform/ids";
+import { emailStandInPlatformClient } from "@/lib/platform/contract";
+import { isRegistrationRateLimited } from "@/lib/registration/rateLimit";
 
 export interface FreeTrialSignupState {
   status: "idle" | "success" | "error";
   message?: string;
-  fieldErrors?: Partial<Record<"email", string>>;
+  fieldErrors?: RegistrationFieldErrors;
+  consentErrors?: RegistrationConsentErrors;
 }
 
 export const initialFreeTrialSignupState: FreeTrialSignupState = {
   status: "idle",
 };
 
-// Same best-effort, single-instance, in-memory rate limiting as
-// ContactForm/actions.ts and the shop's checkout action — same documented
-// caveat (resets on restart, not correct across multiple serverless
-// instances under real traffic; swap in a shared store, e.g. Upstash
-// Redis, if/when that becomes a real problem). Kept as its own map rather
-// than sharing ContactForm's: a QR landing page and the contact form are
-// different abuse surfaces with different expected volumes.
-const submissionsByIp = new Map<string, number[]>();
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
-const RATE_LIMIT_MAX = 8;
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const recent = (submissionsByIp.get(ip) ?? []).filter(
-    (t) => now - t < RATE_LIMIT_WINDOW_MS,
-  );
-  recent.push(now);
-  submissionsByIp.set(ip, recent);
-  return recent.length > RATE_LIMIT_MAX;
-}
-
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
 /**
- * Captures a parent's email for the free-30-night trial and notifies a
- * human inbox — it does **not** provision an actual trial (create an
- * account, grant audiobook access, or send the first story). No such
- * system exists anywhere in this codebase yet (no customer accounts, no
+ * Captures an adult registration (parent/legal guardian — see the
+ * required confirmations below) for the free-30-night trial and
+ * notifies a human inbox via `emailStandInPlatformClient.startTrial` —
+ * it does **not** provision an actual trial (create an account, grant
+ * audiobook access, or send the first story). No such system exists
+ * anywhere in this codebase yet (no customer accounts, no
  * content-delivery/CRM integration — see CLAUDE.md), and inventing one
  * here would be exactly the kind of fabricated production behaviour this
- * session's brief says to stop short of. This is the genuine unresolved
- * dependency: a real trial needs that system built (and a decision on
- * what "free for 30 days" actually delivers technically) before this
- * action can do more than notify someone to follow up by hand.
+ * project's brief says to stop short of.
+ *
+ * `/free30` predates the attribution-cookie system (`src/proxy.ts` only
+ * writes cookies on `/start/[storyWorld]/[campaign]` landings) and isn't
+ * Sanity-backed, so there's no Partner/Story-World/offer document to
+ * read here — this route's own hard-coded "30 nights free" identity is
+ * passed as the offer, and attribution falls back to whatever the
+ * hidden `campaign`/`source` fields carried (see
+ * `buildFallbackAttributionPayload`), same honest-minimum rule
+ * `/start/...`'s own action already established.
  *
  * Inert-until-configured, same contract as ContactForm/actions.ts and the
  * Stripe webhook: unset `RESEND_API_KEY`/`FREE_TRIAL_TO_EMAIL` means the
@@ -68,14 +61,17 @@ export async function submitFreeTrialSignup(
     };
   }
 
-  const email = String(formData.get("email") || "").trim();
   const campaign = String(formData.get("campaign") || "").trim() || "unknown";
   const source = String(formData.get("source") || "").trim();
 
-  if (!email || !isValidEmail(email)) {
+  const { values, consentInput, fieldErrors, consentErrors, isValid } =
+    parseAndValidateRegistration(formData);
+
+  if (!isValid) {
     return {
       status: "error",
-      fieldErrors: { email: "Enter a valid email address." },
+      fieldErrors,
+      consentErrors,
       message: "Please fix the errors below.",
     };
   }
@@ -84,50 +80,37 @@ export async function submitFreeTrialSignup(
     (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ||
     "unknown";
 
-  if (isRateLimited(ip)) {
+  if (isRegistrationRateLimited(ip)) {
     return {
       status: "error",
       message: "Too many submissions — please try again in a few minutes.",
     };
   }
 
-  const toEmail = process.env.FREE_TRIAL_TO_EMAIL;
-  // Reuses the contact form's verified Resend "from" identity — same
-  // sending domain, no reason to configure a second one just for this.
-  const fromEmail = process.env.CONTACT_FORM_FROM_EMAIL;
+  const fallback = buildFallbackAttributionPayload(campaign);
+  const attribution = { first: fallback, latest: fallback };
+  const consent = buildRegistrationConsentState(consentInput);
 
-  if (!toEmail || !fromEmail) {
-    console.warn(
-      "Free trial signup submitted but notification isn't configured " +
-        "(FREE_TRIAL_TO_EMAIL / CONTACT_FORM_FROM_EMAIL) — see .env.example. " +
-        `Lead was NOT recorded anywhere: ${email} (campaign=${campaign}, source=${source || "none"}).`,
-    );
-    return {
-      status: "error",
-      message:
-        "Sign-ups aren't fully connected yet — please try again shortly, or reach us via the contact page.",
-    };
-  }
-
-  const result = await sendEmail({
-    to: toEmail,
-    from: fromEmail,
-    replyTo: email,
-    subject: `Free trial sign-up — ${campaign}${source ? ` / ${source}` : ""}`,
-    text: `New free-30-night-trial sign-up.\n\nEmail: ${email}\nCampaign: ${campaign}\nSource: ${source || "(none)"}\n`,
+  const result = await emailStandInPlatformClient.startTrial({
+    adult: {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      country: values.country || undefined,
+    },
+    campaignId: asCampaignId(campaign),
+    acquisitionSource: source ? asAcquisitionSourceCode(source) : undefined,
+    // /free30 is not Sanity-backed (see this file's doc comment) — its
+    // own always-on identity is "30 nights free", not a configurable
+    // Campaign document's offer.
+    offer: { offerType: "free-trial", trialLengthDays: 30 },
+    attribution,
+    consent,
   });
 
-  if (!result.ok) {
-    console.error("Free trial signup notification failed:", result.error);
-    return {
-      status: "error",
-      message: "Something went wrong — please try again.",
-    };
+  if (result.status === "error") {
+    return { status: "error", message: result.message };
   }
 
-  return {
-    status: "success",
-    message:
-      "You're on the list! We'll be in touch to get tonight's story ready.",
-  };
+  return { status: "success", message: result.message };
 }

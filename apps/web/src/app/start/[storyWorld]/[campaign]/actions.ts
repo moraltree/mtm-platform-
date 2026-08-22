@@ -1,6 +1,5 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { cookies, headers } from "next/headers";
 import type { FreeTrialSignupState } from "@/components/patterns/CampaignLanding/actions";
 import {
@@ -8,9 +7,28 @@ import {
   LATEST_TOUCH_COOKIE_NAME,
   parseAttributionCookie,
 } from "@/lib/attribution/cookie";
+import { buildFallbackAttributionPayload } from "@/lib/attribution/fallback";
+import { buildRegistrationConsentState } from "@/lib/registrationConsent";
+import {
+  optionalBoundedNumber,
+  optionalNumber,
+  optionalString,
+  parseAndValidateRegistration,
+} from "@/lib/registration/validate";
 import type { AttributionPayload } from "@/lib/attribution/types";
-import { asCampaignId } from "@/lib/platform/ids";
-import { emailStandInPlatformClient } from "@/lib/platform/contract";
+import {
+  asAcquisitionSourceCode,
+  asPartnerId,
+  asRewardRuleKey,
+  asStoryWorldId,
+} from "@/lib/platform/ids";
+import {
+  emailStandInPlatformClient,
+  isOfferType,
+} from "@/lib/platform/contract";
+import type { OfferIdentity } from "@/lib/platform/contract";
+import type { RewardEligibilityMetadata } from "@/lib/rewards/types";
+import { isRegistrationRateLimited } from "@/lib/registration/rateLimit";
 
 // A "use server" file may only export async functions (Next.js build-
 // time rule) — the shared idle initial state
@@ -18,46 +36,28 @@ import { emailStandInPlatformClient } from "@/lib/platform/contract";
 // CampaignLanding/actions.ts and is reused directly by this route's
 // page.tsx rather than re-declared as a second object export here.
 
-// Same best-effort, single-instance, in-memory rate limiting as
-// components/patterns/CampaignLanding/actions.ts and the shop's checkout
-// action — same documented caveat (resets on restart, not correct across
-// multiple serverless instances under real traffic). Kept as its own
-// map — this route is a different abuse surface from `/free30`'s.
-const submissionsByIp = new Map<string, number[]>();
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
-const RATE_LIMIT_MAX = 8;
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const recent = (submissionsByIp.get(ip) ?? []).filter(
-    (t) => now - t < RATE_LIMIT_WINDOW_MS,
-  );
-  recent.push(now);
-  submissionsByIp.set(ip, recent);
-  return recent.length > RATE_LIMIT_MAX;
-}
-
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
 /**
- * The generic `/start/[storyWorld]/[campaign]` route's signup action —
- * everything `components/patterns/CampaignLanding/actions.ts`'s
- * `submitFreeTrialSignup` does (validate, honeypot, rate-limit, notify a
- * human — no real trial provisioning; see that file's own doc comment,
- * unchanged by Phase 1), but calling through
- * `lib/platform/contract.ts#emailStandInPlatformClient` instead of
- * inlining its own `sendEmail` call, and carrying both first-touch and
- * latest-touch attribution (see lib/attribution) rather than a single
- * `campaign`/`source` pair.
+ * The generic `/start/[storyWorld]/[campaign]` route's registration
+ * action — everything `components/patterns/CampaignLanding/actions.ts`'s
+ * `submitFreeTrialSignup` does (validate the adult registration + consent,
+ * honeypot, rate-limit, notify a human via
+ * `emailStandInPlatformClient.startTrial` — no real trial provisioning;
+ * see that file's own doc comment), but carrying both first-touch and
+ * latest-touch attribution (see lib/attribution) plus whatever
+ * partner/Story-World/offer identity the campaign's own page.tsx put on
+ * the form as hidden fields (see that route's SignupForm props) — this
+ * action never re-queries Sanity itself, matching the "actions stay
+ * presentational" rule elsewhere in this codebase.
  *
  * Reads the two attribution cookies (already set by `src/proxy.ts` on
- * landing) as the source of truth; the hidden `campaign` field is the
- * fallback for a visitor whose cookies were blocked or cleared between
- * landing and submitting — same "cookie is the source of truth, hidden
- * fields are the fallback" rule the architecture proposal's attribution
- * model describes, not a second, competing source.
+ * landing) as the source of truth for `partnerId`/`storyWorldId`/
+ * `acquisitionSource`; the hidden `campaign` field (and, in the two
+ * cookies' absence, the hidden `partnerId`/`storyWorldId` fields the page
+ * also sets) is the fallback for a visitor whose cookies were blocked or
+ * cleared between landing and submitting — same "cookie is the source of
+ * truth, hidden fields are the fallback" rule the architecture
+ * proposal's attribution model describes, not a second, competing
+ * source.
  */
 export async function submitCampaignSignup(
   _prevState: FreeTrialSignupState,
@@ -71,13 +71,16 @@ export async function submitCampaignSignup(
     };
   }
 
-  const email = String(formData.get("email") || "").trim();
-  const campaignFromForm = String(formData.get("campaign") || "").trim();
+  const campaignFromForm = optionalString(formData, "campaign") ?? "";
 
-  if (!email || !isValidEmail(email)) {
+  const { values, consentInput, fieldErrors, consentErrors, isValid } =
+    parseAndValidateRegistration(formData);
+
+  if (!isValid) {
     return {
       status: "error",
-      fieldErrors: { email: "Enter a valid email address." },
+      fieldErrors,
+      consentErrors,
       message: "Please fix the errors below.",
     };
   }
@@ -86,7 +89,7 @@ export async function submitCampaignSignup(
     (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ||
     "unknown";
 
-  if (isRateLimited(ip)) {
+  if (isRegistrationRateLimited(ip)) {
     return {
       status: "error",
       message: "Too many submissions — please try again in a few minutes.",
@@ -101,26 +104,100 @@ export async function submitCampaignSignup(
     cookieStore.get(LATEST_TOUCH_COOKIE_NAME)?.value,
   );
 
-  // Honest minimal fallback for a visitor with no attribution cookies at
-  // all (blocked/cleared) — built only from the hidden `campaign` field,
-  // never fabricated beyond what's actually known.
-  const fallback: AttributionPayload = {
-    campaignId: asCampaignId(campaignFromForm || "unknown"),
-    utm: {},
-    attributionRef: randomUUID(),
-    landingPath: "unknown",
-    touchedAt: new Date().toISOString(),
+  // Lazy: only pay for `buildFallbackAttributionPayload`'s
+  // `randomUUID()`/`Date` work when a cookie is actually missing — the
+  // common case (both cookies present) skips it entirely. Still exactly
+  // one fallback object shared by both `first`/`latest` when neither
+  // cookie exists (the same touch, not two independently-timestamped
+  // ones) — see `buildFallbackAttributionPayload`'s own doc comment.
+  const attribution: { first: AttributionPayload; latest: AttributionPayload } =
+    existingFirst && existingLatest
+      ? { first: existingFirst, latest: existingLatest }
+      : (() => {
+          const fallback = buildFallbackAttributionPayload(campaignFromForm);
+          return {
+            first: existingFirst ?? fallback,
+            latest: existingLatest ?? fallback,
+          };
+        })();
+
+  // Prefer the cookie-derived identifiers (the authoritative source —
+  // see this function's own doc comment); fall back to the hidden form
+  // fields the page also set from the same Campaign document, for a
+  // visitor whose cookies were blocked/cleared.
+  const partnerIdRaw =
+    attribution.latest.partnerId ?? optionalString(formData, "partnerId");
+  const storyWorldIdRaw =
+    attribution.latest.storyWorldId ?? optionalString(formData, "storyWorldId");
+  const acquisitionSourceRaw =
+    attribution.latest.acquisitionSource ?? optionalString(formData, "source");
+
+  // `offerType` arrives via a client-editable hidden field, so it's
+  // validated against the real union rather than cast — an unrecognised
+  // value (tampered, or just stale after a future offer type is added)
+  // is dropped to `undefined` rather than smuggled through as an
+  // unchecked string (see isOfferType's own doc comment).
+  const offerTypeRaw = optionalString(formData, "offerType");
+  const offerType =
+    offerTypeRaw && isOfferType(offerTypeRaw) ? offerTypeRaw : undefined;
+  const offer: OfferIdentity = {
+    offerType,
+    trialLengthDays: optionalNumber(formData, "trialLengthDays"),
+    // Bounded to the same 1-100 range the Sanity schema itself enforces
+    // (campaign.ts's `discountPercentage` field) — a tampered/absurd
+    // hidden-field value is dropped to `undefined` rather than reaching
+    // the internal notification email unchecked.
+    discountPercentage: optionalBoundedNumber(
+      formData,
+      "discountPercentage",
+      1,
+      100,
+    ),
+    fixedOfferLabel: optionalString(formData, "fixedOfferLabel"),
+    discountCode: optionalString(formData, "discountCode"),
   };
 
-  const attribution = {
-    first: existingFirst ?? fallback,
-    latest: existingLatest ?? fallback,
-  };
+  // Only meaningful (and only trusted) when the campaign's own offerType
+  // is actually "reward-linked" — a stale `rewardRuleKey` hidden field
+  // left over after an editor switches a campaign back to e.g.
+  // "free-trial" (the two fields aren't mutually exclusive in the
+  // schema) must not still report reward eligibility.
+  const rewardRuleKeyRaw = optionalString(formData, "rewardRuleKey");
+  const rewardEligibility: RewardEligibilityMetadata | undefined =
+    offerType === "reward-linked" && rewardRuleKeyRaw
+      ? {
+          rewardRuleKey: asRewardRuleKey(rewardRuleKeyRaw),
+          state: "pending",
+        }
+      : undefined;
+
+  const consent = buildRegistrationConsentState(consentInput);
 
   const result = await emailStandInPlatformClient.startTrial({
-    email,
+    adult: {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      country: values.country || undefined,
+    },
+    // The cookie-derived value (via `attribution.latest`, which
+    // `buildFallbackAttributionPayload` already seeds from
+    // `campaignFromForm` when no cookie exists) is authoritative — same
+    // "cookie wins, hidden field is only the fallback that feeds it"
+    // rule this function's own doc comment describes for
+    // partner/Story-World/acquisition-source, now applied consistently
+    // to campaignId too rather than reading the tamperable hidden field
+    // a second, competing time.
     campaignId: attribution.latest.campaignId,
+    partnerId: partnerIdRaw ? asPartnerId(partnerIdRaw) : undefined,
+    storyWorldId: storyWorldIdRaw ? asStoryWorldId(storyWorldIdRaw) : undefined,
+    acquisitionSource: acquisitionSourceRaw
+      ? asAcquisitionSourceCode(acquisitionSourceRaw)
+      : undefined,
+    offer,
     attribution,
+    consent,
+    rewardEligibility,
   });
 
   if (result.status === "error") {

@@ -5,7 +5,9 @@ import { Fraunces } from "next/font/google";
 import { Container } from "@/components/ui/Container";
 import { CHARACTER_GROUPS } from "@/lib/characterGroups";
 import { cx } from "@/lib/cx";
-import { SignupForm } from "./SignupForm";
+import type { PartnerId, StoryWorldId } from "@/lib/platform/ids";
+import { SignupForm, type SignupFormOfferHints } from "./SignupForm";
+import { CampaignLandingAnalytics } from "./CampaignLandingAnalytics";
 import { HeroCastCluster, type HeroCastMember } from "./HeroCastCluster";
 import type { FreeTrialSignupState } from "./actions";
 import {
@@ -121,6 +123,13 @@ export interface CampaignLandingProps {
     formData: FormData,
   ) => Promise<FreeTrialSignupState>;
   signupInitialState?: FreeTrialSignupState;
+  /** Threaded straight through to both `SignupForm` instances as hidden
+   * fields — see `SignupFormProps`' own doc comments. `/free30` passes
+   * none of these (no Sanity-backed Campaign document exists for it). */
+  partnerId?: PartnerId;
+  storyWorldId?: StoryWorldId;
+  offer?: SignupFormOfferHints;
+  knownCountry?: string;
 }
 
 const DEFAULT_CONTENT: CampaignLandingContent = {
@@ -236,6 +245,10 @@ export function CampaignLanding({
   themeStyle,
   signupAction,
   signupInitialState,
+  partnerId,
+  storyWorldId,
+  offer,
+  knownCountry,
 }: CampaignLandingProps) {
   const baseDefaults = storyWorld ? GENERIC_DEFAULT_CONTENT : DEFAULT_CONTENT;
   const storyWorldDefaults = storyWorld?.campaignDefaults;
@@ -272,6 +285,11 @@ export function CampaignLanding({
 
   return (
     <div className={cx(styles.page, fraunces.variable)} style={themeStyle}>
+      <CampaignLandingAnalytics
+        campaignId={campaign}
+        partnerId={partnerId}
+        storyWorldId={storyWorldId}
+      />
       {/* Icon + wordmark lockup, not corporate nav — the Moral Tree
           symbol itself (public/images/brand — see its README for
           provenance), not just the words "Moral Tree Media", so a QR
@@ -331,6 +349,10 @@ export function CampaignLanding({
                 className={styles.heroForm}
                 action={signupAction}
                 initialState={signupInitialState}
+                partnerId={partnerId}
+                storyWorldId={storyWorldId}
+                offer={offer}
+                knownCountry={knownCountry}
               />
             </div>
           </div>
@@ -455,6 +477,10 @@ export function CampaignLanding({
             instanceId="bottom"
             action={signupAction}
             initialState={signupInitialState}
+            partnerId={partnerId}
+            storyWorldId={storyWorldId}
+            offer={offer}
+            knownCountry={knownCountry}
           />
         </Container>
       </section>

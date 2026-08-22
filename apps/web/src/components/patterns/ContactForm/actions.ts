@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { isValidEmail } from "@/lib/email";
 
 export interface ContactFormState {
   status: "idle" | "success" | "error";
@@ -31,10 +32,6 @@ function isRateLimited(ip: string): boolean {
   recent.push(now);
   submissionsByIp.set(ip, recent);
   return recent.length > RATE_LIMIT_MAX;
-}
-
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 async function verifyTurnstile(
