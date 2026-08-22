@@ -148,9 +148,28 @@ export async function submitCampaignSignup(
   // falling back to the untrusted hidden fields.
   const storyWorldSlug = optionalString(formData, "storyWorldSlug");
   const campaignSlugForm = optionalString(formData, "campaignSlug");
-  const campaignDoc =
+  const lookedUpCampaign =
     storyWorldSlug && campaignSlugForm
       ? await getCampaignForRoute(storyWorldSlug, campaignSlugForm)
+      : null;
+
+  // `storyWorldSlug`/`campaignSlug` and `campaign` (the latter feeding
+  // `attribution.latest.campaignId` above) are two independently
+  // client-editable hidden fields, resolved through two unrelated paths
+  // — a route-slug Sanity lookup versus the cookie/fallback attribution
+  // chain. Without this check, a visitor missing an attribution cookie
+  // could submit a `campaign` naming one campaign while
+  // `storyWorldSlug`/`campaignSlug` name a different, real (e.g.
+  // reward-linked) one, and have that second campaign's genuine
+  // offer/reward data attached to the first campaign's `campaignId` —
+  // the same spoofing class the re-lookup above closes for a tampered
+  // `offerType`/`rewardRuleKey`, left open for a tampered *pair*. Only
+  // trust the lookup when its own durable `key` actually matches the
+  // `campaignId` this request is being recorded against; a mismatch
+  // degrades to no offer/reward data, same as an unresolvable lookup.
+  const campaignDoc =
+    lookedUpCampaign?.key === attribution.latest.campaignId
+      ? lookedUpCampaign
       : null;
 
   const offer: OfferIdentity = {

@@ -128,4 +128,29 @@ describe("submitCampaignSignup — reward-eligibility authoritative-lookup fix",
     expect(arg.offer?.offerType).toBeUndefined();
     expect(arg.rewardEligibility).toBeUndefined();
   });
+
+  it("ignores a real reward-linked campaign's offer/reward data when storyWorldSlug/campaignSlug don't match the request's own campaignId", async () => {
+    // No attribution cookie is set in this test (see cookieStore.clear()
+    // in beforeEach), so campaignId falls back to the `campaign` hidden
+    // field below — deliberately a *different* campaign's key than the
+    // one storyWorldSlug/campaignSlug resolve to, simulating a visitor
+    // who tampered the slug pair (or whose `campaign` field is simply
+    // stale/mismatched) to attach a real reward-linked campaign's offer
+    // to an unrelated campaignId.
+    const fd = buildFormData({
+      campaign: "some-other-campaign-not-the-reward-linked-one",
+      storyWorldSlug: "river-rangers",
+      campaignSlug: "test-reward-linked",
+    });
+    const result = await submitCampaignSignup(initialFreeTrialSignupState, fd);
+
+    expect(result.status).toBe("success");
+    expect(startTrialMock).toHaveBeenCalledTimes(1);
+    const arg = startTrialMock.mock.calls[0][0];
+    expect(arg.campaignId).toBe(
+      "some-other-campaign-not-the-reward-linked-one",
+    );
+    expect(arg.offer?.offerType).toBeUndefined();
+    expect(arg.rewardEligibility).toBeUndefined();
+  });
 });
