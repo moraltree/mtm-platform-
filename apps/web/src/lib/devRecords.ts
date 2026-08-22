@@ -475,6 +475,47 @@ export const disabledSourceTestCampaign: CampaignDoc = {
 };
 
 /**
+ * `offerType: "reward-linked"` fixture — exercises the one offer type no
+ * other fixture in this file (or `mockContent.ts`) sets. Added
+ * specifically to manually verify `submitCampaignSignup`'s
+ * authoritative-campaign-lookup fix (PR #1): before that fix, reward
+ * eligibility was derived from client-editable hidden fields; after it,
+ * from this fixture's own `offer.rewardRuleKey`/`offerType` as resolved
+ * server-side via `getCampaignForRoute`. QA-only — never a real
+ * campaign, and (like every other fixture in this section) this
+ * `rewardRuleKey` is an opaque test string, not a real reward
+ * rule/coupon.
+ */
+export const rewardLinkedTestCampaign: CampaignDoc = {
+  _id: "dev-campaign-test-reward-linked",
+  title: "[TEST] Reward-linked offer fixture",
+  key: "test-reward-linked-campaign-dev01",
+  slug: { current: "test-reward-linked" },
+  partner: internationalWaterCompanyPartner,
+  storyWorld: riverRangersStoryWorld,
+  offer: {
+    offerType: "reward-linked",
+    rewardRuleKey: "test-reward-rule-01",
+  },
+  status: "active",
+  acquisitionSources: [
+    {
+      label: "[TEST] reward-linked campaign short code",
+      channelType: "qr",
+      code: "test-reward-linked",
+      shortCode: "test-reward-linked-poster",
+      active: true,
+    },
+  ],
+  internalNotes:
+    "TEST FIXTURE ONLY — verifies rewardEligibility is derived from the " +
+    "campaign's own authoritative offer.rewardRuleKey (via " +
+    "getCampaignForRoute), not from a client-editable hidden form field. " +
+    "Never a real campaign; rewardRuleKey is an opaque test string, not " +
+    "a real reward rule.",
+};
+
+/**
  * Two campaigns whose acquisition sources deliberately share one short
  * code (`"test-collision"`) — verifies `getCampaignByShortCode` fails
  * closed (`{status: "collision"}`) rather than nondeterministically
@@ -533,6 +574,7 @@ export const collisionTestCampaignB: CampaignDoc = {
  * own files; only the search is combined). */
 export const devCampaigns: CampaignDoc[] = [
   riverRangersWaterSafetyCampaign,
+  rewardLinkedTestCampaign,
   pausedTestCampaign,
   expiredTestCampaign,
   scheduledTestCampaign,
