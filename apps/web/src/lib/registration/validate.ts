@@ -15,8 +15,57 @@ export { isValidEmail };
  * (`app/start/[storyWorld]/[campaign]/actions.ts`), so the two don't
  * drift into two different definitions of "a valid registration." Pure
  * — no cookies/headers/env access, so it's trivially unit-testable (see
- * `validate.test.ts`).
+ * `validate.test.ts`). Also the one home for generic optional-field
+ * helpers (`optionalString`/`optionalNumber`/`optionalBoundedNumber`)
+ * both actions use for the non-identity hidden fields (partner/Story-
+ * World/offer/reward identity) — kept here rather than each action
+ * re-declaring its own copy.
  */
+
+/** Reads a trimmed string field, or `undefined` if empty/absent.
+ * `maxLength` caps anything sourced from a client-editable hidden field
+ * (offer/reward identity) so a tampered value can't balloon into an
+ * arbitrarily long string by the time it reaches an internal
+ * notification email — 200 characters is generous headroom for every
+ * real value (a partner/Story-World key, an offer label, a reward rule
+ * key) without meaningfully constraining legitimate content. */
+export function optionalString(
+  formData: FormData,
+  name: string,
+  maxLength = 200,
+): string | undefined {
+  const value = String(formData.get(name) || "")
+    .trim()
+    .slice(0, maxLength);
+  return value || undefined;
+}
+
+export function optionalNumber(
+  formData: FormData,
+  name: string,
+): number | undefined {
+  const raw = optionalString(formData, name);
+  if (raw == null) return undefined;
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : undefined;
+}
+
+/** Like `optionalNumber`, but only within `[min, max]` — for a
+ * client-editable hidden field with real business meaning (e.g.
+ * `discountPercentage`, which only makes sense as 1-100, matching the
+ * Sanity schema's own `rule.min(1).max(100)`). An out-of-range/tampered
+ * value is dropped to `undefined` rather than forwarded as-is into an
+ * internal email. */
+export function optionalBoundedNumber(
+  formData: FormData,
+  name: string,
+  min: number,
+  max: number,
+): number | undefined {
+  const value = optionalNumber(formData, name);
+  if (value == null) return undefined;
+  return value >= min && value <= max ? value : undefined;
+}
 
 export interface RegistrationFieldValues {
   firstName: string;

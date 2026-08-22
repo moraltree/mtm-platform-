@@ -210,7 +210,7 @@ export const emailStandInPlatformClient: PlatformClient = {
       return {
         status: "error",
         message:
-          "Sign-ups aren't fully connected yet — please try again shortly.",
+          "Sign-ups aren't fully connected yet — please try again shortly, or reach us via the contact page.",
       };
     }
 
@@ -310,6 +310,22 @@ export const emailStandInPlatformClient: PlatformClient = {
         message: "Something went wrong — please try again.",
       };
     }
+
+    // Tracked here, server-side, rather than client-side off the Server
+    // Action's returned `status` — the honeypot branch in both call
+    // sites (CampaignLanding/actions.ts, /start/.../actions.ts) also
+    // returns `{status: "success"}` without ever reaching this function,
+    // so a client-side "fire on success" effect can't tell a genuine
+    // completion apart from a deceived-bot (or accidentally-autofilled-
+    // honeypot) short-circuit. Firing only here means this event fires
+    // if and only if a real notification was actually sent.
+    conversionEvents.track({
+      type: "registration_completed",
+      campaignId,
+      partnerId,
+      storyWorldId,
+      acquisitionSource,
+    });
 
     return {
       status: "pending-manual-follow-up",

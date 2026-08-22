@@ -90,21 +90,43 @@ export function SignupForm({
   const formRef = useRef<HTMLFormElement>(null);
   const hasStarted = useRef(false);
 
+  // Depends on the whole `state` object, not `state.status` — two
+  // consecutive successful submissions in the same mounted form both
+  // return `{status: "success", ...}`, and `useActionState` gives each
+  // its own object, but comparing only the primitive `status` string
+  // (`"success" === "success"`) would make React treat the second
+  // completion as "nothing changed" and skip the reset. `registration_
+  // completed` itself is tracked server-side now (see
+  // `emailStandInPlatformClient.startTrial`'s own doc comment) —
+  // firing it here off `state.status === "success"` couldn't
+  // distinguish a genuine completion from the honeypot branch in both
+  // Server Actions, which also returns `{status: "success"}` without
+  // ever calling `startTrial`.
   useEffect(() => {
-    if (state.status === "success") {
-      formRef.current?.reset();
-      conversionEvents.track({
-        type: "registration_completed",
-        campaignId: asCampaignId(campaign),
-        partnerId,
-        storyWorldId,
-      });
-    }
-  }, [state.status, campaign, partnerId, storyWorldId]);
+    if (state.status === "success") formRef.current?.reset();
+  }, [state]);
 
   function trackRegistrationStarted() {
     if (hasStarted.current) return;
     hasStarted.current = true;
+    // Cross-instance dedup: `hasStarted` alone only stops *this*
+    // SignupForm instance from double-firing — the hero and finalCta
+    // sections each render their own instance (see CampaignLanding.tsx),
+    // so a visitor who focuses a field in one and later submits the
+    // other would otherwise produce two `registration_started` events
+    // for one registration. `sessionStorage`, scoped per campaign, is
+    // shared across both instances within the same tab/session; guarded
+    // for private-browsing/storage-blocked contexts, where this
+    // degrades to the per-instance-only dedup `hasStarted` already
+    // provides.
+    try {
+      const key = `mtm-registration-started:${campaign}`;
+      if (sessionStorage.getItem(key) === "1") return;
+      sessionStorage.setItem(key, "1");
+    } catch {
+      // Storage unavailable — fall through and track anyway; the
+      // per-instance `hasStarted` guard above still applies.
+    }
     conversionEvents.track({
       type: "registration_started",
       campaignId: asCampaignId(campaign),
