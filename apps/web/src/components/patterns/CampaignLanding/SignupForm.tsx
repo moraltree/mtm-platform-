@@ -63,7 +63,30 @@ export interface SignupFormProps {
    * yet, so nothing currently sets this — the code path is real, not a
    * stub, and starts working the moment such a field exists. */
   knownCountry?: string;
+  /** The route slugs (not the durable `.key`s) the `/start/...` Server
+   * Action needs to re-resolve this Campaign's authoritative Sanity
+   * document before trusting anything from the `offer` hidden fields
+   * below — see `submitCampaignSignup`'s own doc comment. `/free30`
+   * passes neither (no Sanity-backed Campaign document exists for it),
+   * and its own action never reads them. */
+  storyWorldSlug?: string;
+  campaignSlug?: string;
 }
+
+/** Cross-instance `registration_started` dedup — the hero and finalCta
+ * sections each render their own `SignupForm` instance (see
+ * `CampaignLanding.tsx`), so a visitor who focuses a field in one and
+ * later submits the other would otherwise produce two events for one
+ * registration. A plain module-scoped `Set`, not `sessionStorage`:
+ * it's shared between both instances for the lifetime of this page
+ * view (the same problem `sessionStorage` solved), but — unlike
+ * `sessionStorage` — it resets on every fresh page load/navigation
+ * rather than persisting for the rest of the browser session, so a
+ * visitor who genuinely abandons and later returns to register for
+ * real isn't silently suppressed by a stale flag from their first,
+ * unfinished visit.
+ */
+const registrationStartedCampaigns = new Set<string>();
 
 /** The one signup/registration form every campaign route shares —
  * `/free30` (WP8) and every campaign served through `/start/[storyWorld]/
@@ -85,6 +108,8 @@ export function SignupForm({
   storyWorldId,
   offer,
   knownCountry,
+  storyWorldSlug,
+  campaignSlug,
 }: SignupFormProps) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
@@ -109,24 +134,10 @@ export function SignupForm({
   function trackRegistrationStarted() {
     if (hasStarted.current) return;
     hasStarted.current = true;
-    // Cross-instance dedup: `hasStarted` alone only stops *this*
-    // SignupForm instance from double-firing — the hero and finalCta
-    // sections each render their own instance (see CampaignLanding.tsx),
-    // so a visitor who focuses a field in one and later submits the
-    // other would otherwise produce two `registration_started` events
-    // for one registration. `sessionStorage`, scoped per campaign, is
-    // shared across both instances within the same tab/session; guarded
-    // for private-browsing/storage-blocked contexts, where this
-    // degrades to the per-instance-only dedup `hasStarted` already
-    // provides.
-    try {
-      const key = `mtm-registration-started:${campaign}`;
-      if (sessionStorage.getItem(key) === "1") return;
-      sessionStorage.setItem(key, "1");
-    } catch {
-      // Storage unavailable — fall through and track anyway; the
-      // per-instance `hasStarted` guard above still applies.
-    }
+    // See `registrationStartedCampaigns`' own doc comment above for why
+    // this is a plain module-scoped `Set` rather than `sessionStorage`.
+    if (registrationStartedCampaigns.has(campaign)) return;
+    registrationStartedCampaigns.add(campaign);
     conversionEvents.track({
       type: "registration_started",
       campaignId: asCampaignId(campaign),
@@ -224,6 +235,12 @@ export function SignupForm({
       {knownCountry && (
         <input type="hidden" name="country" value={knownCountry} />
       )}
+      {storyWorldSlug && (
+        <input type="hidden" name="storyWorldSlug" value={storyWorldSlug} />
+      )}
+      {campaignSlug && (
+        <input type="hidden" name="campaignSlug" value={campaignSlug} />
+      )}
 
       {/* A slightly lighter card than the page's own cream/ivory
           background, so the form reads as a distinct, elevated element —
@@ -298,11 +315,19 @@ export function SignupForm({
             label={
               <>
                 I accept the{" "}
-                <Link href="/legal/terms-of-use" target="_blank">
+                <Link
+                  href="/legal/terms-of-use"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Terms of Use
                 </Link>{" "}
                 and{" "}
-                <Link href="/legal/privacy-policy" target="_blank">
+                <Link
+                  href="/legal/privacy-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Privacy Policy
                 </Link>
                 .

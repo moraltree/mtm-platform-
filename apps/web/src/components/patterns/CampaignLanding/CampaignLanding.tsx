@@ -130,6 +130,12 @@ export interface CampaignLandingProps {
   storyWorldId?: StoryWorldId;
   offer?: SignupFormOfferHints;
   knownCountry?: string;
+  /** The route slugs (not the durable `.key`s) `submitCampaignSignup`
+   * needs to re-resolve this Campaign's authoritative Sanity document —
+   * see `SignupFormProps`' own doc comment. `/free30` passes neither (no
+   * Sanity-backed Campaign document exists for it). */
+  storyWorldSlug?: string;
+  campaignSlug?: string;
 }
 
 const DEFAULT_CONTENT: CampaignLandingContent = {
@@ -249,6 +255,8 @@ export function CampaignLanding({
   storyWorldId,
   offer,
   knownCountry,
+  storyWorldSlug,
+  campaignSlug,
 }: CampaignLandingProps) {
   const baseDefaults = storyWorld ? GENERIC_DEFAULT_CONTENT : DEFAULT_CONTENT;
   const storyWorldDefaults = storyWorld?.campaignDefaults;
@@ -353,6 +361,8 @@ export function CampaignLanding({
                 storyWorldId={storyWorldId}
                 offer={offer}
                 knownCountry={knownCountry}
+                storyWorldSlug={storyWorldSlug}
+                campaignSlug={campaignSlug}
               />
             </div>
           </div>
@@ -481,6 +491,8 @@ export function CampaignLanding({
             storyWorldId={storyWorldId}
             offer={offer}
             knownCountry={knownCountry}
+            storyWorldSlug={storyWorldSlug}
+            campaignSlug={campaignSlug}
           />
         </Container>
       </section>

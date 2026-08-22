@@ -10,8 +10,6 @@ import {
 import { buildFallbackAttributionPayload } from "@/lib/attribution/fallback";
 import { buildRegistrationConsentState } from "@/lib/registrationConsent";
 import {
-  optionalBoundedNumber,
-  optionalNumber,
   optionalString,
   parseAndValidateRegistration,
 } from "@/lib/registration/validate";
@@ -22,13 +20,11 @@ import {
   asRewardRuleKey,
   asStoryWorldId,
 } from "@/lib/platform/ids";
-import {
-  emailStandInPlatformClient,
-  isOfferType,
-} from "@/lib/platform/contract";
+import { emailStandInPlatformClient } from "@/lib/platform/contract";
 import type { OfferIdentity } from "@/lib/platform/contract";
 import type { RewardEligibilityMetadata } from "@/lib/rewards/types";
 import { isRegistrationRateLimited } from "@/lib/registration/rateLimit";
+import { getCampaignForRoute } from "@/lib/sanity/queries";
 
 // A "use server" file may only export async functions (Next.js build-
 // time rule) — the shared idle initial state
@@ -43,11 +39,14 @@ import { isRegistrationRateLimited } from "@/lib/registration/rateLimit";
  * honeypot, rate-limit, notify a human via
  * `emailStandInPlatformClient.startTrial` — no real trial provisioning;
  * see that file's own doc comment), but carrying both first-touch and
- * latest-touch attribution (see lib/attribution) plus whatever
- * partner/Story-World/offer identity the campaign's own page.tsx put on
- * the form as hidden fields (see that route's SignupForm props) — this
- * action never re-queries Sanity itself, matching the "actions stay
- * presentational" rule elsewhere in this codebase.
+ * latest-touch attribution (see lib/attribution) plus the partner/
+ * Story-World identity the campaign's own page.tsx put on the form as
+ * hidden fields (see that route's SignupForm props). Unlike every other
+ * "actions stay presentational" Server Action in this codebase, this one
+ * *does* re-query Sanity — via `getCampaignForRoute` — but only to
+ * re-resolve the offer/reward data (see below); it still never queries
+ * for anything the hidden fields already carry safely (partner/
+ * Story-World identity, attribution).
  *
  * Reads the two attribution cookies (already set by `src/proxy.ts` on
  * landing) as the source of truth for `partnerId`/`storyWorldId`/
@@ -132,39 +131,44 @@ export async function submitCampaignSignup(
   const acquisitionSourceRaw =
     attribution.latest.acquisitionSource ?? optionalString(formData, "source");
 
-  // `offerType` arrives via a client-editable hidden field, so it's
-  // validated against the real union rather than cast — an unrecognised
-  // value (tampered, or just stale after a future offer type is added)
-  // is dropped to `undefined` rather than smuggled through as an
-  // unchecked string (see isOfferType's own doc comment).
-  const offerTypeRaw = optionalString(formData, "offerType");
-  const offerType =
-    offerTypeRaw && isOfferType(offerTypeRaw) ? offerTypeRaw : undefined;
+  // The `offer`/`rewardRuleKey` hidden fields the page also renders are
+  // client-editable and never trusted for the actual offer/reward data
+  // below — a visitor could otherwise spoof e.g. `offerType=
+  // "reward-linked"` on a campaign really configured as "free-trial" and
+  // have that fabricated reward eligibility reach the internal
+  // notification email. Instead, re-resolve this campaign's
+  // *authoritative* Sanity document from the route slugs (also hidden
+  // fields, but only ever used as a lookup key, never as the offer data
+  // itself) via the same `getCampaignForRoute` the page itself already
+  // called — same "never trust the client for anything with a real
+  // business-rule consequence" cross-check WP7's checkout action applies
+  // to `stripePriceId` (see CLAUDE.md's Shop price-drift section). A
+  // missing/unresolvable campaign (slugs absent, or the campaign has
+  // since gone inactive) degrades to no offer/reward data rather than
+  // falling back to the untrusted hidden fields.
+  const storyWorldSlug = optionalString(formData, "storyWorldSlug");
+  const campaignSlugForm = optionalString(formData, "campaignSlug");
+  const campaignDoc =
+    storyWorldSlug && campaignSlugForm
+      ? await getCampaignForRoute(storyWorldSlug, campaignSlugForm)
+      : null;
+
   const offer: OfferIdentity = {
-    offerType,
-    trialLengthDays: optionalNumber(formData, "trialLengthDays"),
-    // Bounded to the same 1-100 range the Sanity schema itself enforces
-    // (campaign.ts's `discountPercentage` field) — a tampered/absurd
-    // hidden-field value is dropped to `undefined` rather than reaching
-    // the internal notification email unchecked.
-    discountPercentage: optionalBoundedNumber(
-      formData,
-      "discountPercentage",
-      1,
-      100,
-    ),
-    fixedOfferLabel: optionalString(formData, "fixedOfferLabel"),
-    discountCode: optionalString(formData, "discountCode"),
+    offerType: campaignDoc?.offer?.offerType,
+    trialLengthDays: campaignDoc?.offer?.trialLengthDays,
+    discountPercentage: campaignDoc?.offer?.discountPercentage,
+    fixedOfferLabel: campaignDoc?.offer?.fixedOfferLabel,
+    discountCode: campaignDoc?.offer?.discountCode,
   };
 
   // Only meaningful (and only trusted) when the campaign's own offerType
-  // is actually "reward-linked" — a stale `rewardRuleKey` hidden field
-  // left over after an editor switches a campaign back to e.g.
-  // "free-trial" (the two fields aren't mutually exclusive in the
-  // schema) must not still report reward eligibility.
-  const rewardRuleKeyRaw = optionalString(formData, "rewardRuleKey");
+  // is actually "reward-linked" — a stale `rewardRuleKey` left over
+  // after an editor switches a campaign back to e.g. "free-trial" (the
+  // two fields aren't mutually exclusive in the schema) must not still
+  // report reward eligibility.
+  const rewardRuleKeyRaw = campaignDoc?.offer?.rewardRuleKey;
   const rewardEligibility: RewardEligibilityMetadata | undefined =
-    offerType === "reward-linked" && rewardRuleKeyRaw
+    offer.offerType === "reward-linked" && rewardRuleKeyRaw
       ? {
           rewardRuleKey: asRewardRuleKey(rewardRuleKeyRaw),
           state: "pending",

@@ -162,6 +162,16 @@ export default async function CampaignRoutePage(
         discountCode: campaignDoc.offer?.discountCode,
         rewardRuleKey: campaignDoc.offer?.rewardRuleKey,
       }}
+      // The route slugs, not the durable `.key`s — `submitCampaignSignup`
+      // re-resolves the Campaign document from these via the same
+      // `getCampaignForRoute` this page just called, so the offer/reward
+      // data it acts on is always this campaign's *current* Sanity
+      // config, never whatever the `offer` hidden fields above (client-
+      // editable) claim. Same "never trust the client for anything with
+      // a real business-rule consequence" principle as WP7's Stripe
+      // price-drift cross-check (see CLAUDE.md).
+      storyWorldSlug={storyWorldSlug}
+      campaignSlug={campaignSlug}
       // No `signupInitialState` override — `SignupForm`'s own default
       // (`initialFreeTrialSignupState`, `{status: "idle"}`) is the exact
       // same shape/value `submitCampaignSignup` starts from too. Not
