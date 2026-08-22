@@ -1,5 +1,11 @@
 import type { RegistrationConsentInput } from "../registrationConsent";
 import { validateRegistrationConsent } from "../registrationConsent";
+import { isValidEmail } from "../email";
+
+// Re-exported for existing/external importers of this module (see
+// validate.test.ts) — the one definition now lives in lib/email.ts,
+// shared with ContactForm/actions.ts, rather than duplicated here.
+export { isValidEmail };
 
 /**
  * Shared form-parsing/validation for the adult registration form —
@@ -24,10 +30,6 @@ export interface RegistrationFieldValues {
 export type RegistrationFieldErrors = Partial<
   Record<"firstName" | "lastName" | "email", string>
 >;
-
-export function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
 
 /** Reads the plain text fields off a submitted registration form.
  * Deliberately does not read the consent checkboxes — see

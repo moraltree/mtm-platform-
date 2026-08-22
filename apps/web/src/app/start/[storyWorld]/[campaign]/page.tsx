@@ -158,6 +158,7 @@ export default async function CampaignRoutePage(
         offerType: campaignDoc.offer?.offerType,
         trialLengthDays: campaignDoc.offer?.trialLengthDays,
         discountPercentage: campaignDoc.offer?.discountPercentage,
+        fixedOfferLabel: campaignDoc.offer?.fixedOfferLabel,
         discountCode: campaignDoc.offer?.discountCode,
         rewardRuleKey: campaignDoc.offer?.rewardRuleKey,
       }}

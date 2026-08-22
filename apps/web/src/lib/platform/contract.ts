@@ -68,11 +68,35 @@ export interface AdultIdentity {
  * here rather than importing that one directly, since a Sanity document
  * shape and a platform-handoff payload are allowed to diverge over time
  * even though they start identical. */
+export type OfferType =
+  "free-trial" | "percentage-discount" | "fixed-offer" | "reward-linked";
+
+const OFFER_TYPES: readonly OfferType[] = [
+  "free-trial",
+  "percentage-discount",
+  "fixed-offer",
+  "reward-linked",
+];
+
+/** Type guard for a raw string against the real `OfferType` union —
+ * the one place anything reading `offerType` off untrusted input (a
+ * client-editable hidden form field) should check it, rather than
+ * casting with `as` and trusting the client. Returns `false` for
+ * anything not in the union, including a future offer type this
+ * deployed code doesn't know about yet — the caller's job is to treat
+ * that the same as "unset," not to guess. */
+export function isOfferType(value: string): value is OfferType {
+  return (OFFER_TYPES as readonly string[]).includes(value);
+}
+
 export interface OfferIdentity {
-  offerType?:
-    "free-trial" | "percentage-discount" | "fixed-offer" | "reward-linked";
+  offerType?: OfferType;
   trialLengthDays?: number;
   discountPercentage?: number;
+  /** Only meaningful when `offerType` is `"fixed-offer"` — see
+   * `CampaignDoc.offer.fixedOfferLabel`'s own doc comment
+   * (`lib/sanity/types.ts`), which this mirrors. */
+  fixedOfferLabel?: string;
   discountCode?: string;
   stripePriceId?: string;
 }
@@ -174,6 +198,31 @@ export const emailStandInPlatformClient: PlatformClient = {
     consent,
     rewardEligibility,
   }) {
+    const toEmail = process.env.FREE_TRIAL_TO_EMAIL;
+    const fromEmail = process.env.CONTACT_FORM_FROM_EMAIL;
+
+    if (!toEmail || !fromEmail) {
+      console.warn(
+        "startTrial (email stand-in) called but FREE_TRIAL_TO_EMAIL/" +
+          "CONTACT_FORM_FROM_EMAIL aren't set — see .env.example. Lead " +
+          `was NOT recorded anywhere: ${adult.email} (campaign=${campaignId}).`,
+      );
+      return {
+        status: "error",
+        message:
+          "Sign-ups aren't fully connected yet — please try again shortly.",
+      };
+    }
+
+    // Tracked only once an actual handoff attempt is under way (past the
+    // config gate above) — firing these unconditionally at the top of
+    // this function would record a "started" event for every submission
+    // even on a deployment where `FREE_TRIAL_TO_EMAIL`/
+    // `CONTACT_FORM_FROM_EMAIL` are permanently unset, inflating the
+    // conversion funnel with handoffs that were never going to reach
+    // anyone. A `sendEmail` failure past this point still counts as
+    // "started" (a real attempt was made) — that distinction belongs to
+    // a future outcome event, not to gating this one.
     conversionEvents.track({
       type: "subscription_handoff_started",
       campaignId,
@@ -193,22 +242,6 @@ export const emailStandInPlatformClient: PlatformClient = {
       });
     }
 
-    const toEmail = process.env.FREE_TRIAL_TO_EMAIL;
-    const fromEmail = process.env.CONTACT_FORM_FROM_EMAIL;
-
-    if (!toEmail || !fromEmail) {
-      console.warn(
-        "startTrial (email stand-in) called but FREE_TRIAL_TO_EMAIL/" +
-          "CONTACT_FORM_FROM_EMAIL aren't set — see .env.example. Lead " +
-          `was NOT recorded anywhere: ${adult.email} (campaign=${campaignId}).`,
-      );
-      return {
-        status: "error",
-        message:
-          "Sign-ups aren't fully connected yet — please try again shortly.",
-      };
-    }
-
     const { first, latest } = attribution;
     const result = await sendEmail({
       to: toEmail,
@@ -224,11 +257,20 @@ export const emailStandInPlatformClient: PlatformClient = {
         `Partner: ${partnerId ?? "(none)"}\n` +
         `Story World: ${storyWorldId ?? "(none)"}\n` +
         `Acquisition source: ${acquisitionSource ?? "(none)"}\n\n` +
-        `Offer: ${offer?.offerType ?? "(unspecified)"}` +
-        (offer?.trialLengthDays ? ` — ${offer.trialLengthDays} days` : "") +
-        (offer?.discountPercentage
+        // A missing offerType means "free-trial" — the documented
+        // default every existing campaign (created before this field
+        // existed) actually has — not an unhelpful "(unspecified)".
+        // See CampaignDoc.offer.offerType's own doc comment
+        // (lib/sanity/types.ts) for the same claim; this is where it's
+        // actually implemented.
+        `Offer: ${offer?.offerType ?? "free-trial"}` +
+        (offer?.trialLengthDays != null
+          ? ` — ${offer.trialLengthDays} days`
+          : "") +
+        (offer?.discountPercentage != null
           ? ` — ${offer.discountPercentage}% off`
           : "") +
+        (offer?.fixedOfferLabel ? ` — ${offer.fixedOfferLabel}` : "") +
         (offer?.discountCode ? ` — code ${offer.discountCode}` : "") +
         "\n\n" +
         `Consent — adult confirmed: ${consent.adultConfirmed}, guardian confirmed: ${consent.guardianConfirmed}\n` +

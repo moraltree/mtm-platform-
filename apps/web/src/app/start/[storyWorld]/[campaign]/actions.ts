@@ -12,39 +12,23 @@ import { buildRegistrationConsentState } from "@/lib/registrationConsent";
 import { parseAndValidateRegistration } from "@/lib/registration/validate";
 import {
   asAcquisitionSourceCode,
-  asCampaignId,
   asPartnerId,
   asRewardRuleKey,
   asStoryWorldId,
 } from "@/lib/platform/ids";
-import { emailStandInPlatformClient } from "@/lib/platform/contract";
+import {
+  emailStandInPlatformClient,
+  isOfferType,
+} from "@/lib/platform/contract";
 import type { OfferIdentity } from "@/lib/platform/contract";
 import type { RewardEligibilityMetadata } from "@/lib/rewards/types";
+import { isRegistrationRateLimited } from "@/lib/registration/rateLimit";
 
 // A "use server" file may only export async functions (Next.js build-
 // time rule) — the shared idle initial state
 // (`initialFreeTrialSignupState`, `{status: "idle"}`) lives in
 // CampaignLanding/actions.ts and is reused directly by this route's
 // page.tsx rather than re-declared as a second object export here.
-
-// Same best-effort, single-instance, in-memory rate limiting as
-// components/patterns/CampaignLanding/actions.ts and the shop's checkout
-// action — same documented caveat (resets on restart, not correct across
-// multiple serverless instances under real traffic). Kept as its own map
-// — this route is a different abuse surface from `/free30`'s.
-const submissionsByIp = new Map<string, number[]>();
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
-const RATE_LIMIT_MAX = 8;
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const recent = (submissionsByIp.get(ip) ?? []).filter(
-    (t) => now - t < RATE_LIMIT_WINDOW_MS,
-  );
-  recent.push(now);
-  submissionsByIp.set(ip, recent);
-  return recent.length > RATE_LIMIT_MAX;
-}
 
 function optionalString(formData: FormData, name: string): string | undefined {
   const value = String(formData.get(name) || "").trim();
@@ -111,7 +95,7 @@ export async function submitCampaignSignup(
     (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ||
     "unknown";
 
-  if (isRateLimited(ip)) {
+  if (isRegistrationRateLimited(ip)) {
     return {
       status: "error",
       message: "Too many submissions — please try again in a few minutes.",
@@ -143,11 +127,18 @@ export async function submitCampaignSignup(
   const acquisitionSourceRaw =
     attribution.latest.acquisitionSource ?? optionalString(formData, "source");
 
+  // `offerType` arrives via a client-editable hidden field, so it's
+  // validated against the real union rather than cast — an unrecognised
+  // value (tampered, or just stale after a future offer type is added)
+  // is dropped to `undefined` rather than smuggled through as an
+  // unchecked string (see isOfferType's own doc comment).
+  const offerTypeRaw = optionalString(formData, "offerType");
   const offer: OfferIdentity = {
-    offerType: optionalString(formData, "offerType") as
-      OfferIdentity["offerType"] | undefined,
+    offerType:
+      offerTypeRaw && isOfferType(offerTypeRaw) ? offerTypeRaw : undefined,
     trialLengthDays: optionalNumber(formData, "trialLengthDays"),
     discountPercentage: optionalNumber(formData, "discountPercentage"),
+    fixedOfferLabel: optionalString(formData, "fixedOfferLabel"),
     discountCode: optionalString(formData, "discountCode"),
   };
 
@@ -169,7 +160,15 @@ export async function submitCampaignSignup(
       email: values.email,
       country: values.country || undefined,
     },
-    campaignId: asCampaignId(campaignFromForm || "unknown"),
+    // The cookie-derived value (via `attribution.latest`, which
+    // `buildFallbackAttributionPayload` already seeds from
+    // `campaignFromForm` when no cookie exists) is authoritative — same
+    // "cookie wins, hidden field is only the fallback that feeds it"
+    // rule this function's own doc comment describes for
+    // partner/Story-World/acquisition-source, now applied consistently
+    // to campaignId too rather than reading the tamperable hidden field
+    // a second, competing time.
+    campaignId: attribution.latest.campaignId,
     partnerId: partnerIdRaw ? asPartnerId(partnerIdRaw) : undefined,
     storyWorldId: storyWorldIdRaw ? asStoryWorldId(storyWorldIdRaw) : undefined,
     acquisitionSource: acquisitionSourceRaw

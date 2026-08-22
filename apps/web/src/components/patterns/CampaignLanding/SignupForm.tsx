@@ -1,13 +1,14 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, type FocusEvent } from "react";
 import { TextField, SelectField } from "@/components/ui/FormField";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { COUNTRY_OPTIONS } from "@/lib/countries";
 import { conversionEvents } from "@/lib/analytics/events";
-import type { CampaignId, PartnerId, StoryWorldId } from "@/lib/platform/ids";
+import { asCampaignId } from "@/lib/platform/ids";
+import type { PartnerId, StoryWorldId } from "@/lib/platform/ids";
 import {
   submitFreeTrialSignup,
   initialFreeTrialSignupState,
@@ -25,6 +26,7 @@ export interface SignupFormOfferHints {
   offerType?: string;
   trialLengthDays?: number;
   discountPercentage?: number;
+  fixedOfferLabel?: string;
   discountCode?: string;
   rewardRuleKey?: string;
 }
@@ -93,7 +95,7 @@ export function SignupForm({
       formRef.current?.reset();
       conversionEvents.track({
         type: "registration_completed",
-        campaignId: campaign as CampaignId,
+        campaignId: asCampaignId(campaign),
         partnerId,
         storyWorldId,
       });
@@ -105,16 +107,36 @@ export function SignupForm({
     hasStarted.current = true;
     conversionEvents.track({
       type: "registration_started",
-      campaignId: campaign as CampaignId,
+      campaignId: asCampaignId(campaign),
       partnerId,
       storyWorldId,
     });
   }
 
+  // Fires on the first interaction with *any* real field (name/email/
+  // country/checkboxes), not just `firstName` — a single `onChange` on
+  // one field missed a visitor who fills lastName/email first, or whose
+  // browser/password-manager autofill doesn't dispatch a per-field
+  // `change` event the way typing does. `onFocusCapture` on the form
+  // catches focus on the way in, before any change event, for every
+  // descendant; the honeypot is explicitly excluded (it's off-screen and
+  // out of tab order for real visitors, but a bot could still focus it
+  // programmatically, and that shouldn't count as "a visitor started
+  // registering"), and only real form controls count — a `Tab` landing
+  // on the Terms/Privacy links shouldn't fire this either.
+  function handleFormFocusCapture(event: FocusEvent<HTMLFormElement>) {
+    const target = event.target;
+    const isRealField =
+      (target instanceof HTMLInputElement ||
+        target instanceof HTMLSelectElement) &&
+      target.name !== "company";
+    if (isRealField) trackRegistrationStarted();
+  }
+
   function trackCtaClicked() {
     conversionEvents.track({
       type: "cta_clicked",
-      campaignId: campaign as CampaignId,
+      campaignId: asCampaignId(campaign),
       partnerId,
       storyWorldId,
     });
@@ -124,6 +146,7 @@ export function SignupForm({
     <form
       ref={formRef}
       action={formAction}
+      onFocusCapture={handleFormFocusCapture}
       className={cx(styles.signupForm, className)}
       noValidate
     >
@@ -163,6 +186,13 @@ export function SignupForm({
           value={offer.discountPercentage}
         />
       )}
+      {offer?.fixedOfferLabel && (
+        <input
+          type="hidden"
+          name="fixedOfferLabel"
+          value={offer.fixedOfferLabel}
+        />
+      )}
       {offer?.discountCode && (
         <input type="hidden" name="discountCode" value={offer.discountCode} />
       )}
@@ -189,7 +219,6 @@ export function SignupForm({
             required
             error={state.fieldErrors?.firstName}
             className={styles.signupField}
-            onChange={trackRegistrationStarted}
           />
           <TextField
             label="Last name"

@@ -10,6 +10,7 @@ import {
 import type { RegistrationConsentErrors } from "@/lib/registrationConsent";
 import { asAcquisitionSourceCode, asCampaignId } from "@/lib/platform/ids";
 import { emailStandInPlatformClient } from "@/lib/platform/contract";
+import { isRegistrationRateLimited } from "@/lib/registration/rateLimit";
 
 export interface FreeTrialSignupState {
   status: "idle" | "success" | "error";
@@ -21,27 +22,6 @@ export interface FreeTrialSignupState {
 export const initialFreeTrialSignupState: FreeTrialSignupState = {
   status: "idle",
 };
-
-// Same best-effort, single-instance, in-memory rate limiting as
-// ContactForm/actions.ts and the shop's checkout action — same documented
-// caveat (resets on restart, not correct across multiple serverless
-// instances under real traffic; swap in a shared store, e.g. Upstash
-// Redis, if/when that becomes a real problem). Kept as its own map rather
-// than sharing ContactForm's: a QR landing page and the contact form are
-// different abuse surfaces with different expected volumes.
-const submissionsByIp = new Map<string, number[]>();
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
-const RATE_LIMIT_MAX = 8;
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const recent = (submissionsByIp.get(ip) ?? []).filter(
-    (t) => now - t < RATE_LIMIT_WINDOW_MS,
-  );
-  recent.push(now);
-  submissionsByIp.set(ip, recent);
-  return recent.length > RATE_LIMIT_MAX;
-}
 
 /**
  * Captures an adult registration (parent/legal guardian — see the
@@ -100,7 +80,7 @@ export async function submitFreeTrialSignup(
     (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ||
     "unknown";
 
-  if (isRateLimited(ip)) {
+  if (isRegistrationRateLimited(ip)) {
     return {
       status: "error",
       message: "Too many submissions — please try again in a few minutes.",

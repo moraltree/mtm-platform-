@@ -1,5 +1,17 @@
 const RESEND_API_URL = "https://api.resend.com/emails";
 
+/** Minimal "is this shaped like an email address" check — deliberately
+ * not RFC 5322-exhaustive, matching what every actual consumer needs
+ * (ContactForm, the registration form) rather than a stricter validator
+ * neither asked for. The one definition every form-with-an-email-field
+ * in this codebase should import, rather than each declaring its own
+ * copy (found duplicated three times across ContactForm/actions.ts,
+ * CampaignLanding/actions.ts, and lib/registration/validate.ts before
+ * this consolidation). */
+export function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 export interface SendEmailInput {
   to: string;
   from: string;

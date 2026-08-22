@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { conversionEvents } from "@/lib/analytics/events";
-import type { CampaignId, PartnerId, StoryWorldId } from "@/lib/platform/ids";
+import { asCampaignId } from "@/lib/platform/ids";
+import type { PartnerId, StoryWorldId } from "@/lib/platform/ids";
 
 interface CampaignLandingAnalyticsProps {
   campaignId: string;
@@ -30,7 +31,7 @@ export function CampaignLandingAnalytics({
     hasFired.current = true;
     conversionEvents.track({
       type: "campaign_landing_viewed",
-      campaignId: campaignId as CampaignId,
+      campaignId: asCampaignId(campaignId),
       partnerId,
       storyWorldId,
     });
