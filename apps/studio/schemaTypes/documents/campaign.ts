@@ -78,9 +78,55 @@ export default defineType({
       type: "object",
       fields: [
         defineField({
+          name: "offerType",
+          title: "Offer type",
+          type: "string",
+          options: {
+            list: [
+              { title: "Free trial", value: "free-trial" },
+              { title: "Percentage discount", value: "percentage-discount" },
+              { title: "Fixed offer", value: "fixed-offer" },
+              { title: "Reward-linked", value: "reward-linked" },
+            ],
+          },
+          description:
+            "Optional — every campaign created before this field existed " +
+            "has no value here and every consumer treats that the same " +
+            'as "free-trial" (its actual behaviour until now), so leaving ' +
+            "this unset on an existing campaign changes nothing.",
+        }),
+        defineField({
           name: "trialLengthDays",
           title: "Trial length (days)",
           type: "number",
+        }),
+        defineField({
+          name: "discountPercentage",
+          title: "Discount percentage",
+          type: "number",
+          description:
+            'Only relevant when Offer type is "Percentage discount".',
+          validation: (rule) => rule.min(1).max(100),
+        }),
+        defineField({
+          name: "fixedOfferLabel",
+          title: "Fixed offer label",
+          type: "string",
+          description:
+            'Only relevant when Offer type is "Fixed offer" — a short ' +
+            'customer-facing label (e.g. "£4.99 for your first month"), ' +
+            "not a stored price (see CLAUDE.md's price-drift note).",
+        }),
+        defineField({
+          name: "rewardRuleKey",
+          title: "Reward rule key",
+          type: "string",
+          description:
+            'Only relevant when Offer type is "Reward-linked" — an ' +
+            "opaque reference to a future partner reward rule (see " +
+            "lib/rewards/types.ts). Not validated or looked up by this " +
+            "Studio or the web app; no reward-rule document type exists " +
+            "yet.",
         }),
         defineField({
           name: "stripePriceId",

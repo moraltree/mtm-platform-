@@ -314,20 +314,45 @@
   box-shadow: var(--shadow-md);
 }
 
-.signupRow {
+.signupField {
+  flex: 1;
+  margin-bottom: var(--space-3);
+}
+
+.registrationIntro {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.nameRow {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
 }
 
-.signupField {
-  flex: 1;
+.consentGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-block: var(--space-3) var(--space-4);
 }
 
 .signupButton {
   white-space: normal;
   font-weight: var(--weight-bold);
   letter-spacing: 0.01em;
+  width: 100%;
+}
+
+@media (min-width: 40rem) {
+  .nameRow {
+    flex-direction: row;
+  }
+
+  .nameRow .signupField {
+    flex: 1;
+  }
 }
 
 .reassurance {
@@ -354,12 +379,6 @@
   background: var(--color-surface-subtle);
   border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-3);
-}
-
-@media (min-width: 40rem) {
-  .signupRow {
-    flex-direction: row;
-  }
 }
 
 /* --- Benefits ------------------------------------------------------------ */

@@ -1,6 +1,16 @@
 import { sendEmail } from "../email";
 import type { AttributionState } from "../attribution/types";
-import type { CampaignId, ContentId, StoryWorldId, UserId } from "./ids";
+import type { RegistrationConsentState } from "../registrationConsent";
+import type { RewardEligibilityMetadata } from "../rewards/types";
+import { conversionEvents } from "../analytics/events";
+import type {
+  AcquisitionSourceCode,
+  CampaignId,
+  ContentId,
+  PartnerId,
+  StoryWorldId,
+  UserId,
+} from "./ids";
 
 /**
  * The typed contract this repository should call for everything the
@@ -36,9 +46,44 @@ export class NotImplementedError extends Error {
   }
 }
 
-export interface StartTrialRequest {
+/** The registering adult's own identity — never the child's. See
+ * `lib/registrationConsent.ts`'s doc comment for why this and consent
+ * are kept as separate concerns within the same request. `country` is
+ * optional: a future campaign/market configuration may already know it
+ * (see `CampaignLandingProps.knownCountry`'s doc comment), in which case
+ * the registration form doesn't ask; otherwise the registrant picks one. */
+export interface AdultIdentity {
+  firstName: string;
+  lastName: string;
   email: string;
+  /** ISO 3166-1 alpha-2 (e.g. "GB"), or undefined if genuinely unknown —
+   * never fabricated. */
+  country?: string;
+}
+
+/** Which offer/trial the registration is against — the minimum a future
+ * shared backend needs to know what was promised, without this repo
+ * owning entitlement/billing logic itself. Mirrors (a subset of)
+ * `CampaignDoc.offer` (`lib/sanity/types.ts`) — kept as its own type
+ * here rather than importing that one directly, since a Sanity document
+ * shape and a platform-handoff payload are allowed to diverge over time
+ * even though they start identical. */
+export interface OfferIdentity {
+  offerType?:
+    "free-trial" | "percentage-discount" | "fixed-offer" | "reward-linked";
+  trialLengthDays?: number;
+  discountPercentage?: number;
+  discountCode?: string;
+  stripePriceId?: string;
+}
+
+export interface StartTrialRequest {
+  adult: AdultIdentity;
   campaignId: CampaignId;
+  partnerId?: PartnerId;
+  storyWorldId?: StoryWorldId;
+  acquisitionSource?: AcquisitionSourceCode;
+  offer?: OfferIdentity;
   /** Both halves, per the owner's Phase 1 decision — who originally
    * acquired this visitor (`attribution.first`, permanent) and what
    * brought them back this time (`attribution.latest`). This repo hands
@@ -46,6 +91,11 @@ export interface StartTrialRequest {
    * since the shared backend is where the "acquired by X, reactivated
    * by Y" reporting questions actually get answered. */
   attribution: AttributionState;
+  consent: RegistrationConsentState;
+  /** Only present when the campaign is configured with a reward rule —
+   * see `lib/rewards/types.ts`. Forwarded as-is; this repo never
+   * evaluates or upgrades the state itself. */
+  rewardEligibility?: RewardEligibilityMetadata;
 }
 
 export interface StartTrialResult {
@@ -103,15 +153,46 @@ export interface PlatformClient {
 /**
  * The one implementation that exists in this phase. Mirrors the inline
  * logic in `components/patterns/CampaignLanding/actions.ts`'s
- * `submitFreeTrialSignup` today (validate elsewhere, email a human,
+ * `submitFreeTrialSignup` (validate elsewhere, email a human,
  * inert-until-configured on the same `FREE_TRIAL_TO_EMAIL`/
- * `CONTACT_FORM_FROM_EMAIL` env vars) — this file does not change that
- * action in Phase 0. Wiring the action to call this instead of its own
- * inline `sendEmail` call is Phase 1 migration work (see the
- * architecture proposal's migration plan, step 6), not done here.
+ * `CONTACT_FORM_FROM_EMAIL` env vars) — both the `/free30` action and
+ * the generic `/start/[storyWorld]/[campaign]` action now call through
+ * to this one implementation rather than each inlining their own
+ * `sendEmail` call. Still notifies a human, nothing more: no account,
+ * entitlement, subscription, or reward is created, stored, or fabricated
+ * anywhere below.
  */
 export const emailStandInPlatformClient: PlatformClient = {
-  async startTrial({ email, campaignId, attribution }) {
+  async startTrial({
+    adult,
+    campaignId,
+    partnerId,
+    storyWorldId,
+    acquisitionSource,
+    offer,
+    attribution,
+    consent,
+    rewardEligibility,
+  }) {
+    conversionEvents.track({
+      type: "subscription_handoff_started",
+      campaignId,
+      partnerId,
+      storyWorldId,
+      acquisitionSource,
+    });
+    if (rewardEligibility) {
+      conversionEvents.track({
+        type: "reward_eligibility",
+        campaignId,
+        partnerId,
+        storyWorldId,
+        acquisitionSource,
+        rewardType: rewardEligibility.rewardType,
+        state: rewardEligibility.state,
+      });
+    }
+
     const toEmail = process.env.FREE_TRIAL_TO_EMAIL;
     const fromEmail = process.env.CONTACT_FORM_FROM_EMAIL;
 
@@ -119,7 +200,7 @@ export const emailStandInPlatformClient: PlatformClient = {
       console.warn(
         "startTrial (email stand-in) called but FREE_TRIAL_TO_EMAIL/" +
           "CONTACT_FORM_FROM_EMAIL aren't set — see .env.example. Lead " +
-          `was NOT recorded anywhere: ${email} (campaign=${campaignId}).`,
+          `was NOT recorded anywhere: ${adult.email} (campaign=${campaignId}).`,
       );
       return {
         status: "error",
@@ -132,11 +213,37 @@ export const emailStandInPlatformClient: PlatformClient = {
     const result = await sendEmail({
       to: toEmail,
       from: fromEmail,
-      replyTo: email,
+      replyTo: adult.email,
       subject: `Trial sign-up — ${campaignId}`,
       text:
         `New trial sign-up via the campaign platform.\n\n` +
-        `Email: ${email}\nCampaign: ${campaignId}\n\n` +
+        `Name: ${adult.firstName} ${adult.lastName}\n` +
+        `Email: ${adult.email}\n` +
+        `Country: ${adult.country ?? "(not provided)"}\n` +
+        `Campaign: ${campaignId}\n` +
+        `Partner: ${partnerId ?? "(none)"}\n` +
+        `Story World: ${storyWorldId ?? "(none)"}\n` +
+        `Acquisition source: ${acquisitionSource ?? "(none)"}\n\n` +
+        `Offer: ${offer?.offerType ?? "(unspecified)"}` +
+        (offer?.trialLengthDays ? ` — ${offer.trialLengthDays} days` : "") +
+        (offer?.discountPercentage
+          ? ` — ${offer.discountPercentage}% off`
+          : "") +
+        (offer?.discountCode ? ` — code ${offer.discountCode}` : "") +
+        "\n\n" +
+        `Consent — adult confirmed: ${consent.adultConfirmed}, guardian confirmed: ${consent.guardianConfirmed}\n` +
+        `Terms accepted: ${consent.termsAccepted} (v${consent.termsVersion} @ ${consent.termsAcceptedAt})\n` +
+        `Privacy accepted: ${consent.privacyAccepted} (v${consent.privacyVersion} @ ${consent.privacyAcceptedAt})\n` +
+        `Marketing consent: ${consent.marketingConsent}` +
+        (consent.marketingConsentAt ? ` @ ${consent.marketingConsentAt}` : "") +
+        "\n\n" +
+        (rewardEligibility
+          ? `Reward eligibility: ${rewardEligibility.state}` +
+            (rewardEligibility.rewardRuleKey
+              ? ` (rule ${rewardEligibility.rewardRuleKey})`
+              : "") +
+            "\n\n"
+          : "") +
         `Originally acquired via (first touch, ${first.touchedAt}):\n` +
         `  Partner: ${first.partnerId ?? "(none)"}\n` +
         `  Story World: ${first.storyWorldId ?? "(none)"}\n` +

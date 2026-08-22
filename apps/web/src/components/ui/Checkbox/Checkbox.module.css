@@ -1,0 +1,47 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.input {
+  /* The visible box stays native-small, but the actual tap target is
+     the full label sentence next to it (a real `<label htmlFor>`, so
+     tapping anywhere in the wrapped text toggles the box) — comfortably
+     over the 44px minimum (WCAG 2.5.5) this codebase otherwise targets
+     via `.input`'s min-height in FormField.module.css, without this
+     checkbox needing its own oversized hit area. */
+  width: 1.25rem;
+  height: 1.25rem;
+  min-width: 1.25rem;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  accent-color: var(--color-brand-600);
+}
+
+.label {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  line-height: var(--leading-normal);
+}
+
+.required {
+  color: var(--color-danger);
+}
+
+.inputError {
+  outline: var(--border-width-sm) solid var(--color-danger);
+  outline-offset: 2px;
+}
+
+.error {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  margin-left: calc(1.25rem + var(--space-2));
+}
