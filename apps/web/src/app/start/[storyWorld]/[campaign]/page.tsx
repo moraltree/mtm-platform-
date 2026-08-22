@@ -10,6 +10,7 @@ import { getCampaignForRoute } from "@/lib/sanity/queries";
 import { urlFor } from "@/lib/sanity/image";
 import { resolveTheme, themeToCssVariables } from "@/lib/theme/resolveTheme";
 import type { CampaignLandingContent } from "@/components/patterns/CampaignLanding";
+import { asPartnerId, asStoryWorldId } from "@/lib/platform/ids";
 import { submitCampaignSignup } from "./actions";
 
 function firstString(value: string | string[] | undefined): string | undefined {
@@ -143,6 +144,34 @@ export default async function CampaignRoutePage(
       storyWorld={storyWorldContent}
       sectionOverrides={sectionOverrides}
       themeStyle={themeToCssVariables(theme) as CSSProperties}
+      partnerId={
+        campaignDoc.partner?.key
+          ? asPartnerId(campaignDoc.partner.key)
+          : undefined
+      }
+      storyWorldId={
+        campaignDoc.storyWorld?.key
+          ? asStoryWorldId(campaignDoc.storyWorld.key)
+          : undefined
+      }
+      offer={{
+        offerType: campaignDoc.offer?.offerType,
+        trialLengthDays: campaignDoc.offer?.trialLengthDays,
+        discountPercentage: campaignDoc.offer?.discountPercentage,
+        fixedOfferLabel: campaignDoc.offer?.fixedOfferLabel,
+        discountCode: campaignDoc.offer?.discountCode,
+        rewardRuleKey: campaignDoc.offer?.rewardRuleKey,
+      }}
+      // The route slugs, not the durable `.key`s — `submitCampaignSignup`
+      // re-resolves the Campaign document from these via the same
+      // `getCampaignForRoute` this page just called, so the offer/reward
+      // data it acts on is always this campaign's *current* Sanity
+      // config, never whatever the `offer` hidden fields above (client-
+      // editable) claim. Same "never trust the client for anything with
+      // a real business-rule consequence" principle as WP7's Stripe
+      // price-drift cross-check (see CLAUDE.md).
+      storyWorldSlug={storyWorldSlug}
+      campaignSlug={campaignSlug}
       // No `signupInitialState` override — `SignupForm`'s own default
       // (`initialFreeTrialSignupState`, `{status: "idle"}`) is the exact
       // same shape/value `submitCampaignSignup` starts from too. Not

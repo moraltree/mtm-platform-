@@ -44,6 +44,13 @@ export type ProductId = Brand<string, "ProductId">;
 export type ContentId = Brand<string, "ContentId">;
 /** The `code` on an `AcquisitionSource` — this repo mints these. */
 export type AcquisitionSourceCode = Brand<string, "AcquisitionSourceCode">;
+/** A partner reward/voucher rule's stable key — this repo mints these
+ * (configuration, the same category as `AcquisitionSourceCode`), but the
+ * rule itself is a typed contract only (`lib/rewards/types.ts`) — no
+ * redemption/issuance system exists yet. Never a real voucher/coupon
+ * code; that would be minted by whatever system eventually redeems
+ * these. */
+export type RewardRuleKey = Brand<string, "RewardRuleKey">;
 
 /**
  * Brand a raw string as one of the above. A cast, not a validator — call
@@ -74,4 +81,7 @@ export function asContentId(value: string): ContentId {
 }
 export function asAcquisitionSourceCode(value: string): AcquisitionSourceCode {
   return value as AcquisitionSourceCode;
+}
+export function asRewardRuleKey(value: string): RewardRuleKey {
+  return value as RewardRuleKey;
 }

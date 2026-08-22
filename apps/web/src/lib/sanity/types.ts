@@ -208,7 +208,26 @@ export interface CampaignDoc {
   storyWorld?: StoryWorldDoc;
   theme?: ThemeTokensFields;
   offer?: {
+    /** Explicit offer kind — optional and additive (existing campaigns
+     * with no `offerType` set still work: every consumer treats a
+     * missing value as "free-trial", matching every campaign's actual
+     * behaviour before this field existed). See campaign.ts's schema
+     * field comment for the full backward-compatibility note. */
+    offerType?:
+      "free-trial" | "percentage-discount" | "fixed-offer" | "reward-linked";
     trialLengthDays?: number;
+    /** Only meaningful when `offerType` is `"percentage-discount"`. */
+    discountPercentage?: number;
+    /** Only meaningful when `offerType` is `"fixed-offer"` — a short
+     * customer-facing label (e.g. "£4.99 for your first month"), not a
+     * stored price (see the price-drift note in CLAUDE.md for why this
+     * repo never stores an authoritative price next to a Stripe Price
+     * reference). */
+    fixedOfferLabel?: string;
+    /** Only meaningful when `offerType` is `"reward-linked"` — see
+     * `lib/rewards/types.ts`. An opaque reference, not a live join: this
+     * repo does not look up or validate the rule it points to. */
+    rewardRuleKey?: string;
     stripePriceId?: string;
     discountCode?: string;
   };

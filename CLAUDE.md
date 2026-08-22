@@ -225,6 +225,52 @@ image.ts#urlFor` gained one additive `local-file:` sentinel branch so
   `mockContent.ts`, `devRecords.ts` (River Rangers' own campaign-platform
   fixture), the campaign platform, `/free30`, and Shopify/Stripe/Vercel
   config are all untouched.
+- **WP11 — Story Worlds visual refinement** (card sizing/balance, image
+  crop fixes) — recorded in `PROGRESS.md`/git history
+  (`98857b8`..`f0defea`) but this checklist was never updated for it; not
+  addressed as part of WP12 below, noted here only so the gap is visible
+  rather than silently skipped.
+- **WP12 — Adult registration, communications consent, offer types,
+  reward/voucher contract, conversion events** ✅ Extends the campaign
+  platform that was itself built across an earlier, separately-tracked
+  "Phases 0–5" engagement (`1ec92a5`, never folded into this checklist
+  before now — see `CAMPAIGN_PLATFORM_CMS_CONTRACT.md`, `app/start/
+[storyWorld]/[campaign]`, `app/s/[shortCode]`, `lib/attribution/`,
+  `lib/platform/`, `lib/repository/`, `lib/theme/`, `lib/campaignRules.ts`
+  — all of it pre-existing, reused unchanged here). `SignupForm.tsx` (the
+  one form `/free30` and every `/start/...` campaign share) now registers
+  the **adult** — first/last name, email, optional country, required
+  adult/guardian confirmation and Terms/Privacy acceptance, and a
+  separate, optional, unchecked-by-default marketing checkbox — never the
+  child. `lib/registrationConsent.ts` is the typed consent record
+  (deliberately not merged with `lib/consent.ts`'s cookie-banner
+  consent — see that file's own doc comment). `lib/registration/
+validate.ts` is the one validation function both `/free30`'s and
+  `/start/...`'s Server Actions call, so the two can't drift apart.
+  `CampaignDoc.offer.offerType` (`"free-trial" | "percentage-discount" |
+"fixed-offer" | "reward-linked"`) is additive/optional — a missing
+  value still means `"free-trial"`, every existing campaign's actual
+  behaviour, so nothing needed migrating. `lib/rewards/types.ts` is a
+  **typed-only** partner-agnostic reward/voucher contract
+  (`PartnerRewardRule`, `RewardEligibilityMetadata`, etc.) — no Sanity
+  document type, no redemption system, no partner named anywhere.
+  `StartTrialRequest` (`lib/platform/contract.ts`) now carries the
+  adult's identity, partner/Story-World/campaign/acquisition-source
+  identity, an `OfferIdentity`, the unchanged `attribution`, the new
+  `consent`, and an optional `rewardEligibility` — `emailStandInPlatformClient`
+  is still the only implementation, still just emails a human, still
+  creates/persists nothing. `lib/analytics/events.ts` is a typed
+  `ConversionEvent` boundary (landing viewed → CTA clicked → registration
+  started/completed → subscription handoff started, plus a trial-
+  activated and subscription-outcome placeholder and a reward-eligibility
+  event) — logged only (`consoleConversionEventSink`), no real
+  destination, no PII in any payload (opaque IDs only, enforced by the
+  types). See `CAMPAIGN_PLATFORM_CMS_CONTRACT.md`'s new "Adult
+  registration, consent, and the subscription-ready handoff" section for
+  the full contract. Corporate site, Shopify integration, `/free30`'s
+  existing visual design, Story Worlds, attribution cookies, and the
+  short-code system are all unmodified — only the shared registration
+  form/action grew new fields.
 
 ## Repository structure
 

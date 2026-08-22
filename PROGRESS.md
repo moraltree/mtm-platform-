@@ -4,6 +4,98 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-22 — WP12: Adult registration, consent, offer types, reward contract, conversion events
+
+- Task: extend the existing campaign-platform journey (QR/short-link →
+  campaign landing → registration → subscription-ready handoff) with
+  adult-only registration, separated communications consent, configurable
+  offer types, a typed partner reward/voucher contract, and a typed
+  conversion-event boundary — per the owner's brief, following an audit
+  reported and approved first. Explicit instruction: reuse the existing
+  QR/short-code/campaign/attribution/landing-page architecture, don't
+  rebuild any of it.
+- Audit finding (reported and approved before implementation): a
+  substantial campaign platform already existed
+  (`/start/[storyWorld]/[campaign]`, `/s/[shortCode]`, attribution
+  cookies, `CampaignRepository`, `PlatformClient`, `AdminOperations`) but
+  was undocumented in `CLAUDE.md` (built across a separately-tracked
+  "Phases 0-5" engagement, checkpointed in `1ec92a5`) — the actual gaps
+  were adult registration fields, consent capture, reward/voucher
+  contracts, and conversion tracking, not the underlying architecture.
+- `lib/registrationConsent.ts`: typed `RegistrationConsentState`
+  (adult/guardian confirmation, Terms/Privacy acceptance with per-document
+  version + timestamp, marketing consent kept separate and optional) —
+  deliberately not merged with `lib/consent.ts` (cookie-banner consent).
+- `lib/registration/validate.ts`: shared field/consent validation, used
+  by both `/free30`'s and `/start/...`'s Server Actions so they can't
+  drift into two definitions of "valid."
+- `lib/rewards/types.ts`: typed-only partner-agnostic reward/voucher
+  contract (`PartnerRewardRule`, `RewardTrigger`, `RewardEligibilityState`,
+  `RewardEligibilityMetadata`) — no Sanity schema, no redemption logic, no
+  partner named.
+- `lib/analytics/events.ts`: typed `ConversionEvent` union covering all
+  eight requested events, `consoleConversionEventSink` (log-only, no real
+  destination), no PII in any payload by construction of the types.
+- `lib/platform/contract.ts`: `StartTrialRequest` extended with
+  `AdultIdentity`, `partnerId`/`storyWorldId`/`acquisitionSource`,
+  `OfferIdentity`, `consent`, optional `rewardEligibility`;
+  `emailStandInPlatformClient.startTrial` updated to include all of it in
+  its (still human-only, still non-persistent) notification email, and to
+  fire `subscription_handoff_started`/`reward_eligibility` events.
+- `lib/sanity/types.ts` + `apps/studio/schemaTypes/documents/campaign.ts`:
+  `CampaignDoc.offer` gained `offerType` (`free-trial` |
+  `percentage-discount` | `fixed-offer` | `reward-linked`),
+  `discountPercentage`, `fixedOfferLabel`, `rewardRuleKey` — all optional,
+  backward-compatible (missing `offerType` still means `free-trial`, the
+  behaviour every existing campaign already had).
+- `components/ui/Checkbox` (new) and `FormField.tsx`'s new `SelectField`:
+  accessible primitives (associated label, error announcement,
+  required-field indicator) matching `TextField`'s existing pattern.
+- `SignupForm.tsx` rewritten into a full adult-registration form
+  (first/last name, email, optional country selector, required
+  adult/guardian/Terms-Privacy checkboxes, separate optional marketing
+  checkbox) — shared by `/free30` and every `/start/...` campaign, so
+  both routes' registration flow grew together, not separately. Fires
+  `cta_clicked`/`registration_started`/`registration_completed`;
+  `CampaignLandingAnalytics` (new, invisible) fires
+  `campaign_landing_viewed` once per page render, independent of which
+  `SignupForm` instance mounts.
+- `components/patterns/CampaignLanding/actions.ts` (`/free30`) and
+  `app/start/[storyWorld]/[campaign]/actions.ts` rewritten to build the
+  full consent/adult-identity/offer/reward payload and call through
+  `emailStandInPlatformClient.startTrial` — `/free30` now also goes
+  through the shared platform-contract call (previously its own inline
+  `sendEmail`), carrying its own hard-coded "30 nights free" offer
+  identity since it has no Sanity-backed Campaign document.
+  `lib/attribution/fallback.ts` extracted the "no cookie" fallback both
+  actions need (small dedup, `/start/...`'s own pre-existing logic moved
+  verbatim, not changed).
+- `app/start/[storyWorld]/[campaign]/page.tsx`: passes
+  `campaignDoc.partner?.key`/`storyWorld?.key`/`offer` through to
+  `CampaignLanding` as typed props, threaded into hidden form fields so
+  the Server Action never re-queries Sanity itself.
+- New tests: `lib/registrationConsent.test.ts`,
+  `lib/registration/validate.test.ts`, `lib/analytics/events.test.ts`
+  (17 new cases). Full suite: 108 passed, 0 failed (10 files). Lint,
+  typecheck, and `prettier --check` all clean after an auto-format pass.
+  `next build` verified clean both with `USE_MOCK_CONTENT=true` (36
+  routes) and unset (25 routes, real null-handling paths). `next start` +
+  curl confirmed the new fields/checkboxes/hidden fields render correctly
+  on both `/free30` and `/start/river-rangers/river-rangers-water-safety`
+  (the existing River Rangers dev fixture) — including partner/Story-
+  World/offer hidden fields resolving correctly from the Sanity-shaped
+  mock data.
+- A Vercel **preview** deployment (not production) was created for manual
+  mobile-width visual QA, since no browser-automation tool was available
+  in this session — see the session's own report for the URL.
+- Did not touch: `backend/`, DNS/domain config, Shopify integration,
+  Story Worlds pages, existing corporate routes, the QR/short-code
+  system, attribution-cookie mechanics, or any real Stripe/Sanity
+  credentials. No customer database, entitlement persistence, voucher
+  redemption, or new Stripe business logic was built — see
+  `CAMPAIGN_PLATFORM_CMS_CONTRACT.md`'s updated "Explicitly out of
+  scope" section.
+
 ## 2026-08-21 (session 5) — WP11 final pass: Story Worlds card sizing/balance
 
 - Task: with the distortion/cropping fix (below) approved, one more

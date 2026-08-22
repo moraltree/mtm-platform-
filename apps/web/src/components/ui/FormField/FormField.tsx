@@ -1,6 +1,7 @@
 import {
   useId,
   type InputHTMLAttributes,
+  type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
 } from "react";
 import styles from "./FormField.module.css";
@@ -77,6 +78,73 @@ export function TextField({
         className={cx(styles.input, error && styles.inputError)}
         {...rest}
       />
+      {error && (
+        <p id={errorId} role="alert" className={styles.error}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+type SelectFieldProps = BaseFieldProps & {
+  hideLabel?: boolean;
+  /** `<option>` elements, passed as children — same as a plain
+   * `<select>`, so a caller can mix a placeholder `<option value="">`
+   * with real values without this component inventing an "empty option"
+   * convention of its own. */
+  children: React.ReactNode;
+} & Omit<SelectHTMLAttributes<HTMLSelectElement>, "id" | "className">;
+
+/** Self-contained labelled `<select>` — same associated-label/hint/error
+ * pattern as `TextField`. Used for the registration form's (optional)
+ * country selector today. */
+export function SelectField({
+  label,
+  hideLabel,
+  hint,
+  error,
+  required,
+  className,
+  children,
+  ...rest
+}: SelectFieldProps) {
+  const { id, hintId, errorId, describedBy } = useFieldIds(hint, error);
+  const labelContent = (
+    <>
+      {label}
+      {required && (
+        <span aria-hidden="true" className={styles.required}>
+          {" "}
+          *
+        </span>
+      )}
+    </>
+  );
+  return (
+    <div className={cx(styles.field, className)}>
+      <label htmlFor={id} className={styles.label}>
+        {hideLabel ? (
+          <VisuallyHidden>{labelContent}</VisuallyHidden>
+        ) : (
+          labelContent
+        )}
+      </label>
+      {hint && (
+        <p id={hintId} className={styles.hint}>
+          {hint}
+        </p>
+      )}
+      <select
+        id={id}
+        required={required}
+        aria-describedby={describedBy}
+        aria-invalid={error ? true : undefined}
+        className={cx(styles.input, error && styles.inputError)}
+        {...rest}
+      >
+        {children}
+      </select>
       {error && (
         <p id={errorId} role="alert" className={styles.error}>
           {error}
