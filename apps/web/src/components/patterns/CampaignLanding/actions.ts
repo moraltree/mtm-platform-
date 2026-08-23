@@ -3,25 +3,15 @@
 import { headers } from "next/headers";
 import { buildFallbackAttributionPayload } from "@/lib/attribution/fallback";
 import { buildRegistrationConsentState } from "@/lib/registrationConsent";
-import {
-  parseAndValidateRegistration,
-  type RegistrationFieldErrors,
-} from "@/lib/registration/validate";
-import type { RegistrationConsentErrors } from "@/lib/registrationConsent";
+import { parseAndValidateRegistration } from "@/lib/registration/validate";
 import { asAcquisitionSourceCode, asCampaignId } from "@/lib/platform/ids";
 import { emailStandInPlatformClient } from "@/lib/platform/contract";
 import { isRegistrationRateLimited } from "@/lib/registration/rateLimit";
-
-export interface FreeTrialSignupState {
-  status: "idle" | "success" | "error";
-  message?: string;
-  fieldErrors?: RegistrationFieldErrors;
-  consentErrors?: RegistrationConsentErrors;
-}
-
-export const initialFreeTrialSignupState: FreeTrialSignupState = {
-  status: "idle",
-};
+// A "use server" file may only export async functions — the shared type
+// and idle initial state (`initialFreeTrialSignupState`) live in
+// ./state.ts, not here. See that file's doc comment for why (a real,
+// confirmed-live bug this fix resolves, not a hypothetical).
+import type { FreeTrialSignupState } from "./state";
 
 /**
  * Captures an adult registration (parent/legal guardian — see the

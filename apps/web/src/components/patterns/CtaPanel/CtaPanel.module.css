@@ -28,13 +28,24 @@
 }
 
 /* Override the Button "secondary" variant so its outline reads correctly
-   against this panel's solid brand background. */
-.ctaOnBrand {
+   against this panel's solid brand background (white outline/text on the
+   brown/brand-600 panel, not Button's default dark ink outline). The
+   selector is deliberately doubled (`.ctaOnBrand.ctaOnBrand`): as a
+   single class this has the exact same specificity as Button.module.css's
+   `.secondary` rule it's meant to override, so which one actually wins
+   depends on the two CSS Modules' relative order in the bundled
+   stylesheet — unspecified/bundler-dependent, and empirically lost in
+   production (Button's dark ink border/text was winning instead of this
+   override, confirmed live — the actual bug behind the "dark outline"
+   report). Doubling the class bumps specificity to (0,2,0), which
+   deterministically beats `.secondary`'s (0,1,0) regardless of source
+   order, without touching Button.tsx or any other `.secondary` consumer. */
+.ctaOnBrand.ctaOnBrand {
   border-color: var(--color-on-brand);
   color: var(--color-on-brand);
 }
 
-.ctaOnBrand:hover {
+.ctaOnBrand.ctaOnBrand:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 

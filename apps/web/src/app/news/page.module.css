@@ -12,7 +12,20 @@
 }
 
 .empty {
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: var(--border-width-sm) dashed var(--color-border-subtle);
+  max-width: 36rem;
+}
+
+.emptyHeading {
+  font-size: var(--text-lg);
+}
+
+.emptyBody {
+  margin-top: var(--space-2);
   color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
 }
 
 @media (min-width: 48rem) {

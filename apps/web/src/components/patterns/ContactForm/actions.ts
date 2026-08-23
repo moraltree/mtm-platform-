@@ -2,14 +2,11 @@
 
 import { headers } from "next/headers";
 import { isValidEmail } from "@/lib/email";
-
-export interface ContactFormState {
-  status: "idle" | "success" | "error";
-  message?: string;
-  fieldErrors?: Partial<Record<"name" | "email" | "message", string>>;
-}
-
-export const initialContactFormState: ContactFormState = { status: "idle" };
+// A "use server" file may only export async functions — the shared idle
+// state (`initialContactFormState`) lives in ./state.ts, not here. See
+// that file's doc comment for why (a real, confirmed-live bug this fix
+// resolves, not a hypothetical).
+import type { ContactFormState } from "./state";
 
 const RESEND_API_URL = "https://api.resend.com/emails";
 const TURNSTILE_VERIFY_URL =

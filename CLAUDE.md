@@ -271,6 +271,94 @@ validate.ts` is the one validation function both `/free30`'s and
   existing visual design, Story Worlds, attribution cookies, and the
   short-code system are all unmodified — only the shared registration
   form/action grew new fields.
+- **WP13 — QA pass: contact-form crash, cast presentation, Publishing/
+  Audiobooks/Animation shells** ✅ (23 Aug 2026, `feature/shopify-
+storefront-nav-link`) A real, previously-unknown production bug —
+  **every** `useActionState` form on the site (Contact, `/free30`, every
+  `/start/[storyWorld]/[campaign]`) threw "A 'use server' file can only
+  export async functions, found object" the moment it was actually
+  submitted (confirmed live in both `next dev` and a production
+  `next build && next start` — Next's `ensureServerEntryExports` check,
+  `node_modules/next/dist/build/webpack/loaders/next-flight-loader/
+action-validate.js`, only runs at runtime, never during `next build`,
+  which is why it shipped unnoticed). Root cause: `ContactForm/actions.ts`
+  and `CampaignLanding/actions.ts` each exported a plain `initial*State`
+  object alongside their server action — illegal in a `"use server"` file.
+  Fixed by moving each to a sibling `state.ts` (non-`"use server"`)
+  module; see `ContactForm/state.ts` and `CampaignLanding/state.ts`'s own
+  doc comments for the full mechanism. `ContactForm` itself was otherwise
+  already correct (validation, honeypot, rate limiting, honest "not
+  configured" degradation) — regression-tested in the new
+  `ContactForm/actions.test.ts`. **Email delivery is still not configured
+  in production** (`RESEND_API_KEY`/`CONTACT_FORM_TO_EMAIL`/
+  `CONTACT_FORM_FROM_EMAIL` all unset — confirmed via `vercel env ls
+production`) — the form now degrades honestly instead of crashing, but
+  won't actually deliver a message until the owner provisions a Resend
+  account and sets those three vars (optionally
+  `NEXT_PUBLIC_TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY` for spam
+  protection); no credentials were invented. Home's "Meet the cast"
+  section now shows all 8 characters (Zulu was previously excluded,
+  reading as "missing") in a page-local order (Zulu, Nara, Mango, Zala,
+  Sid, Rocky, Kofi, Lulu) and switched from a cropped circular avatar
+  (`object-fit: cover` forcing the "close-up-headshot" pose into a 1:1
+  circle — cropping ears/silhouette on several characters) to an
+  uncropped 2:3 portrait card (`object-fit: contain`, the "front-portrait"
+  pose) — see `app/page.tsx`/`home.module.css`'s updated comments. Audited
+  every Mango appearance against the master asset library's own approved
+  canonical scale reference (`14-batch2-corrected/savannah-seven-scale-
+lineup-batch2-v1.png`): the numeric `relativeScale` canon in
+  `lib/characters.ts` is correct and unchanged (Mango is the second-
+  smallest character, ahead of only Sid) and the CSS-driven paths
+  (`HeroCastCluster`, Home's cast grid) already size him correctly — the
+  actual defect is baked into four pre-existing composite images
+  (`full-cast-01-group-portrait.png`, `full-cast-09-storytime-circle.png`,
+  `savannah-seven/hero.png`, and by extension `full-cast-05-sunset-
+silhouette-warm.png`), all of which draw Mango notably larger than the
+  approved lineup dictates. No approved alternative composite in the
+  master library's `15-approved/` fixes this (`full-cast-10-parade-
+formation.png` has the same defect), so nothing was swapped or edited —
+  this needs a real artwork correction pass, not a code fix; flagged for
+  the owner rather than silently reinterpreting canon or touching
+  approved art. The Partner CTA's "Start a conversation" button was
+  rendering with Button's default dark `.secondary` outline/text instead
+  of `CtaPanel.module.css`'s intended white-on-brand override — both
+  rules share the same CSS specificity, so which one won depended on
+  bundler stylesheet order (confirmed losing in production); fixed by
+  bumping the override's specificity (`.ctaOnBrand.ctaOnBrand`) rather
+  than relying on source-order luck. Story Worlds hub cards were already
+  fully clickable, data-driven, and unhardcoded (`Card`'s `href` wraps the
+  whole card in a real `next/link`, routing is `getStoryWorlds()`-driven
+  with no Savannah-Seven-specific logic, and the grid already scales to
+  ~6 items) — verified, no changes needed. Publishing/Audiobooks/
+  Animation moved off `lib/editorialPage.tsx`'s 404-on-missing-`page`-doc
+  rule (null-handling rule 1) onto their own honest "proposition shell"
+  fallback (a new shared `components/patterns/PropositionShell`) — a real
+  Sanity `page` document, once one exists, still wins immediately, same
+  "CMS wins the instant it exists" precedent as Home's own null-state; the
+  three routes joined `sitemap.ts`'s `ALWAYS_AVAILABLE` accordingly. Each
+  shell describes a real future proposition (physical books/Story World
+  collections/printables for Publishing; bedtime audio/samples/subscriber
+  access for Audiobooks, linking the genuinely-real `/free30` trial rather
+  than a fabricated one; short clips/QR-triggered scenes for Animation)
+  with no invented titles, partnerships, or claims of current
+  availability. News' empty state got a small honest polish (a bordered
+  "Updates coming soon" panel instead of one bare muted line) — its
+  underlying rule-3 behaviour (never 404s) was already correct. Shopify
+  nav-link behaviour (WP9) was re-verified, not changed: with
+  `NEXT_PUBLIC_SHOP_URL` unset, "Shop" is correctly omitted from nav; it's
+  set in production, so "Shop" already appears there pointing at the real
+  external storefront. A full route audit (Home, Story Worlds, Publishing,
+  Audiobooks, Animation, Shop, News, About, Contact, `/free30`, Savannah
+  Seven) against a true production-equivalent build
+  (`USE_MOCK_CONTENT=false next build && next start` — the default
+  `.env.local` has mock content on, which was masking exactly the
+  null-state branches this pass needed to verify) confirmed every route
+  returns the correct status (200 for all of the above, real 404s
+  unchanged for About/Founder/Mission, which this pass deliberately left
+  alone). Campaign routes, the QR/short-code system, the adult
+  registration journey, `/free30`'s existing visual design, and Shopify
+  integration are otherwise unmodified — all 129 existing + new tests
+  pass, lint/typecheck/format clean, production build clean.
 
 ## Repository structure
 

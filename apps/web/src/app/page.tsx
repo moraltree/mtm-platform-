@@ -12,7 +12,11 @@ import { urlFor } from "@/lib/sanity/image";
 import { adaptSections } from "@/lib/pageSections";
 import { buildMetadata } from "@/lib/metadata";
 import { cx } from "@/lib/cx";
-import { getCharacterPose, getEnsembleCharacters } from "@/lib/characters";
+import {
+  getCharacter,
+  getCharacterPose,
+  type CharacterSlug,
+} from "@/lib/characters";
 import { BookIcon, HeadphonesIcon, FilmIcon } from "./home-icons";
 import styles from "./home.module.css";
 
@@ -25,17 +29,30 @@ import styles from "./home.module.css";
 // same as before this change) if that pose is ever missing.
 const HOME_HERO_IMAGE = getCharacterPose("zulu", "three-quarter-wave");
 
-// "Meet the cast" section, below: Zulu leads (already featured in the
-// Hero above) while the other seven get equal-sized billing here, per
-// the character manifest's own documented purpose for
-// getEnsembleCharacters() (lib/characters.ts) — a section that
-// deliberately rotates through the ensemble rather than defaulting every
-// section back to Zulu. Headshot pose + canonical name only — no
+// "Meet the cast" section, below: a page-local presentation order (owner
+// sign-off, 23 Aug 2026 QA pass) — deliberately not the character
+// manifest's own canonical `order` (1-8, matching the master asset
+// library's numbered folders, see lib/characters.ts) since that field is
+// production canon describing asset provenance, not a mandate on display
+// order for every section. Zulu, previously excluded here (already
+// featured in the Hero above) and shown separately, is now included —
+// its earlier absence read as "Zulu is missing" during review. Portrait
+// pose (not the tighter "close-up-headshot") + canonical name only — no
 // species/personality/backstory copy, since that canon doesn't exist in
 // this repository yet (see lib/characters.ts's own doc comment).
-const CAST_MEMBERS = getEnsembleCharacters().map((character) => ({
-  character,
-  pose: getCharacterPose(character.slug, "close-up-headshot"),
+const CAST_ORDER: CharacterSlug[] = [
+  "zulu",
+  "nara",
+  "mango",
+  "zala",
+  "sid",
+  "rocky",
+  "kofi",
+  "lulu",
+];
+const CAST_MEMBERS = CAST_ORDER.map((slug) => ({
+  character: getCharacter(slug),
+  pose: getCharacterPose(slug, "front-portrait"),
 }));
 
 // A small, purely decorative Zulu "stamp" inline with the mediums-section
@@ -231,9 +248,8 @@ export default async function Home() {
             <div className={styles.sectionHead}>
               <h2 className={styles.sectionHeading}>Meet the cast</h2>
               <p className={styles.sectionBody}>
-                Zulu leads a wider circle of friends who&rsquo;ll appear
-                throughout our first Story World. Here&rsquo;s who else
-                you&rsquo;ll be meeting.
+                Zulu and his circle of friends, who&rsquo;ll appear throughout
+                our first Story World.
               </p>
             </div>
             <p className={styles.castSwipeHint} aria-hidden="true">

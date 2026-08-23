@@ -175,12 +175,17 @@ export default async function CampaignRoutePage(
       // No `signupInitialState` override — `SignupForm`'s own default
       // (`initialFreeTrialSignupState`, `{status: "idle"}`) is the exact
       // same shape/value `submitCampaignSignup` starts from too. Not
-      // re-imported here deliberately: importing a plain value (as
-      // opposed to a type or an async function) from a "use server" file
-      // into a Server Component fails Next's build-time "a 'use server'
-      // file can only export async functions" check for the *whole*
-      // file — hit while building this exact route, see the Phase 1
-      // report's build notes.
+      // re-imported here: `initialFreeTrialSignupState` now lives in
+      // `CampaignLanding/state.ts`, a plain (non-"use server") module,
+      // specifically so it's safe to import from anywhere, including a
+      // Server Component like this one. It used to live in
+      // `CampaignLanding/actions.ts` itself, which broke every
+      // `/free30` and `/start/...` submission at runtime (confirmed
+      // live — a "use server" file may only export async functions;
+      // exporting the plain object alongside the action throws the
+      // first time the action is actually invoked, even though the
+      // build itself succeeds either way) — see `CampaignLanding/
+      // state.ts`'s doc comment.
       signupAction={submitCampaignSignup}
     />
   );

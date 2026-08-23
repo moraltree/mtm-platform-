@@ -5,7 +5,8 @@ import Script from "next/script";
 import { Container } from "@/components/ui/Container";
 import { TextField, TextArea } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
-import { submitContactForm, initialContactFormState } from "./actions";
+import { submitContactForm } from "./actions";
+import { initialContactFormState } from "./state";
 import styles from "./ContactForm.module.css";
 
 export interface ContactFormProps {

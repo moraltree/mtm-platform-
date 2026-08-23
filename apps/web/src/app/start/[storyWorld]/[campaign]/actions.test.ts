@@ -47,7 +47,7 @@ vi.mock("@/lib/platform/contract", async (importOriginal) => {
 
 const { submitCampaignSignup } = await import("./actions");
 const { initialFreeTrialSignupState } =
-  await import("@/components/patterns/CampaignLanding/actions");
+  await import("@/components/patterns/CampaignLanding/state");
 
 function buildFormData(overrides: Record<string, string>) {
   const fd = new FormData();

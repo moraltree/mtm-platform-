@@ -55,7 +55,14 @@ export default async function NewsIndexPage() {
           })}
         </div>
       ) : (
-        <p className={styles.empty}>No news posts yet — check back soon.</p>
+        <div className={styles.empty}>
+          <h2 className={styles.emptyHeading}>Updates coming soon</h2>
+          <p className={styles.emptyBody}>
+            We haven&rsquo;t published any announcements yet. Real news from
+            Moral Tree Media — Story World milestones, publishing and audiobook
+            updates, and press coverage — will appear here as it happens.
+          </p>
+        </div>
       )}
     </Container>
   );

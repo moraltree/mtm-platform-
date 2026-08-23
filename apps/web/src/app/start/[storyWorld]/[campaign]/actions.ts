@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies, headers } from "next/headers";
-import type { FreeTrialSignupState } from "@/components/patterns/CampaignLanding/actions";
+import type { FreeTrialSignupState } from "@/components/patterns/CampaignLanding/state";
 import {
   FIRST_TOUCH_COOKIE_NAME,
   LATEST_TOUCH_COOKIE_NAME,
@@ -26,11 +26,11 @@ import type { RewardEligibilityMetadata } from "@/lib/rewards/types";
 import { isRegistrationRateLimited } from "@/lib/registration/rateLimit";
 import { getCampaignForRoute } from "@/lib/sanity/queries";
 
-// A "use server" file may only export async functions (Next.js build-
-// time rule) — the shared idle initial state
-// (`initialFreeTrialSignupState`, `{status: "idle"}`) lives in
-// CampaignLanding/actions.ts and is reused directly by this route's
-// page.tsx rather than re-declared as a second object export here.
+// A "use server" file may only export async functions — the shared idle
+// initial state (`initialFreeTrialSignupState`, `{status: "idle"}`) lives
+// in CampaignLanding/state.ts (not actions.ts — see that file's own
+// comment for why) and is reused directly by this route's page.tsx
+// rather than re-declared as a second object export here.
 
 /**
  * The generic `/start/[storyWorld]/[campaign]` route's registration

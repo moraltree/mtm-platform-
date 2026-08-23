@@ -9,11 +9,11 @@ import { COUNTRY_OPTIONS } from "@/lib/countries";
 import { conversionEvents } from "@/lib/analytics/events";
 import { asCampaignId } from "@/lib/platform/ids";
 import type { PartnerId, StoryWorldId } from "@/lib/platform/ids";
+import { submitFreeTrialSignup } from "./actions";
 import {
-  submitFreeTrialSignup,
   initialFreeTrialSignupState,
   type FreeTrialSignupState,
-} from "./actions";
+} from "./state";
 import { cx } from "@/lib/cx";
 import styles from "./CampaignLanding.module.css";
 

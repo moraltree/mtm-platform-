@@ -179,7 +179,7 @@
 
 @media (min-width: 64rem) {
   .castGrid {
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(8, 1fr);
   }
 }
 
@@ -204,19 +204,26 @@
   }
 }
 
+/* Portrait-style card, not an avatar circle: the source art (832x1248,
+   2:3) is a natural head-and-shoulders portrait, not a pre-cropped
+   close-up — `object-fit: contain` on that same 2:3 box shows it in
+   full rather than forcing it into a circle (which was cropping ears/
+   silhouette on several characters, e.g. Nara, Kofi, Rocky — see
+   lib/characterGroups.ts's HeroCastCluster precedent for the same
+   "never crop a character" rule applied here). */
 .castPortrait {
   position: relative;
   width: 100%;
   max-width: 8rem;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 2 / 3;
   overflow: hidden;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   background: var(--color-surface-subtle);
   border: var(--border-width-sm) solid var(--color-border-subtle);
 }
 
 .castImage {
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .castName {

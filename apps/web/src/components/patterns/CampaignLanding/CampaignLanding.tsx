@@ -9,7 +9,7 @@ import type { PartnerId, StoryWorldId } from "@/lib/platform/ids";
 import { SignupForm, type SignupFormOfferHints } from "./SignupForm";
 import { CampaignLandingAnalytics } from "./CampaignLandingAnalytics";
 import { HeroCastCluster, type HeroCastMember } from "./HeroCastCluster";
-import type { FreeTrialSignupState } from "./actions";
+import type { FreeTrialSignupState } from "./state";
 import {
   MoonIcon,
   AudiobookIcon,
