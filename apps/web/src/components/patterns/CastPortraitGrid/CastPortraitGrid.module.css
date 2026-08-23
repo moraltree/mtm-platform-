@@ -80,11 +80,12 @@ a.member:hover .name {
   color: var(--color-brand-700);
 }
 
-/* Portrait-style card, not an avatar circle: the source art (832x1248,
-   2:3) is a natural head-and-shoulders portrait, not a pre-cropped
-   close-up — `object-fit: contain` on that same 2:3 box shows it in full
-   (never crops ears/silhouette) and a consistent card background/border
-   means no character reads smaller purely from extra whitespace. */
+/* Portrait-style card, not an avatar circle: the source art is a
+   natural head-and-shoulders portrait, not a pre-cropped close-up.
+   `object-fit: cover` (not `contain`, 24 Aug 2026 refinement sprint —
+   see the finding this reverses below) on this 2:3 box, and a
+   consistent card background/border means no character reads smaller
+   purely from extra whitespace. */
 .portrait {
   position: relative;
   width: 100%;
@@ -97,8 +98,22 @@ a.member:hover .name {
   transition: border-color var(--duration-base) var(--ease-standard);
 }
 
+/* `cover`, not `contain`: 5 of the 8 characters' front-portrait source
+   images (Nara/Mango/Sid/Rocky/Kofi) are exactly 832x1248 (2:3, matching
+   this card exactly) — `cover` and `contain` are pixel-identical for
+   those, zero behaviour change. The other 3 (Zulu 912x1136, Zala
+   864x1200, Lulu 928x1120) are natively *wider* than 2:3, which made
+   `contain` letterbox them with visible empty space top/bottom — the
+   exact "Zulu has excess white space", "Zala/Lulu framed differently"
+   inconsistency this sprint's brief reported. `cover` crops those three
+   symmetrically from the sides instead (each has clear background
+   margin around the ears there — verified by simulating the exact crop
+   dimensions and inspecting the result before this change, not assumed)
+   — full head/ears/silhouette stays intact, only some outer background
+   margin (and, for Zulu/Lulu, a sliver of an outstretched tail/paw) is
+   trimmed. Never crops top/bottom, so headroom stays consistent too. */
 .image {
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .name {

@@ -29,11 +29,19 @@
   overflow: hidden;
   border-radius: var(--radius-lg);
   background: var(--color-surface-subtle);
-  border: var(--border-width-sm) solid var(--color-border-subtle);
+  /* Subtle per-character accent (see page.tsx's CHARACTER_ACCENTS) — a
+     coloured border, not a wholesale re-theme, so the premium cream/
+     brown layout stays intact. */
+  border: calc(var(--border-width-sm) * 2) solid var(--character-accent);
 }
 
+/* `cover`, not `contain` — same fix, same reasoning, as
+   components/patterns/CastPortraitGrid.module.css (see its own doc
+   comment): most character portraits are exactly 2:3 already (no crop
+   either way), the few that aren't get a safe symmetric side-crop
+   instead of visible top/bottom letterboxing. */
 .portraitImage {
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .introBody {
@@ -75,6 +83,10 @@
   border-radius: var(--radius-lg);
   background: var(--color-surface-subtle);
   border: var(--border-width-sm) solid var(--color-border-subtle);
+  /* Same subtle per-character accent as .portrait, echoed as a thin top
+     stripe rather than repeating the full coloured border on every one
+     of the nine cards. */
+  border-top: calc(var(--border-width-sm) * 3) solid var(--character-accent);
 }
 
 .sectionHeading {

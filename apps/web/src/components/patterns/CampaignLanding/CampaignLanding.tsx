@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Fraunces } from "next/font/google";
 import { Container } from "@/components/ui/Container";
+import { Button } from "@/components/ui/Button";
 import { CHARACTER_GROUPS } from "@/lib/characterGroups";
 import { cx } from "@/lib/cx";
 import type { PartnerId, StoryWorldId } from "@/lib/platform/ids";
@@ -363,6 +364,7 @@ export function CampaignLanding({
               <p className={styles.description}>{copy.description}</p>
 
               <SignupForm
+                id="signup"
                 campaign={campaign}
                 source={source}
                 ctaLabel={copy.ctaLabel}
@@ -478,25 +480,24 @@ export function CampaignLanding({
         </section>
       )}
 
+      {/* A *second full registration form* used to render here — removed
+          24 Aug 2026 (refinement sprint, visual QA finding: "the
+          complete registration form appears twice on the page... keep
+          one registration form only"). This closing section is now a
+          plain nudge back to the one real form above (`#signup`, set via
+          SignupForm's `id` prop) rather than a second copy of it. */}
       <section className={styles.finalCta}>
         <Container className={styles.finalCtaInner}>
           <h2 className={styles.finalCtaHeading}>
             Ready for tonight&rsquo;s story?
           </h2>
-          <SignupForm
-            campaign={campaign}
-            source={source}
-            ctaLabel={copy.ctaLabel}
-            instanceId="bottom"
-            action={signupAction}
-            initialState={signupInitialState}
-            partnerId={partnerId}
-            storyWorldId={storyWorldId}
-            offer={offer}
-            knownCountry={knownCountry}
-            storyWorldSlug={storyWorldSlug}
-            campaignSlug={campaignSlug}
-          />
+          <p className={styles.finalCtaBody}>
+            Your free 30-night trial starts with the form above — no credit card
+            today, cancel anytime.
+          </p>
+          <Button href="#signup" size="lg">
+            {copy.ctaLabel}
+          </Button>
         </Container>
       </section>
 

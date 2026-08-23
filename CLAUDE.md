@@ -437,6 +437,92 @@ formation.png` has the same defect), so nothing was swapped or edited —
   MTM Control Center" section (see below) — no code, per the sprint
   brief. Shopify, the QR/short-code system, campaign attribution, and
   the adult-registration consent contract are all unmodified.
+- **WP15 — Visual QA fixes: portrait consistency, duplicate free-trial
+  form, context-aware Contact, brand-mark standardisation** ✅ (24 Aug
+  2026, `feature/shopify-storefront-nav-link`, following iPad visual QA
+  of WP14's preview) `CastPortraitGrid`'s `object-fit` switched from
+  `contain` to `cover` — pixel-analysed root cause: 5 of 8 character
+  portraits are exactly 832x1248 (2:3, matching the card exactly, so
+  `cover`/`contain` are identical for them), but Zulu (912x1136), Zala
+  (864x1200), and Lulu (928x1120) are natively wider, which made
+  `contain` letterbox them with visible empty space — the literal "Zulu
+  has excess white space", "Zala/Lulu framed differently" bug reported.
+  Verified safe (not assumed) by simulating the exact `cover` crop
+  dimensions for all three and inspecting the result before committing
+  to the CSS change — full ears/heads intact, only outer background
+  margin (and a sliver of tail/paw) trimmed; the same fix applied to the
+  character-profile page's own larger portrait. The Savannah Seven
+  detail page's gallery cards had an even more severe version of the same
+  bug — a `4:3` (landscape) box forced onto genuinely portrait source
+  photos (0.803 ratio) was cropping close to 40% off the top+bottom
+  combined; corrected to `4:5`, a near-exact match, so `cover` now trims
+  almost nothing. Removed a real duplicate: `CampaignLanding.tsx`
+  rendered the _entire_ registration form twice (hero + finalCta) by
+  original design (see the git-blame'd comment this replaced) — the
+  brief explicitly reversed that decision, so finalCta is now a plain
+  "back to the form ↑" nudge (`SignupForm` gained an `id` prop for the
+  anchor target) with no second form anywhere, for every `CampaignLanding`
+  consumer (`/free30` and `/start/...`) at once, being a shared
+  component fix. Fixed the First/Last name row's actual flex bug
+  (`min-width: 0` was missing on the row's flex items, letting intrinsic
+  content width win over `flex: 1` under real width pressure) and made
+  `FormField`'s `.input` width explicit rather than relying on flex-
+  stretch defaults. New `components/patterns/BrandMark` — the one
+  standardised "Moral Tree Media" brand visual for News/Contact: the
+  previous ad hoc treatments (a circular-cropped badge on News, a
+  portrait-ratio box on Contact) both forced the source mark (landscape,
+  1216x848, ratio ~1.43) into a badly-mismatched box, which is why it
+  read as "too small" — not a subjective framing complaint, the same
+  measurable letterboxing bug as the character portraits above.
+  `BrandMark` always pairs the image with an explicit "Moral Tree Media"
+  wordmark (the source PNG has no text baked in) and is never circular.
+  Contact's own repeated Zulu wave pose swapped for Lulu (front-portrait),
+  per the brief's explicit suggestion — part of the wider cast-variety
+  push; Home's Zulu hero and mediums-stamp are untouched (the brief is
+  explicit those should stay). New `lib/enquiryTypes.ts` +
+  `ContactForm`'s optional `enquiryType` prop make Contact context-aware
+  via a validated `?type=` query param (`/contact?type=publishing`,
+  `?type=animation`, wired from Publishing's/Animation's existing "Talk
+  to us about..." CTAs) — one reusable form, not a duplicate per enquiry
+  type; shows a visible badge and labels the internal notification
+  email's subject line, degrading an unrecognised/missing value to no
+  badge at all rather than a fabricated "General enquiry" label. `Badge`
+  gained a `className` prop (small, additive) to support this. Character
+  profile pages gained a subtle per-character accent colour
+  (`CHARACTER_ACCENTS`, a `--character-accent` CSS custom property —
+  the portrait border and each section card's top stripe, not a
+  wholesale re-theme) and a documented (not built) future intro-video
+  slot in the same spot the portrait renders today. Publishing's
+  hero-visual placeholder gained a richer three-book-spine illustration
+  and `PropositionShell`'s placeholder box generally got a soft gradient/
+  shadow treatment instead of a plain dashed border, across all three
+  consumers (Publishing/Audiobooks/Animation). Audiobooks' "Sample a
+  story" and Animation's feature cards were audited for dead/misleading
+  clicks — none found; "Sample a story" already anchor-links to a real,
+  honest "no audio produced yet" explanation, and every card elsewhere
+  is a plain non-interactive `<div>`, never styled or wrapped as if
+  clickable. Shopify, campaign attribution, the QR/short-code system, and
+  the adult-registration consent contract are all unmodified.
+
+  **Artwork requiring future replacement** (documented, not touched —
+  see item 18 of the sprint brief; every entry below has already been
+  worked around at the CSS/layout level everywhere code safely could,
+  and needs a real artwork pass, not more CSS): `public/images/
+characters/full-cast/full-cast-01-group-portrait.png`, `-05-sunset-
+silhouette-warm.png`, `-09-storytime-circle.png`, and `public/images/
+story-worlds/savannah-seven/hero.png` all depict Mango notably larger
+  than the master asset library's own approved canonical scale reference
+  (`~/mtm-assets/.../14-batch2-corrected/savannah-seven-scale-lineup-
+batch2-v1.png` — confirmed against it directly, see WP13); the same
+  images' relative proportions for the other six ensemble characters
+  (reported: Zala reading smaller than her canonical 1.9x scale should
+  suggest) haven't been independently re-verified pixel-by-pixel this
+  sprint, but are the same class of issue — a scale/proportion problem
+  baked into the composite, not fixable by cropping or resizing in CSS.
+  No alternative already-approved composite in the master library's
+  `15-approved/` avoids this (`full-cast-10-parade-formation.png` has the
+  same defect, confirmed in WP13) — a real regeneration or manual
+  correction pass is the only fix.
 
 ## Repository structure
 

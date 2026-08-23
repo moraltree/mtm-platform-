@@ -29,15 +29,11 @@
   }
 }
 
+/* BrandMark supplies its own sizing/framing — this just caps how wide it
+   gets in the row layout below and keeps it from stretching. */
 .emptyVisual {
-  position: relative;
-  width: 5rem;
-  height: 5rem;
   flex: none;
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  background: var(--color-surface-subtle);
-  border: var(--border-width-sm) solid var(--color-border-subtle);
+  width: 9rem;
 }
 
 .emptyHeading {

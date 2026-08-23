@@ -20,6 +20,11 @@
 }
 
 .input {
+  /* Explicit, not left to flex-stretch defaults — 24 Aug 2026 free-trial
+     alignment fix: two `.field`s side by side in a row (SignupForm's
+     `.nameRow`) should always render identical widths regardless of
+     content/autofill differences between them. */
+  width: 100%;
   min-height: 2.75rem; /* 44px target size */
   padding: var(--space-2) var(--space-3);
   background: var(--color-surface);

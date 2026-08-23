@@ -138,6 +138,47 @@ describe("submitContactForm", () => {
     expect(body.to).toBe("inbox@example.invalid");
     expect(body.from).toBe("noreply@example.invalid");
     expect(body.reply_to).toBe("visitor@example.invalid");
+    expect(body.subject).toBe("Contact form message from Qa Tester");
+  });
+
+  it("labels the notification email subject with a known enquiry type", async () => {
+    process.env.RESEND_API_KEY = "test-resend-key";
+    process.env.CONTACT_FORM_TO_EMAIL = "inbox@example.invalid";
+    process.env.CONTACT_FORM_FROM_EMAIL = "noreply@example.invalid";
+
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(null, { status: 200 }));
+
+    await submitContactForm(
+      initialContactFormState,
+      buildFormData({ enquiryType: "publishing" }),
+    );
+
+    const [, init] = fetchSpy.mock.calls[0];
+    const body = JSON.parse(String(init?.body));
+    expect(body.subject).toBe(
+      "Contact form message from Qa Tester — Publishing enquiry",
+    );
+  });
+
+  it("ignores an unrecognised enquiryType value rather than forwarding it into the email", async () => {
+    process.env.RESEND_API_KEY = "test-resend-key";
+    process.env.CONTACT_FORM_TO_EMAIL = "inbox@example.invalid";
+    process.env.CONTACT_FORM_FROM_EMAIL = "noreply@example.invalid";
+
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(null, { status: 200 }));
+
+    await submitContactForm(
+      initialContactFormState,
+      buildFormData({ enquiryType: "<script>alert(1)</script>" }),
+    );
+
+    const [, init] = fetchSpy.mock.calls[0];
+    const body = JSON.parse(String(init?.body));
+    expect(body.subject).toBe("Contact form message from Qa Tester");
   });
 
   it("returns a user-friendly error (and doesn't throw) when Resend's API call fails", async () => {

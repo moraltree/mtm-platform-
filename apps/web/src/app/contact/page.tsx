@@ -3,10 +3,12 @@ import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { ContactForm } from "@/components/patterns/ContactForm";
 import { PageSections } from "@/components/patterns/PageSections";
+import { BrandMark } from "@/components/patterns/BrandMark";
 import { getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
 import { buildMetadata } from "@/lib/metadata";
 import { getCharacterPose } from "@/lib/characters";
+import { parseEnquiryType } from "@/lib/enquiryTypes";
 import styles from "./contact.module.css";
 
 // Contact is a utility page, not pure editorial content — being reachable
@@ -17,9 +19,15 @@ import styles from "./contact.module.css";
 // doc) rendering only — 24 Aug 2026 refinement sprint, "the layout works
 // but is sparse." A real `page` document's own `sections` (PageSections
 // below) stay untouched by this — an editor controls that composition
-// fully once real content exists. Zulu's own welcoming wave pose, not
-// invented "contact" artwork.
-const CONTACT_CHARACTER_IMAGE = getCharacterPose("zulu", "three-quarter-wave");
+// fully once real content exists.
+//
+// Lulu, not Zulu (23 Aug 2026's own first pass used Zulu's wave pose
+// here — this sprint's brief flagged that as "the repeated waving-Zulu
+// artwork is overused" and explicitly suggested Lulu instead): part of
+// the site-wide push for cast variety on secondary pages (see
+// CLAUDE.md), not invented "contact" artwork — still one of the eight
+// approved website poses.
+const CONTACT_CHARACTER_IMAGE = getCharacterPose("lulu", "front-portrait");
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageByPageId("contact");
@@ -29,7 +37,18 @@ export async function generateMetadata(): Promise<Metadata> {
   );
 }
 
-export default async function ContactPage() {
+export default async function ContactPage(props: PageProps<"/contact">) {
+  const searchParams = await props.searchParams;
+  const typeParam = searchParams.type;
+  // The badge only ever shows for a *real* known, non-general type — an
+  // unrecognised/missing `?type=` degrades all the way to `undefined`
+  // here (no badge at all), not a fabricated "General enquiry" label
+  // nobody asked for. See lib/enquiryTypes.ts.
+  const parsedEnquiryType =
+    typeof typeParam === "string" ? parseEnquiryType(typeParam) : undefined;
+  const enquiryType =
+    parsedEnquiryType === "general" ? undefined : parsedEnquiryType;
+
   const page = await getPageByPageId("contact");
   const sections = adaptSections(page?.sections);
   const opensWithHero = sections[0]?._type === "heroBlock";
@@ -48,7 +67,7 @@ export default async function ContactPage() {
       {page && <PageSections sections={sections} />}
       {!hasFormSection &&
         (page ? (
-          <ContactForm />
+          <ContactForm enquiryType={enquiryType} />
         ) : (
           // Not a Container here — ContactForm already renders its own
           // (Container/Container.tsx nesting would double the inline
@@ -57,15 +76,11 @@ export default async function ContactPage() {
           // middle, the flanking images just sit either side of that at
           // the viewport edges.
           <div className={styles.layout}>
-            <div className={styles.flank} aria-hidden="true">
-              <Image
-                src="/images/brand/moral-tree-mark.png"
-                alt=""
-                fill
-                sizes="(min-width: 64rem) 10rem, 0px"
-              />
-            </div>
-            <ContactForm heading="Get in touch" />
+            <BrandMark
+              className={styles.flankBrand}
+              sizes="(min-width: 64rem) 12rem, 0px"
+            />
+            <ContactForm heading="Get in touch" enquiryType={enquiryType} />
             <div className={styles.flank} aria-hidden="true">
               {CONTACT_CHARACTER_IMAGE && (
                 <Image
@@ -73,7 +88,6 @@ export default async function ContactPage() {
                   alt=""
                   fill
                   sizes="(min-width: 64rem) 10rem, 0px"
-                  className={styles.flankContain}
                 />
               )}
             </div>

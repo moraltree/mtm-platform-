@@ -27,7 +27,13 @@
 
 /* Upper-right hero visual — a clearly-labelled placeholder, never a
    fabricated finished asset (a future book-cover stack, audiobook
-   player, or embedded short animation depending on the page). */
+   player, or embedded short animation depending on the page). A soft
+   gradient + solid border (not the plain dashed box from the previous
+   pass) reads as "designed, temporarily empty" rather than "broken" —
+   24 Aug 2026 refinement sprint, "create a visually polished placeholder
+   container." Still an easy swap-in point for real artwork later:
+   nothing about this box's shape/position needs to change, only its
+   contents. */
 .heroVisual {
   display: flex;
   flex-direction: column;
@@ -36,15 +42,20 @@
   gap: var(--space-3);
   aspect-ratio: 4 / 3;
   border-radius: var(--radius-lg);
-  border: var(--border-width-sm) dashed var(--color-border-subtle);
-  background: var(--color-surface-subtle);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+  background: linear-gradient(
+    160deg,
+    var(--color-brand-100) 0%,
+    var(--color-surface-subtle) 65%
+  );
+  box-shadow: var(--shadow-sm);
   color: var(--color-text-muted);
   padding: var(--space-5);
 }
 
 .heroVisual svg {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3.25rem;
+  height: 3.25rem;
 }
 
 .heroVisualLabel {

@@ -1,0 +1,34 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 14rem;
+}
+
+/* 3:2 (1.5), close to the source mark's real ~1.43 ratio — see
+   BrandMark.tsx's doc comment for why this matters (a mismatched box
+   was the actual "too small" bug, not the image itself). */
+.imageBox {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+.image {
+  object-fit: contain;
+}
+
+.wordmark {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-brand-600);
+  text-align: center;
+}

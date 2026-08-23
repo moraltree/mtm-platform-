@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { isValidEmail } from "@/lib/email";
+import { ENQUIRY_TYPES, parseEnquiryType } from "@/lib/enquiryTypes";
 // A "use server" file may only export async functions — the shared idle
 // state (`initialContactFormState`) lives in ./state.ts, not here. See
 // that file's doc comment for why (a real, confirmed-live bug this fix
@@ -67,6 +68,13 @@ export async function submitContactForm(
   const name = String(formData.get("name") || "").trim();
   const email = String(formData.get("email") || "").trim();
   const message = String(formData.get("message") || "").trim();
+  // Context from where the visitor arrived (e.g. Publishing's "Talk to
+  // us about publishing" button) — see lib/enquiryTypes.ts. Validated
+  // against a fixed allowlist (never a raw client-supplied string) so an
+  // arbitrary hidden-field value can't reach the email subject line.
+  const enquiryType = parseEnquiryType(
+    String(formData.get("enquiryType") || ""),
+  );
 
   const fieldErrors: ContactFormState["fieldErrors"] = {};
   if (!name) fieldErrors.name = "Enter your name.";
@@ -130,7 +138,10 @@ export async function submitContactForm(
       from: fromEmail,
       to: toEmail,
       reply_to: email,
-      subject: `Contact form message from ${name}`,
+      subject:
+        enquiryType === "general"
+          ? `Contact form message from ${name}`
+          : `Contact form message from ${name} — ${ENQUIRY_TYPES[enquiryType]}`,
       text: message,
     }),
   });

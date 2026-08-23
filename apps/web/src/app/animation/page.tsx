@@ -69,7 +69,12 @@ export default async function AnimationPage() {
       heroVisualLabel="Short-clip preview coming soon"
       features={FEATURES}
       comingSoonNote="This page describes where animation is headed, not what exists — there are no clips to watch yet, and we're not claiming a TV series or film is in production. That's a genuine future ambition, not a current one."
-      ctas={[{ label: "Talk to us about animation", href: "/contact" }]}
+      ctas={[
+        {
+          label: "Talk to us about animation",
+          href: "/contact?type=animation",
+        },
+      ]}
       secondaryLinks={[
         {
           label: "Meet the Savannah Seven",

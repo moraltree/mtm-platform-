@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -42,6 +43,29 @@ const PROFILE_SECTIONS = [
 
 const PLACEHOLDER_COPY = "Character profile coming soon.";
 
+/** Subtle per-character accent (24 Aug 2026 refinement sprint —
+ * "consider subtle character-specific accent colours while preserving
+ * the overall MTM brand") — warm, brand-adjacent hues at the same
+ * saturation/lightness family as `--color-brand-*` in tokens.css, not a
+ * jump to an unrelated palette. Applied as one CSS custom property
+ * (`--character-accent`, set inline below) rather than a hard-coded
+ * class per character, so the section/portrait styling stays generic
+ * and this map is the only place a new character's colour is chosen.
+ * Keyed by `CharacterRosterEntry.slug`, so an unrecognised slug (a
+ * future Story World's own roster) just falls back to the plain brand
+ * colour already used everywhere else — never a missing/broken style. */
+const CHARACTER_ACCENTS: Record<string, string> = {
+  zulu: "#8a6d3b",
+  nara: "#c0703f",
+  mango: "#7d5a8c",
+  zala: "#6b8e5a",
+  sid: "#5a8a7a",
+  rocky: "#b8863d",
+  lulu: "#c99a3e",
+  kofi: "#a05a4a",
+};
+const DEFAULT_ACCENT = "var(--color-brand-600)";
+
 export async function generateStaticParams() {
   const storyWorlds = await getStoryWorlds();
   const params: Array<{ slug: string; character: string }> = [];
@@ -79,9 +103,13 @@ export default async function CharacterProfilePage(
   if (!storyWorld || !member) notFound();
 
   const portraitSrc = urlFor(member.portrait)?.width(900).url();
+  const accentColor = member.slug
+    ? (CHARACTER_ACCENTS[member.slug] ?? DEFAULT_ACCENT)
+    : DEFAULT_ACCENT;
+  const accentStyle = { "--character-accent": accentColor } as CSSProperties;
 
   return (
-    <>
+    <div style={accentStyle}>
       <Container className={styles.header}>
         <Link
           href={`/story-worlds/${storyWorld.slug.current}`}
@@ -90,6 +118,18 @@ export default async function CharacterProfilePage(
           ← Back to {storyWorld.title}
         </Link>
         <div className={styles.headerLayout}>
+          {/* Future short intro-video slot (item 19, 24 Aug 2026
+              refinement sprint: "no videos now, ensure the architecture
+              can later embed media cleanly") — this `.portrait` box is
+              exactly where a short character-intro clip would replace
+              the static image once one exists: same 2:3 frame, same
+              `.portrait` border/radius, swap the `<Image>` below for a
+              `<video>`/embed reading a future `member.introVideoUrl`-
+              shaped field. Not built now — no such field exists on
+              `CharacterRosterEntry`, and inventing one for zero real
+              content would be exactly the speculative-schema mistake
+              this file's own doc comment already avoids for narrative
+              bio fields. */}
           {portraitSrc && (
             <div className={styles.portrait}>
               <Image
@@ -144,6 +184,6 @@ export default async function CharacterProfilePage(
           )}
         </div>
       </Container>
-    </>
+    </div>
   );
 }

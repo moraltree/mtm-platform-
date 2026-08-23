@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
+import { BrandMark } from "@/components/patterns/BrandMark";
 import { PageSections } from "@/components/patterns/PageSections";
 import { getNewsPosts, getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
@@ -57,18 +57,13 @@ export default async function NewsIndexPage() {
         </div>
       ) : (
         <div className={styles.empty}>
-          {/* The Moral Tree symbol, not invented "news" imagery — a
-              tasteful visual anchor for an honestly-empty page, same
-              approved brand asset used on About/free30 (see
-              public/images/brand/README.md). */}
-          <div className={styles.emptyVisual} aria-hidden="true">
-            <Image
-              src="/images/brand/moral-tree-mark.png"
-              alt=""
-              fill
-              sizes="8rem"
-            />
-          </div>
+          {/* The standard corporate-page brand visual (24 Aug 2026
+              refinement sprint — see components/patterns/BrandMark's own
+              doc comment for why the previous ad hoc circular-cropped
+              version here read as "too small"), not invented "news"
+              imagery — a tasteful visual anchor for an honestly-empty
+              page. */}
+          <BrandMark className={styles.emptyVisual} />
           <div>
             <h2 className={styles.emptyHeading}>Updates coming soon</h2>
             <p className={styles.emptyBody}>

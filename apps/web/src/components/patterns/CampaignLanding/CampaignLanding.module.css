@@ -293,7 +293,8 @@
   }
 }
 
-/* --- Signup form (used twice: hero + finalCta) --------------------------- */
+/* --- Signup form (one instance now — see CampaignLanding.tsx's finalCta
+   comment) ------------------------------------------------------------- */
 
 .signupForm {
   display: flex;
@@ -373,6 +374,13 @@
 
   .nameRow .signupField {
     flex: 1;
+    /* Without this, a flex item's default `min-width: auto` lets its
+       intrinsic content width win over `flex: 1` under real width
+       pressure (the exact "First/Last name misaligned" symptom the 24
+       Aug 2026 refinement sprint's iPad QA flagged) — First/Last name
+       would then not shrink to genuinely equal widths whenever the row
+       is tight, e.g. flanked by the hero's character art. */
+    min-width: 0;
   }
 }
 
@@ -609,7 +617,12 @@
 .finalCtaHeading {
   font-size: var(--text-2xl);
   color: var(--color-heading-accent);
+}
+
+.finalCtaBody {
+  margin-top: var(--space-2);
   margin-bottom: var(--space-5);
+  color: var(--color-text-muted);
 }
 
 /* --- Minimal footer (not the corporate Footer) ------------------------------ */

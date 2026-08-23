@@ -25,8 +25,14 @@ export function BookIcon() {
   );
 }
 
-/** Placeholder hero-visual icon: a stack of book covers, standing in for
- * real cover artwork until it exists — see page.tsx's `heroVisualLabel`. */
+/** Placeholder hero-visual icon: three overlapping book covers, standing
+ * in for real cover artwork until it exists — see page.tsx's
+ * `heroVisualLabel`. Three spines (not the previous two, and each at a
+ * slightly different tilt) reads more like an intentional small
+ * illustration than a generic icon — "visually polished placeholder
+ * container," 24 Aug 2026 refinement sprint — while staying a plain
+ * stroke outline, matching every other icon in this codebase (no
+ * invented cover art/titles). */
 export function BookStackIcon() {
   return (
     <svg
@@ -35,20 +41,28 @@ export function BookStackIcon() {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.75"
+      strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
     >
       <rect
-        x="4"
-        y="3"
-        width="10"
+        x="2.5"
+        y="4"
+        width="9"
+        height="13"
+        rx="1"
+        transform="rotate(-10 7 10.5)"
+      />
+      <rect
+        x="8"
+        y="3.5"
+        width="9"
         height="14"
         rx="1"
-        transform="rotate(-6 9 10)"
+        transform="rotate(4 12.5 10.5)"
       />
-      <rect x="7" y="6" width="13" height="15" rx="1" />
+      <rect x="13.5" y="5" width="8" height="14" rx="1" />
     </svg>
   );
 }

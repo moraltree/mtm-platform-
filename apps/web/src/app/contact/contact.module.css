@@ -18,7 +18,8 @@
    form without either shrinking the form or cropping the images. The
    form's own section keeps its full-width, unflanked layout below that
    breakpoint (exactly as before this pass). */
-.flank {
+.flank,
+.flankBrand {
   display: none;
 }
 
@@ -35,18 +36,19 @@
     border: var(--border-width-sm) solid var(--color-border-subtle);
   }
 
+  /* `cover`, not `contain` — same reasoning as
+     components/patterns/CastPortraitGrid.module.css: this box's ratio
+     (10/14 ≈ 0.71) is close enough to every character portrait's own
+     that `cover` only trims a little background margin, never an
+     ear/head, and avoids the letterboxing `contain` would otherwise
+     leave on a mismatched-ratio source image. */
   .flank img {
     object-fit: cover;
   }
 
-  /* `.flankContain` is applied directly to the `<Image>` (so directly to
-     the rendered `<img>`), which is also a `.flank img` descendant match
-     above — needs `.flank .flankContain` (two classes) to reliably beat
-     that single-class-plus-tag selector's specificity, the same
-     equal/lower-specificity cascade-order pitfall CtaPanel.module.css's
-     `.ctaOnBrand.ctaOnBrand` fix already documents elsewhere in this
-     codebase. */
-  .flank .flankContain {
-    object-fit: contain;
+  .flankBrand {
+    display: flex;
+    flex: none;
+    width: 12rem;
   }
 }

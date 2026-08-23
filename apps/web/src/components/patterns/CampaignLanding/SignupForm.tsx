@@ -47,6 +47,11 @@ export interface SignupFormProps {
    * per instance, hence this rather than a hardcoded id. */
   instanceId: string;
   className?: string;
+  /** DOM id for the `<form>` itself — lets another element on the page
+   * (e.g. the finalCta section's "back to the form ↑" button, now that
+   * there's only one form instance per page — see CampaignLanding.tsx's
+   * own doc comment) anchor-link straight to it. */
+  id?: string;
   /** Overrides the default `/free30` Server Action — the generic
    * `/start/...` route supplies its own, attribution-aware action
    * instead (see that route's `actions.ts`). Defaults to
@@ -80,19 +85,19 @@ export interface SignupFormProps {
   campaignSlug?: string;
 }
 
-/** Cross-instance `registration_started` dedup — the hero and finalCta
- * sections each render their own `SignupForm` instance (see
- * `CampaignLanding.tsx`), so a visitor who focuses a field in one and
- * later submits the other would otherwise produce two events for one
- * registration. A plain module-scoped `Set`, not `sessionStorage`:
- * it's shared between both instances for the lifetime of this page
- * view (the same problem `sessionStorage` solved), but — unlike
- * `sessionStorage` — it resets on every fresh page load/navigation
- * rather than persisting for the rest of the browser session, so a
- * visitor who genuinely abandons and later returns to register for
- * real isn't silently suppressed by a stale flag from their first,
- * unfinished visit.
- */
+/** `registration_started` dedup, keyed by campaign — a visitor who
+ * focuses a field, then blurs/refocuses (or the component re-renders)
+ * shouldn't produce two events for one registration. Originally also a
+ * *cross-instance* dedup (the hero and finalCta sections each rendered
+ * their own full `SignupForm` — removed 24 Aug 2026, see
+ * `CampaignLanding.tsx`'s finalCta comment); kept as a plain
+ * module-scoped `Set` rather than simplified away, since it's still
+ * doing real work for the one remaining instance and a future page
+ * genuinely could render this form twice again. Not `sessionStorage`:
+ * it resets on every fresh page load/navigation rather than persisting
+ * for the rest of the browser session, so a visitor who genuinely
+ * abandons and later returns to register for real isn't silently
+ * suppressed by a stale flag from their first, unfinished visit. */
 const registrationStartedCampaigns = new Set<string>();
 
 /** The one signup/registration form every campaign route shares —
@@ -109,6 +114,7 @@ export function SignupForm({
   ctaLabel,
   instanceId,
   className,
+  id,
   action = submitFreeTrialSignup,
   initialState = initialFreeTrialSignupState,
   partnerId,
@@ -184,6 +190,7 @@ export function SignupForm({
 
   return (
     <form
+      id={id}
       ref={formRef}
       action={formAction}
       onFocusCapture={handleFormFocusCapture}

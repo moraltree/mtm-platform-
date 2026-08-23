@@ -73,7 +73,12 @@ export default async function PublishingPage() {
       heroVisualLabel="Book cover artwork coming soon"
       features={FEATURES}
       comingSoonNote="No titles are published yet, so there's nothing to preview or purchase here. Once real books exist, this page becomes a genuine catalogue with real cover art and real availability — not a placeholder."
-      ctas={[{ label: "Talk to us about publishing", href: "/contact" }]}
+      ctas={[
+        {
+          label: "Talk to us about publishing",
+          href: "/contact?type=publishing",
+        },
+      ]}
       secondaryLinks={[
         {
           label: "Meet the Savannah Seven",
