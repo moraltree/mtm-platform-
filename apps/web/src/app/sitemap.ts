@@ -21,7 +21,9 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 // their own honest "proposition shell" fallback (see e.g.
 // app/publishing/page.tsx's doc comment) — like every other page here,
 // they now always render something, so a missing `page` document is no
-// reason to hide them from the sitemap.
+// reason to hide them from the sitemap. About joined 24 Aug 2026
+// (refinement sprint) for the same reason — see app/about/page.tsx's doc
+// comment.
 const ALWAYS_AVAILABLE: PageId[] = [
   "home",
   "leadership",
@@ -32,6 +34,7 @@ const ALWAYS_AVAILABLE: PageId[] = [
   "publishing",
   "audiobooks",
   "animation",
+  "about",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

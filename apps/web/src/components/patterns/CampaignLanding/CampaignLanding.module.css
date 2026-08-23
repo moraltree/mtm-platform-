@@ -105,7 +105,7 @@
 /* --- Hero ---------------------------------------------------------------- */
 
 .hero {
-  padding-block: var(--space-6) var(--space-8);
+  padding-block: var(--space-5) var(--space-6);
   /* Soft cream-to-ivory wash, not a flat colour — warm and bright without
      being a new hue (both ends are existing surface tokens). Reads the
      plain core token names on purpose (Phase 3) — a resolved Partner/
@@ -207,11 +207,11 @@
   object-fit: contain;
 }
 
-@media (min-width: 64rem) {
-  .clusterPortrait_anchor {
-    max-width: 11rem;
-  }
-}
+/* Deliberately no further growth at wider breakpoints (there was an
+   11rem bump here before the 24 Aug 2026 refinement sprint) — "reduce
+   excessive artwork scale" applies here too: the form, not the flanking
+   art, should be the page's dominant visual element even on a large
+   desktop viewport. */
 
 .heroContent {
   grid-area: content;
@@ -270,14 +270,21 @@
   }
 }
 
-@media (min-width: 64rem) {
+/* 56rem (896px), not 64rem (1024px) — 24 Aug 2026 refinement sprint:
+   real iPad landscape widths (1024px standard/mini, 1180px+ Air/Pro) sit
+   comfortably above this, so the flanking "art / form / art" layout
+   reliably applies there instead of tipping into the taller mobile
+   layout below (images stacked *above* the form) that iPad QA flagged
+   as crowded. iPad portrait (768-834px) still gets the mobile layout,
+   which is expected — this is specifically the landscape fix. */
+@media (min-width: 56rem) {
   .heroGrid {
-    /* Wide enough for the widest companion row (medium+medium+small,
-       ~16.25rem incl. gaps — see the cluster tier sizes above) plus
-       breathing room. */
-    grid-template-columns: 18rem 1fr 18rem;
+    /* Narrower columns and a smaller gap than before (was 18rem/
+       space-8) — "reduce excessive artwork scale and unnecessary
+       whitespace, the form should be the dominant visual element." */
+    grid-template-columns: 14rem 1fr 14rem;
     grid-template-areas: "imgLeft content imgRight";
-    gap: var(--space-8);
+    gap: var(--space-6);
     align-items: center;
   }
 
@@ -641,45 +648,15 @@
   }
 }
 
-/* A plain, data-driven roster row — no tiered anchor/companion
-   composition (that's HeroCastCluster's bespoke, Zulu-specific art
-   direction, kept only for /free30 — see this component's own doc
-   comment on why a new Story World doesn't inherit it automatically). */
-.castRosterGrid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-4);
+/* The roster grid itself now renders through the shared
+   components/patterns/CastPortraitGrid (24 Aug 2026 refinement sprint —
+   this was a third, independently-drifting circular-avatar
+   implementation found alongside Home's and the Story World detail
+   page's own; see that component's doc comment). `.castRosterWrap` just
+   supplies the same top spacing `.castRosterGrid` used to. */
+.castRosterWrap {
   margin-top: var(--space-6);
-}
-
-.castRosterItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  width: 6.5rem;
-}
-
-.castRosterPortrait {
-  position: relative;
-  width: 5rem;
-  height: 5rem;
-  border-radius: var(--radius-full, 50%);
-  overflow: hidden;
-  background: var(--color-surface-subtle);
-  border: var(--border-width-sm) solid var(--color-border-subtle);
-}
-
-.castRosterPortraitImage {
-  object-fit: cover;
-}
-
-.castRosterName {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--color-brand-600);
-  text-align: center;
+  width: 100%;
 }
 
 .minimalFooterInner a {

@@ -5,12 +5,51 @@
   padding-block: var(--space-8);
 }
 
+.headerLayout {
+  display: grid;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+@media (min-width: 56rem) {
+  .headerLayout {
+    grid-template-columns: 1fr 18rem;
+  }
+}
+
 .header {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-3);
   max-width: 42rem;
+}
+
+/* Upper-right hero visual — a clearly-labelled placeholder, never a
+   fabricated finished asset (a future book-cover stack, audiobook
+   player, or embedded short animation depending on the page). */
+.heroVisual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+  border: var(--border-width-sm) dashed var(--color-border-subtle);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  padding: var(--space-5);
+}
+
+.heroVisual svg {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.heroVisualLabel {
+  font-size: var(--text-sm);
+  text-align: center;
 }
 
 .icon {

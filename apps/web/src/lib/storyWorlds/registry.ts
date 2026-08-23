@@ -1,4 +1,4 @@
-import { getAllCharacters } from "../characters";
+import { getCharactersInCanonicalOrder } from "../characters";
 import type {
   CharacterRosterEntry,
   SanityImageRef,
@@ -69,14 +69,18 @@ function richText(...paragraphs: string[]) {
 // Every character's approved front-facing portrait, reused as-is from
 // the single source of truth (lib/characters.ts) — not re-typed or
 // re-approved here, so there is exactly one place that can be wrong
-// about a character's name, scale, or image path.
-const characterRoster: CharacterRosterEntry[] = getAllCharacters().map(
-  (character) => {
+// about a character's name, scale, or image path. Ordered by
+// `getCharactersInCanonicalOrder()` (not `getAllCharacters()`'s 1-8
+// asset-provenance order) so the Story World detail page's cast section
+// matches Home's — see that function's own doc comment.
+const characterRoster: CharacterRosterEntry[] =
+  getCharactersInCanonicalOrder().map((character) => {
     const portrait =
       character.websitePoses.find((pose) => pose.role === "front-portrait") ??
       character.websitePoses[0];
     return {
       name: character.canonicalName,
+      slug: character.slug,
       portrait: portrait ? localImage(portrait.path, portrait.alt) : undefined,
       relativeScale: character.relativeScale,
       // All eight are the real, established, site-wide cast (already
@@ -84,8 +88,7 @@ const characterRoster: CharacterRosterEntry[] = getAllCharacters().map(
       // provisional roster awaiting individual approval.
       approvedForCampaign: true,
     };
-  },
-);
+  });
 
 /**
  * Zulu the Zebra & The Savannah Seven — Moral Tree Media's first Story

@@ -5,7 +5,7 @@ import { PropositionShell } from "@/components/patterns/PropositionShell";
 import { getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
 import { buildMetadata } from "@/lib/metadata";
-import { BookIcon } from "./publishing-icons";
+import { BookIcon, BookStackIcon } from "./publishing-icons";
 
 // Publishing used to share `lib/editorialPage.tsx` (About/Founder/Mission
 // still do — pure editorial content, 404 on a missing `page` doc, see
@@ -69,6 +69,8 @@ export default async function PublishingPage() {
       eyebrow="Publishing"
       heading="Story World books, on the way"
       intro="We're building Moral Tree Media's publishing programme around physical, story-first children's books — starting with Zulu the Zebra & The Savannah Seven. Nothing is available to buy from this page yet; here's what we're working toward."
+      heroVisualIcon={<BookStackIcon />}
+      heroVisualLabel="Book cover artwork coming soon"
       features={FEATURES}
       comingSoonNote="No titles are published yet, so there's nothing to preview or purchase here. Once real books exist, this page becomes a genuine catalogue with real cover art and real availability — not a placeholder."
       ctas={[{ label: "Talk to us about publishing", href: "/contact" }]}

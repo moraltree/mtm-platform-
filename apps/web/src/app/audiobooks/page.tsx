@@ -5,7 +5,7 @@ import { PropositionShell } from "@/components/patterns/PropositionShell";
 import { getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
 import { buildMetadata } from "@/lib/metadata";
-import { HeadphonesIcon } from "./audiobooks-icons";
+import { HeadphonesIcon, PlayCircleIcon } from "./audiobooks-icons";
 
 // See publishing/page.tsx's doc comment for why this no longer uses
 // `lib/editorialPage.tsx` (404-on-missing-doc) — same owner decision,
@@ -71,11 +71,15 @@ export default async function AudiobooksPage() {
       eyebrow="Audiobooks"
       heading="Bedtime stories, read aloud"
       intro="Moral Tree Media's audiobooks bring each Story World to bedtime as narrated audio. Audio production hasn't started yet, so there are no playable samples on this page today — here's what we're building toward, and one real way to get involved now."
+      heroVisualIcon={<PlayCircleIcon />}
+      heroVisualLabel="Sample player coming soon"
       features={FEATURES}
       comingSoonNote="No audio has been produced yet, so this page can't offer a real sample player without pretending something exists that doesn't. Once featured samples are ready, they'll play directly from this page. In the meantime, the 30-day free trial below is real and already takes real sign-ups."
+      comingSoonNoteId="samples"
       ctas={[
         { label: "Start your 30-day free trial", href: "/free30" },
-        { label: "Subscribe", href: "/contact", variant: "secondary" },
+        { label: "Subscribe", href: "/subscribe", variant: "secondary" },
+        { label: "Sample a story", href: "#samples", variant: "secondary" },
       ]}
     />
   );

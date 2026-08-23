@@ -44,10 +44,22 @@ export interface PropositionShellProps {
   intro: string;
   features: PropositionFeature[];
   comingSoonNote?: ReactNode;
+  /** DOM id for the `comingSoonNote` block, so a CTA elsewhere on the
+   * page (e.g. Audiobooks' "Sample a story") can anchor-link straight to
+   * it rather than pointing nowhere. */
+  comingSoonNoteId?: string;
   ctas?: PropositionCta[];
   /** A secondary, lower-emphasis link row under the CTAs — e.g. "See our
    * first Story World" — rendered as plain text links, not buttons. */
   secondaryLinks?: Array<{ label: string; href: string }>;
+  /** An upper-right visual slot alongside the intro/CTAs — a clearly-
+   * labelled placeholder box today (a future book-cover stack, an
+   * audiobook player, an embedded short animation), never a fabricated
+   * finished asset. Each consumer supplies its own placeholder content
+   * via `heroVisualLabel`/`heroVisualIcon` rather than real media that
+   * doesn't exist yet — see e.g. app/publishing/page.tsx. */
+  heroVisualLabel?: string;
+  heroVisualIcon?: ReactNode;
 }
 
 export function PropositionShell({
@@ -57,40 +69,52 @@ export function PropositionShell({
   intro,
   features,
   comingSoonNote,
+  comingSoonNoteId,
   ctas,
   secondaryLinks,
+  heroVisualLabel,
+  heroVisualIcon,
 }: PropositionShellProps) {
   return (
     <Container className={styles.wrap}>
-      <div className={styles.header}>
-        <span className={styles.icon}>{icon}</span>
-        <Badge tone="brand">{eyebrow}</Badge>
-        <h1 className={styles.heading}>{heading}</h1>
-        <p className={styles.intro}>{intro}</p>
-        {ctas && ctas.length > 0 && (
-          <div className={styles.ctaRow}>
-            {ctas.map((cta) => (
-              <Button
-                key={cta.href}
-                href={cta.href}
-                external={cta.external}
-                variant={cta.variant ?? "primary"}
-                size="lg"
-              >
-                {cta.label}
-              </Button>
-            ))}
+      <div className={styles.headerLayout}>
+        <div className={styles.header}>
+          <span className={styles.icon}>{icon}</span>
+          <Badge tone="brand">{eyebrow}</Badge>
+          <h1 className={styles.heading}>{heading}</h1>
+          <p className={styles.intro}>{intro}</p>
+          {ctas && ctas.length > 0 && (
+            <div className={styles.ctaRow}>
+              {ctas.map((cta) => (
+                <Button
+                  key={cta.href}
+                  href={cta.href}
+                  external={cta.external}
+                  variant={cta.variant ?? "primary"}
+                  size="lg"
+                >
+                  {cta.label}
+                </Button>
+              ))}
+            </div>
+          )}
+          {secondaryLinks && secondaryLinks.length > 0 && (
+            <p className={styles.secondaryLinks}>
+              {secondaryLinks.map((link, i) => (
+                <span key={link.href}>
+                  {i > 0 && " · "}
+                  <Link href={link.href}>{link.label}</Link>
+                </span>
+              ))}
+            </p>
+          )}
+        </div>
+
+        {heroVisualLabel && (
+          <div className={styles.heroVisual} aria-hidden="true">
+            {heroVisualIcon}
+            <p className={styles.heroVisualLabel}>{heroVisualLabel}</p>
           </div>
-        )}
-        {secondaryLinks && secondaryLinks.length > 0 && (
-          <p className={styles.secondaryLinks}>
-            {secondaryLinks.map((link, i) => (
-              <span key={link.href}>
-                {i > 0 && " · "}
-                <Link href={link.href}>{link.label}</Link>
-              </span>
-            ))}
-          </p>
         )}
       </div>
 
@@ -104,7 +128,9 @@ export function PropositionShell({
       </div>
 
       {comingSoonNote && (
-        <div className={styles.comingSoonNote}>{comingSoonNote}</div>
+        <div id={comingSoonNoteId} className={styles.comingSoonNote}>
+          {comingSoonNote}
+        </div>
       )}
     </Container>
   );

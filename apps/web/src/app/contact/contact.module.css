@@ -1,0 +1,52 @@
+/*
+ * Flanking decorative imagery around the fallback ContactForm (no real
+ * Sanity `page` doc) — route-local, like home.module.css's own doc
+ * comment: this only applies to the hand-authored fallback, not a real
+ * editor-authored page.
+ */
+
+.layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+}
+
+/* Hidden below 64rem — the brief is explicit that decorative imagery
+   must never overpower or crowd the form, and on tablet/mobile widths
+   there simply isn't room for flanking art beside a comfortably-wide
+   form without either shrinking the form or cropping the images. The
+   form's own section keeps its full-width, unflanked layout below that
+   breakpoint (exactly as before this pass). */
+.flank {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .flank {
+    position: relative;
+    display: block;
+    width: 10rem;
+    height: 14rem;
+    flex: none;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--color-surface-subtle);
+    border: var(--border-width-sm) solid var(--color-border-subtle);
+  }
+
+  .flank img {
+    object-fit: cover;
+  }
+
+  /* `.flankContain` is applied directly to the `<Image>` (so directly to
+     the rendered `<img>`), which is also a `.flank img` descendant match
+     above — needs `.flank .flankContain` (two classes) to reliably beat
+     that single-class-plus-tag selector's specificity, the same
+     equal/lower-specificity cascade-order pitfall CtaPanel.module.css's
+     `.ctaOnBrand.ctaOnBrand` fix already documents elsewhere in this
+     codebase. */
+  .flank .flankContain {
+    object-fit: contain;
+  }
+}

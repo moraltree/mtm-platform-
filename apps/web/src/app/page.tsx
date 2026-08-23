@@ -13,10 +13,13 @@ import { adaptSections } from "@/lib/pageSections";
 import { buildMetadata } from "@/lib/metadata";
 import { cx } from "@/lib/cx";
 import {
-  getCharacter,
   getCharacterPose,
-  type CharacterSlug,
+  getCharactersInCanonicalOrder,
 } from "@/lib/characters";
+import {
+  CastPortraitGrid,
+  type CastPortraitMember,
+} from "@/components/patterns/CastPortraitGrid";
 import { BookIcon, HeadphonesIcon, FilmIcon } from "./home-icons";
 import styles from "./home.module.css";
 
@@ -29,31 +32,27 @@ import styles from "./home.module.css";
 // same as before this change) if that pose is ever missing.
 const HOME_HERO_IMAGE = getCharacterPose("zulu", "three-quarter-wave");
 
-// "Meet the cast" section, below: a page-local presentation order (owner
-// sign-off, 23 Aug 2026 QA pass) — deliberately not the character
-// manifest's own canonical `order` (1-8, matching the master asset
-// library's numbered folders, see lib/characters.ts) since that field is
-// production canon describing asset provenance, not a mandate on display
-// order for every section. Zulu, previously excluded here (already
-// featured in the Hero above) and shown separately, is now included —
-// its earlier absence read as "Zulu is missing" during review. Portrait
-// pose (not the tighter "close-up-headshot") + canonical name only — no
-// species/personality/backstory copy, since that canon doesn't exist in
-// this repository yet (see lib/characters.ts's own doc comment).
-const CAST_ORDER: CharacterSlug[] = [
-  "zulu",
-  "nara",
-  "mango",
-  "zala",
-  "sid",
-  "rocky",
-  "kofi",
-  "lulu",
-];
-const CAST_MEMBERS = CAST_ORDER.map((slug) => ({
-  character: getCharacter(slug),
-  pose: getCharacterPose(slug, "front-portrait"),
-}));
+// "Meet the cast" section, below: renders through the same shared
+// CastPortraitGrid the Savannah Seven Story World detail page uses (24
+// Aug 2026 refinement sprint — the two pages had independently-drifting
+// circular-avatar implementations before this), in
+// `lib/characters.ts#getCharactersInCanonicalOrder`'s site-wide order —
+// see that function's own doc comment for why this differs from the
+// manifest's `order` field. Each card links to that character's profile
+// page under the Savannah Seven Story World (the only Story World with a
+// real cast today — see `app/story-worlds/[slug]/cast/[character]`).
+const CAST_MEMBERS: CastPortraitMember[] = getCharactersInCanonicalOrder().map(
+  (character) => {
+    const pose = getCharacterPose(character.slug, "front-portrait");
+    return {
+      key: character.slug,
+      name: character.canonicalName,
+      imageSrc: pose?.path,
+      imageAlt: pose?.alt,
+      href: `/story-worlds/savannah-seven/cast/${character.slug}`,
+    };
+  },
+);
 
 // A small, purely decorative Zulu "stamp" inline with the mediums-section
 // heading (alt="" — the heading already carries the accessible name) —
@@ -252,27 +251,7 @@ export default async function Home() {
                 our first Story World.
               </p>
             </div>
-            <p className={styles.castSwipeHint} aria-hidden="true">
-              Swipe to meet everyone →
-            </p>
-            <ul className={styles.castGrid}>
-              {CAST_MEMBERS.map(({ character, pose }) => (
-                <li key={character.slug} className={styles.castMember}>
-                  {pose && (
-                    <div className={styles.castPortrait}>
-                      <Image
-                        src={pose.path}
-                        alt={pose.alt}
-                        fill
-                        sizes="8rem"
-                        className={styles.castImage}
-                      />
-                    </div>
-                  )}
-                  <p className={styles.castName}>{character.canonicalName}</p>
-                </li>
-              ))}
-            </ul>
+            <CastPortraitGrid members={CAST_MEMBERS} />
           </Container>
         </section>
 

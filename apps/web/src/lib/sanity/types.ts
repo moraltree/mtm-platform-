@@ -90,6 +90,12 @@ export interface ThemeTokensFields {
 
 export interface CharacterRosterEntry {
   name: string;
+  /** Stable identifier for this character's profile page route
+   * (`/story-worlds/[slug]/cast/[character]`) — optional because
+   * pre-existing roster entries predate the field; a missing slug just
+   * means that character's card doesn't link anywhere (see
+   * `CastPortraitGrid`'s consumers). */
+  slug?: string;
   portrait?: SanityImageRef;
   relativeScale?: number;
   approvedForCampaign?: boolean;

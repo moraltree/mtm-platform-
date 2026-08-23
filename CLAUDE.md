@@ -359,6 +359,84 @@ formation.png` has the same defect), so nothing was swapped or edited —
   registration journey, `/free30`'s existing visual design, and Shopify
   integration are otherwise unmodified — all 129 existing + new tests
   pass, lint/typecheck/format clean, production build clean.
+- **WP14 — Refinement sprint: About page, cast/character-profile
+  architecture, free-trial redesign, Subscribe/countries/Control-Center
+  groundwork** ✅ (24 Aug 2026, `feature/shopify-storefront-nav-link`,
+  following iPad visual QA of WP13's preview) About moved off
+  `lib/editorialPage.tsx`'s 404-on-missing-doc rule (same treatment
+  Publishing/Audiobooks/Animation got in WP13) onto real hand-authored
+  positioning copy — Founder/Mission are deliberately untouched, still
+  404 (no honest non-fabricated fallback exists for either). Found and
+  fixed a **third** independently-drifting circular-cast-avatar
+  implementation (`CampaignLanding.tsx`'s generic Story-World roster
+  section, alongside Home's and the Story World detail page's own from
+  WP13) — all three, plus a brand-new one, now render through one new
+  shared `components/patterns/CastPortraitGrid`. `lib/characters.ts`
+  gained `CANONICAL_CAST_ORDER`/`getCharactersInCanonicalOrder()` (Zulu,
+  Nara, Mango, Zala, Sid, Rocky, Lulu, Kofi — note Lulu/Kofi swapped
+  versus WP13's order, owner sign-off) as the one source every cast
+  section reads instead of re-declaring its own array. Every cast
+  portrait is now a real link: `CharacterRosterEntry` gained a routing
+  `slug` field (Studio schema + `lib/sanity/types.ts`; no GROQ change
+  needed — `characterRoster` is a bare-field projection, so it already
+  returns whatever the schema has) feeding a new reusable profile route,
+  `app/story-worlds/[slug]/cast/[character]`, generic across any Story
+  World's roster rather than eight hard-coded Savannah Seven pages. No
+  character has real biography canon yet, so every narrative section
+  (species, personality, role, strengths, likes, friendships, backstory,
+  associated stories, merch) renders the same honest "Character profile
+  coming soon" placeholder — the structure is real, the content isn't
+  invented; extending `CharacterRosterEntry` with real narrative fields
+  is real future work once real copy exists, not speculative schema
+  added here for nothing. Mango's hero-cluster pose swapped from
+  "three-quarter-wave" (a solid black backdrop — poor contrast against
+  his own dark fur, unlike every other character using that pose) to
+  "front-portrait" (the same plain light-grey studio background every
+  other card uses) — a source-asset swap, not a CSS fix over the actual
+  image; the composite-artwork-level scale issue documented in WP13
+  remains unfixed by design (still no safe code-level fix, still flagged
+  for an owner-approved artwork pass, not touched again here).
+  `CampaignLanding.module.css`'s hero-flanking breakpoint dropped from
+  64rem to 56rem with narrower image columns and a smaller gap (the iPad-
+  landscape "too crowded" finding — 64rem/1024px sat exactly at real
+  iPad-landscape widths, so any variance tipped the layout into the
+  taller mobile treatment with both character clusters stacked _above_
+  the form instead of flanking it) — the anchor portrait's further
+  64rem+ size bump was also removed outright ("reduce excessive artwork
+  scale... the form should be the dominant visual element" is now
+  actually true at every breakpoint, not just below 56rem).
+  `submitFreeTrialSignup` (the actual `/free30` action) had **no test
+  file at all** before this sprint (only its `/start/...` sibling did) —
+  added one covering invalid email, required fields, consent-checkbox
+  validation, marketing-consent independence, successful submission, and
+  campaign/source attribution. New `/subscribe` page (not Sanity-backed,
+  like `/free30`) gives "Subscribe" a real subscription-intent
+  destination instead of routing straight into the generic Contact form
+  — no payment/Stripe integration, `/free30`'s real trial as the one
+  working CTA, `ContactForm` reused verbatim as the waitlist capture
+  (same validation/honeypot/rate-limit contract, not a second parallel
+  mechanism) rather than fabricating billing that doesn't exist.
+  Audiobooks gained a third, genuinely distinct CTA ("Sample a story",
+  anchor-linking to the page's own honest "no audio produced yet" note —
+  not a fake player) alongside the trial and the new `/subscribe` link.
+  `lib/countries.ts` restructured around a `CountryRecord.enabled` flag
+  and one `getEnabledCountries()` accessor (`SignupForm.tsx`'s only
+  consumer, previously reading the list directly) — same ~22-market
+  dataset as before, all enabled (no launch-country decision exists to
+  restrict against), designed so a future MTM Control Center swapping
+  the static array for a real database/Sanity singleton only changes
+  this one file's internals. `PropositionShell` gained an optional
+  upper-right `heroVisual` placeholder slot (Publishing: book stack,
+  Audiobooks: sample player, Animation: short-clip preview) — clearly-
+  labelled dashed-border placeholders, no fabricated finished assets, an
+  easy swap-in point once real artwork/video exists. News' empty state
+  and the Contact fallback both gained tasteful decorative imagery (the
+  approved Moral Tree mark; Zulu's wave pose on Contact) — Contact's only
+  on the no-real-`page`-doc fallback, hidden below 64rem so it can never
+  crowd the form on tablet/mobile. Added a documentation-only "Future:
+  MTM Control Center" section (see below) — no code, per the sprint
+  brief. Shopify, the QR/short-code system, campaign attribution, and
+  the adult-registration consent contract are all unmodified.
 
 ## Repository structure
 
@@ -639,6 +717,43 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   forever; Stripe's own Dashboard and (once `SANITY_API_WRITE_TOKEN` is
   set) Sanity's Orders list are the two places to actually check order
   history — this webhook is not itself a system of record.
+
+## Future: MTM Control Center (not built — documentation only)
+
+A separate, future project — **not this website**, not started, not
+scaffolded, no code exists anywhere in this repo for it (24 Aug 2026
+refinement sprint: added here strictly as an architecture note per the
+sprint brief, deliberately deferred "until the public website is
+finished"). Recorded now because several places in this codebase already
+describe the hand-off they're designed for (`lib/countries.ts`'s
+`enabled` flag, `CharacterRosterEntry.slug`, the honest "coming soon"
+placeholders on Publishing/Audiobooks/Animation/Subscribe) — this section
+is the one place that ties those together instead of each doc comment
+re-explaining the whole picture.
+
+**Purpose**: secure private administration for Moral Tree Media staff —
+role-based access, subscriber management, sales analytics, listening
+analytics, country enable/disable controls, country-specific subscription
+pricing, story publishing, audiobook upload/publishing, Story World
+management, campaign management, QR campaigns, rewards, and future
+animation/media management.
+
+**Relationship to this repo**: a separate application/service, not a new
+route inside `apps/web`. This website's job is to keep read paths ready
+for it — `lib/countries.ts#getEnabledCountries()`, the `CharacterRosterEntry`
+schema's `slug`/`portrait`/`relativeScale` fields, and the general "Sanity
+document wins the instant one exists" pattern every null-state page here
+already follows — so that once the Control Center exists and starts
+writing real data (to Sanity, or its own store), this site's read side
+needs little to no rework. None of that data flow exists yet; every
+"future Control Center" mention elsewhere in this codebase is aspirational
+until this section says otherwise.
+
+**Target deployment portability** (not yet built, so not yet verified):
+local Mac Studio development, Docker-based development, VPS/cloud
+environments, and scalable commercial production infrastructure — the
+same kind of environment-portable design this repo's own `.env.example`-
+driven configuration already follows, extended to a second application.
 
 ## Guidance for future sessions
 

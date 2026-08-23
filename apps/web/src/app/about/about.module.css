@@ -1,0 +1,136 @@
+/*
+ * About-specific sections that sit between Hero and the CTA panel —
+ * mirrors home.module.css's own doc comment: this is route-local
+ * hand-authored copy, not a reusable pageBuilder block type. If a real
+ * Sanity `about` page document ever exists, page.tsx's `if (page)`
+ * branch stops rendering any of this in favour of the CMS-driven
+ * `sections`.
+ */
+
+.section {
+  padding-block: var(--space-7);
+}
+
+@media (min-width: 40rem) {
+  .section {
+    padding-block: var(--space-8);
+  }
+}
+
+.sectionSubtle {
+  background: var(--color-surface-subtle);
+}
+
+.sectionHead {
+  max-width: 42rem;
+  margin-bottom: var(--space-5);
+}
+
+.sectionHeading {
+  font-size: var(--text-2xl);
+}
+
+.sectionBody {
+  margin-top: var(--space-3);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-muted);
+  max-width: 42rem;
+}
+
+.sectionBody + .sectionBody {
+  margin-top: var(--space-3);
+}
+
+/* --- What is MTM: pillar list ------------------------------------------ */
+
+.pillarList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pillarItem {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+/* --- How our stories grow ----------------------------------------------- */
+
+.growthRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+@media (min-width: 48rem) {
+  .growthRow {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+.growthStep {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex: 1;
+}
+
+@media (min-width: 48rem) {
+  .growthStep {
+    flex-direction: row;
+  }
+}
+
+.growthCard {
+  flex: 1;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-subtle);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+.sectionSubtle .growthCard {
+  background: var(--color-surface);
+}
+
+.growthTitle {
+  font-size: var(--text-md);
+}
+
+.growthBody {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-muted);
+}
+
+.growthArrow {
+  display: none;
+  color: var(--color-brand-600);
+  font-size: var(--text-xl);
+  flex-shrink: 0;
+}
+
+@media (min-width: 48rem) {
+  .growthArrow {
+    display: block;
+  }
+}
+
+/* --- Footer CTA row ------------------------------------------------------ */
+
+.sectionLinks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}

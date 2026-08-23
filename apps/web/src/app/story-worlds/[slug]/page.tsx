@@ -5,6 +5,10 @@ import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { RichText } from "@/components/patterns/RichText";
 import { PageSections } from "@/components/patterns/PageSections";
+import {
+  CastPortraitGrid,
+  type CastPortraitMember,
+} from "@/components/patterns/CastPortraitGrid";
 import { getStoryWorldBySlug, getStoryWorlds } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
 import { urlFor } from "@/lib/sanity/image";
@@ -122,30 +126,23 @@ export default async function StoryWorldPage(
       {storyWorld.characterRoster && storyWorld.characterRoster.length > 0 && (
         <Container className={styles.characters}>
           <h2 className={styles.charactersHeading}>Meet the cast</h2>
-          <div className={styles.characterGrid}>
-            {storyWorld.characterRoster.map((member, index) => {
-              const src = urlFor(member.portrait)?.width(300).url();
-              return (
-                <div
-                  key={member.name ?? index}
-                  className={styles.characterCard}
-                >
-                  {src && (
-                    <div className={styles.characterPortrait}>
-                      <Image
-                        src={src}
-                        alt={member.portrait?.alt || member.name}
-                        fill
-                        sizes="8rem"
-                        className={styles.characterImage}
-                      />
-                    </div>
-                  )}
-                  <p className={styles.characterName}>{member.name}</p>
-                </div>
-              );
-            })}
-          </div>
+          <CastPortraitGrid
+            members={storyWorld.characterRoster.map(
+              (member, index): CastPortraitMember => ({
+                key: member.slug ?? member.name ?? String(index),
+                name: member.name,
+                imageSrc: urlFor(member.portrait)?.width(400).url(),
+                imageAlt: member.portrait?.alt || member.name,
+                // Only a real, routable profile page if this entry
+                // carries a slug (see CharacterRosterEntry's own doc
+                // comment) — an editor-authored roster entry without one
+                // just isn't clickable, same as a Card with no href.
+                href: member.slug
+                  ? `/story-worlds/${storyWorld.slug.current}/cast/${member.slug}`
+                  : undefined,
+              }),
+            )}
+          />
         </Container>
       )}
 

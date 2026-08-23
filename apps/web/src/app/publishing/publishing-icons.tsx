@@ -24,3 +24,31 @@ export function BookIcon() {
     </svg>
   );
 }
+
+/** Placeholder hero-visual icon: a stack of book covers, standing in for
+ * real cover artwork until it exists — see page.tsx's `heroVisualLabel`. */
+export function BookStackIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect
+        x="4"
+        y="3"
+        width="10"
+        height="14"
+        rx="1"
+        transform="rotate(-6 9 10)"
+      />
+      <rect x="7" y="6" width="13" height="15" rx="1" />
+    </svg>
+  );
+}

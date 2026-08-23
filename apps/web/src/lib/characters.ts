@@ -237,3 +237,30 @@ export function getCharacterPose(
 ): WebsitePoseImage | undefined {
   return getCharacter(slug)?.websitePoses.find((p) => p.role === role);
 }
+
+/** The canonical left-to-right "Meet the cast" display order (owner
+ * sign-off, 24 Aug 2026 refinement sprint) — deliberately not the same as
+ * `order` above (1-8, matching the master asset library's numbered
+ * folders — real canon describing asset provenance, not a mandate on
+ * display order). This is the one order every cast presentation
+ * site-wide should use (Home, the Savannah Seven Story World detail
+ * page, and any future one) so they stop drifting independently — see
+ * `components/patterns/CastPortraitGrid`, the shared component both
+ * consume. */
+export const CANONICAL_CAST_ORDER: CharacterSlug[] = [
+  "zulu",
+  "nara",
+  "mango",
+  "zala",
+  "sid",
+  "rocky",
+  "lulu",
+  "kofi",
+];
+
+/** `CHARACTERS`, resorted to `CANONICAL_CAST_ORDER` — the one function
+ * every "meet the cast" section should call rather than re-declaring its
+ * own copy of the order array. */
+export function getCharactersInCanonicalOrder(): Character[] {
+  return CANONICAL_CAST_ORDER.map((slug) => getCharacter(slug));
+}

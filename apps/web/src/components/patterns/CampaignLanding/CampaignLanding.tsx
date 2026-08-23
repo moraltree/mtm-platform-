@@ -6,6 +6,10 @@ import { Container } from "@/components/ui/Container";
 import { CHARACTER_GROUPS } from "@/lib/characterGroups";
 import { cx } from "@/lib/cx";
 import type { PartnerId, StoryWorldId } from "@/lib/platform/ids";
+import {
+  CastPortraitGrid,
+  type CastPortraitMember,
+} from "@/components/patterns/CastPortraitGrid";
 import { SignupForm, type SignupFormOfferHints } from "./SignupForm";
 import { CampaignLandingAnalytics } from "./CampaignLandingAnalytics";
 import { HeroCastCluster, type HeroCastMember } from "./HeroCastCluster";
@@ -200,11 +204,20 @@ const HERO_LEFT_CAST: HeroCastMember[] = [
   { slug: "nara", tier: "small", pose: "three-quarter-wave" },
   { slug: "sid", tier: "small", pose: "three-quarter-wave" },
 ];
+// Mango uses "front-portrait" here, not "three-quarter-wave" like his
+// hero-cluster siblings (24 Aug 2026 refinement sprint): his
+// "three-quarter-wave" source photo has a solid black backdrop (unlike
+// every other pose, which is plain light grey) — against this dark-fur
+// character specifically, that reads as poor contrast/a jarring black
+// box rather than blending into the card. "front-portrait" is the same
+// plain light-grey studio background every other character's card uses
+// here, so this is a source-asset swap (the approved/canonical Mango
+// reference), not a CSS fix over the actual image.
 const HERO_RIGHT_CAST: HeroCastMember[] = [
   { slug: "kofi", tier: "anchor", pose: "standing-full-body" },
   { slug: "zulu", tier: "medium", pose: "three-quarter-wave" },
   { slug: "lulu", tier: "medium", pose: "three-quarter-wave" },
-  { slug: "mango", tier: "small", pose: "three-quarter-wave" },
+  { slug: "mango", tier: "small", pose: "front-portrait" },
 ];
 
 // All eight, named — balanced representation as a simple text line under
@@ -425,25 +438,15 @@ export function CampaignLanding({
                   Meet the cast of {storyWorld.title}
                 </h2>
                 {roster.length > 0 && (
-                  <div className={styles.castRosterGrid}>
-                    {roster.map((member) => (
-                      <div key={member.name} className={styles.castRosterItem}>
-                        <div className={styles.castRosterPortrait}>
-                          {member.portraitUrl && (
-                            <Image
-                              src={member.portraitUrl}
-                              alt={member.portraitAlt ?? member.name}
-                              fill
-                              sizes="5rem"
-                              className={styles.castRosterPortraitImage}
-                            />
-                          )}
-                        </div>
-                        <span className={styles.castRosterName}>
-                          {member.name}
-                        </span>
-                      </div>
-                    ))}
+                  <div className={styles.castRosterWrap}>
+                    <CastPortraitGrid
+                      members={roster.map((member): CastPortraitMember => ({
+                        key: member.name,
+                        name: member.name,
+                        imageSrc: member.portraitUrl,
+                        imageAlt: member.portraitAlt,
+                      }))}
+                    />
                   </div>
                 )}
               </>

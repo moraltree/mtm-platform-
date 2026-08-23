@@ -5,7 +5,7 @@ import { TextField, SelectField } from "@/components/ui/FormField";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { COUNTRY_OPTIONS } from "@/lib/countries";
+import { getEnabledCountries } from "@/lib/countries";
 import { conversionEvents } from "@/lib/analytics/events";
 import { asCampaignId } from "@/lib/platform/ids";
 import type { PartnerId, StoryWorldId } from "@/lib/platform/ids";
@@ -16,6 +16,13 @@ import {
 } from "./state";
 import { cx } from "@/lib/cx";
 import styles from "./CampaignLanding.module.css";
+
+// Computed once at module scope — the enabled/disabled split doesn't
+// change mid-session, so there's no reason to re-filter on every render.
+// See lib/countries.ts's own doc comment for the single-source-of-truth
+// architecture this reads from (and the future MTM Control Center
+// hand-off it's designed for).
+const ENABLED_COUNTRIES = getEnabledCountries();
 
 type SignupAction = (
   prevState: FreeTrialSignupState,
@@ -288,7 +295,7 @@ export function SignupForm({
             hint="Optional — helps us show the right offer."
           >
             <option value="">Select a country (optional)</option>
-            {COUNTRY_OPTIONS.map((c) => (
+            {ENABLED_COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>
                 {c.name}
               </option>

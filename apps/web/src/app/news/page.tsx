@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { PageSections } from "@/components/patterns/PageSections";
@@ -56,12 +57,27 @@ export default async function NewsIndexPage() {
         </div>
       ) : (
         <div className={styles.empty}>
-          <h2 className={styles.emptyHeading}>Updates coming soon</h2>
-          <p className={styles.emptyBody}>
-            We haven&rsquo;t published any announcements yet. Real news from
-            Moral Tree Media — Story World milestones, publishing and audiobook
-            updates, and press coverage — will appear here as it happens.
-          </p>
+          {/* The Moral Tree symbol, not invented "news" imagery — a
+              tasteful visual anchor for an honestly-empty page, same
+              approved brand asset used on About/free30 (see
+              public/images/brand/README.md). */}
+          <div className={styles.emptyVisual} aria-hidden="true">
+            <Image
+              src="/images/brand/moral-tree-mark.png"
+              alt=""
+              fill
+              sizes="8rem"
+            />
+          </div>
+          <div>
+            <h2 className={styles.emptyHeading}>Updates coming soon</h2>
+            <p className={styles.emptyBody}>
+              We haven&rsquo;t published any announcements yet. Real news from
+              Moral Tree Media — Story World milestones, publishing and
+              audiobook updates, and press coverage — will appear here as it
+              happens.
+            </p>
+          </div>
         </div>
       )}
     </Container>

@@ -164,6 +164,17 @@ export default defineType({
               validation: (rule) => rule.required(),
             }),
             defineField({
+              name: "slug",
+              title: "Slug",
+              description:
+                "Stable identifier for this character's profile page " +
+                "URL (app/story-worlds/[slug]/cast/[character]) — " +
+                'lowercase, no spaces (e.g. "zulu"). Not a Sanity ' +
+                "`slug` type since this is a short identifier inside an " +
+                "array item, not a document's own route slug.",
+              type: "string",
+            }),
+            defineField({
               name: "portrait",
               title: "Portrait",
               type: "image",

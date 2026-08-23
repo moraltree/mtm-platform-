@@ -5,7 +5,7 @@ import { PropositionShell } from "@/components/patterns/PropositionShell";
 import { getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
 import { buildMetadata } from "@/lib/metadata";
-import { FilmIcon } from "./animation-icons";
+import { FilmIcon, PlayCircleIcon } from "./animation-icons";
 
 // See publishing/page.tsx's doc comment for why this no longer uses
 // `lib/editorialPage.tsx` (404-on-missing-doc) — same owner decision,
@@ -65,6 +65,8 @@ export default async function AnimationPage() {
       eyebrow="Animation"
       heading="Story Worlds, in motion"
       intro="Animation is the third medium in our cross-media plan, alongside books and audio — short clips that bring each Story World's characters to life, with a longer-term ambition toward television and film. No animation has been produced yet, so there's nothing to watch on this page today."
+      heroVisualIcon={<PlayCircleIcon />}
+      heroVisualLabel="Short-clip preview coming soon"
       features={FEATURES}
       comingSoonNote="This page describes where animation is headed, not what exists — there are no clips to watch yet, and we're not claiming a TV series or film is in production. That's a genuine future ambition, not a current one."
       ctas={[{ label: "Talk to us about animation", href: "/contact" }]}
