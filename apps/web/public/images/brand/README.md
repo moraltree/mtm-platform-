@@ -13,5 +13,18 @@ what a code-composed lockup (icon + live HTML wordmark, not a flattened
 logo image) needs.
 
 Used by `components/patterns/CampaignLanding` for the `/free30` brand
-bar's icon+wordmark lockup (`styles.brandTreeIcon`). Master original
-under `~/mtm-assets/` untouched (copy only).
+bar's icon+wordmark lockup (`styles.brandTreeIcon`), and by
+`components/patterns/BrandMark` (News, Contact) for its icon+wordmark
+card. Master original under `~/mtm-assets/` untouched (copy only).
+
+**Still no full "Moral Tree Media" logo asset (25 Aug 2026, overnight
+refinement pass):** re-checked while enlarging Contact's `BrandMark`
+visual — Section 8's composed lockup file (wordmark/tagline/border baked
+into one image) is still un-generated, same status as noted above. Every
+current "full branding treatment" on the site (`BrandMark`,
+`CampaignLanding`'s brand bar) is still a code-composed pairing of this
+tree-only PNG with a live HTML "Moral Tree Media" wordmark, not a real
+logo asset — that's the correct, honest approach until Section 8 is
+actually generated/approved. Don't fabricate a flattened logo image;
+swap this file for a real one (and simplify `BrandMark`/`CampaignLanding`
+accordingly) once one exists.

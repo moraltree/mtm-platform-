@@ -78,7 +78,7 @@ export default async function ContactPage(props: PageProps<"/contact">) {
           <div className={styles.layout}>
             <BrandMark
               className={styles.flankBrand}
-              sizes="(min-width: 64rem) 12rem, 0px"
+              sizes="(min-width: 64rem) 15rem, 0px"
             />
             <ContactForm heading="Get in touch" enquiryType={enquiryType} />
             <div className={styles.flank} aria-hidden="true">
@@ -87,7 +87,7 @@ export default async function ContactPage(props: PageProps<"/contact">) {
                   src={CONTACT_CHARACTER_IMAGE.path}
                   alt=""
                   fill
-                  sizes="(min-width: 64rem) 10rem, 0px"
+                  sizes="(min-width: 64rem) 15rem, 0px"
                 />
               )}
             </div>

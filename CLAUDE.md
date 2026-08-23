@@ -524,6 +524,51 @@ batch2-v1.png` — confirmed against it directly, see WP13); the same
   same defect, confirmed in WP13) — a real regeneration or manual
   correction pass is the only fix.
 
+- **WP16 — Overnight refinement pass: Contact page visual balance** ✅
+  (25 Aug 2026, `feature/shopify-storefront-nav-link`) Small, controlled
+  pass, scoped by the owner's brief to Contact only — no other route
+  touched. Contact's no-real-`page`-doc fallback (`app/contact/page.tsx`,
+  `contact.module.css`) flanks the form with `BrandMark` (left) and
+  Lulu's front-portrait (right); both were reported as too small and
+  unevenly sized (12rem vs 10rem, a visible mismatch). Both now share one
+  `width: clamp(13rem, 6rem + 9vw, 15rem)` expression instead of two
+  different fixed widths — equal footprint at every viewport width
+  instead of a lopsided pair, growing modestly on wide desktops and
+  holding at 13rem down to the 64rem breakpoint itself (unchanged: still
+  hidden entirely below 64rem, the WP15 "never crowd the form on tablet/
+  mobile" rule untouched). `BrandMark`'s own default 14rem `max-width`
+  (correct for its other call site, News) would otherwise have capped
+  Contact's growth short of 15rem regardless of the clamp — overridden
+  locally with a doubled-class selector (`.flankBrand.flankBrand`), the
+  same specificity-safety trick WP13's `CtaPanel` fix established,
+  rather than relying on CSS Module bundle order. `.flank`'s image box
+  switched from a fixed 10rem×14rem to `width` + `aspect-ratio: 5/7`
+  (exactly the old ratio) so it scales with the same clamp instead of
+  staying a fixed size while only its sibling grew. Verified by
+  inspecting the actual compiled production CSS chunk (not just source)
+  to confirm both rules and the specificity override landed as written,
+  plus a layout-budget calculation across iPad-landscape (1024px, the
+  tightest width the flanked layout ever renders at — the same 64rem-
+  sits-exactly-at-iPad-landscape concern WP14 flagged for CampaignLanding
+  — confirmed the row still leaves ~480px of comfortable, unshrunk form
+  content), mobile portrait (unaffected — the flanked layout doesn't
+  render below 64rem at all, byte-for-byte the pre-existing verified
+  behaviour), and desktop; no real browser was available in this session
+  to screenshot instead, so tomorrow's visual QA is the first actual
+  on-screen look. Context-aware `?type=publishing`/`?type=animation`
+  enquiry badges (WP15) were re-verified working (200, badge logic
+  untouched), not changed. **No full "Moral Tree Media" logo asset
+  exists** — re-confirmed against `public/images/brand/README.md`
+  (Section 8's composed lockup remains un-generated); nothing was
+  invented, the existing tree-only mark + code-composed wordmark
+  (`BrandMark`) is unchanged and remains the correct honest treatment —
+  see that README's own updated note. About's tree scale, Story Worlds,
+  the Savannah Seven hero, cast portrait cropping, character profile
+  pages/routes/canonical order, Publishing/Audiobooks/Animation/News
+  layouts, `/free30`, and all responsive behaviour elsewhere are
+  unmodified. All 143 tests, lint, typecheck, format, and a
+  `USE_MOCK_CONTENT=false` production build all pass.
+
 ## Repository structure
 
 ```

@@ -24,11 +24,23 @@
 }
 
 @media (min-width: 64rem) {
+  /* Both flanks share one width expression (25 Aug 2026 refinement pass —
+     "balance the two visuals around the form"): previously 12rem
+     (brand) vs 10rem (Lulu), a 2rem mismatch that read as lopsided and
+     was also just small. Equal widths make the two columns feel like
+     deliberate companions rather than one dominating; each still keeps
+     its own natural aspect ratio inside that shared width via
+     `aspect-ratio` (below) / BrandMark's own internal 3:2 box. The
+     clamp() lower bound (13rem) is sized to still fit alongside the
+     centered form with no overflow at the 64rem breakpoint itself (the
+     narrowest width this row ever renders at); the upper bound (15rem)
+     caps growth on very wide desktops so neither image approaches the
+     form's own visual weight. */
   .flank {
     position: relative;
     display: block;
-    width: 10rem;
-    height: 14rem;
+    width: clamp(13rem, 6rem + 9vw, 15rem);
+    aspect-ratio: 5 / 7;
     flex: none;
     border-radius: var(--radius-lg);
     overflow: hidden;
@@ -38,10 +50,10 @@
 
   /* `cover`, not `contain` — same reasoning as
      components/patterns/CastPortraitGrid.module.css: this box's ratio
-     (10/14 ≈ 0.71) is close enough to every character portrait's own
-     that `cover` only trims a little background margin, never an
-     ear/head, and avoids the letterboxing `contain` would otherwise
-     leave on a mismatched-ratio source image. */
+     (5/7 ≈ 0.71) is close enough to every character portrait's own that
+     `cover` only trims a little background margin, never an ear/head,
+     and avoids the letterboxing `contain` would otherwise leave on a
+     mismatched-ratio source image. */
   .flank img {
     object-fit: cover;
   }
@@ -49,6 +61,17 @@
   .flankBrand {
     display: flex;
     flex: none;
-    width: 12rem;
+  }
+
+  /* Doubled selector for specificity over BrandMark.module.css's own
+     `.wrap` rule (same trick as CtaPanel's `.ctaOnBrand.ctaOnBrand` —
+     see CLAUDE.md) rather than relying on which CSS Module the bundler
+     happens to place later: `.wrap`'s 14rem max-width suits BrandMark's
+     other call site (News, unflanked, no size pressure from
+     neighbouring elements) but would otherwise cap growth short of this
+     row's intended clamp() ceiling regardless of source order. */
+  .flankBrand.flankBrand {
+    width: clamp(13rem, 6rem + 9vw, 15rem);
+    max-width: none;
   }
 }

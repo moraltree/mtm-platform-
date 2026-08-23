@@ -4,6 +4,49 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-08-25 — WP16: Overnight refinement pass, Contact page visual balance
+
+- Task: small, controlled overnight pass — owner's brief scoped it
+  explicitly to Contact's flanking-image balance plus a check on whether
+  a full "Moral Tree Media" logo asset now exists; every other page was
+  in scope only as a "do not regress" list, not for changes.
+- `app/contact/page.tsx` / `contact.module.css`: `BrandMark` (left) and
+  Lulu's portrait (right) previously used two different fixed widths
+  (12rem / 10rem) — replaced with one shared
+  `width: clamp(13rem, 6rem + 9vw, 15rem)` so both flanks are equal-width
+  and both grew from their previous size. `.flank`'s image box moved
+  from a fixed 10rem×14rem to `aspect-ratio: 5/7` (the same ratio) so it
+  scales with the clamp instead of staying static. `BrandMark`'s own
+  default 14rem `max-width` (correct for its other call site, News)
+  would have silently capped Contact's growth below the new 15rem
+  ceiling — overridden with a doubled-class selector
+  (`.flankBrand.flankBrand`), the same specificity-safety pattern WP13's
+  CtaPanel fix used, rather than trusting CSS Module bundle order.
+- No full logo asset was found — `public/images/brand/README.md`
+  reconfirmed Section 8's composed lockup is still un-generated; kept
+  the existing tree-only mark + code-composed `BrandMark` wordmark
+  pairing and documented the gap in that README rather than fabricating
+  a flattened logo image.
+- Verified: grepped the actual compiled production CSS chunk (not just
+  source) to confirm both new rules and the specificity override
+  compiled as written; hand-calculated the flanked row's width budget at
+  the 64rem/1024px breakpoint (the tightest width it ever renders at —
+  also real iPad-landscape width, flagged once before for CampaignLanding
+  in WP14) and confirmed the form keeps ~480px of unshrunk content width
+  there; confirmed the flanked layout still doesn't render at all below
+  64rem (mobile/tablet unaffected, byte-for-byte prior behaviour).
+  `/contact`, `/contact?type=publishing`, `/contact?type=animation` all
+  200 against a fresh `USE_MOCK_CONTENT=false` production build+start
+  (first attempt reused a stale leftover server process from an earlier
+  session on the same port — caught via the start log, redone on a
+  confirmed-free port). No headless browser was available in this
+  session to screenshot the result — tomorrow's visual QA is the first
+  actual on-screen look at this change.
+- 143/143 tests, lint, typecheck, format:check, and the production build
+  all pass. Backend confirmed active and untouched throughout.
+- Deployed to a new Vercel preview (not production) from `apps/web` on
+  the existing `moral-tree-media` project; no merge to `main`.
+
 ## 2026-08-22 — WP12: Adult registration, consent, offer types, reward contract, conversion events
 
 - Task: extend the existing campaign-platform journey (QR/short-link →
