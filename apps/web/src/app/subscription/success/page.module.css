@@ -1,0 +1,44 @@
+.wrap {
+  padding-block: var(--space-16);
+  max-width: 40rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.successIcon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-status-success, #166534) 12%, transparent);
+  color: var(--color-status-success, #166534);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold, 700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heading {
+  font-size: var(--text-3xl, 1.875rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text-primary, #111827);
+  line-height: var(--leading-tight, 1.25);
+}
+
+.body {
+  color: var(--color-text-secondary, #374151);
+  line-height: var(--leading-relaxed, 1.625);
+}
+
+.renewalNote {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted, #6b7280);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}

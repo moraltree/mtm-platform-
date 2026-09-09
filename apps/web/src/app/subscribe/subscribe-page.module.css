@@ -1,0 +1,134 @@
+.wrap {
+  padding-block: var(--space-16);
+}
+
+/* --- Active subscriber status card --- */
+.statusCard {
+  max-width: 40rem;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  align-items: flex-start;
+}
+
+.heading {
+  font-size: var(--text-3xl, 1.875rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text-primary, #111827);
+  line-height: var(--leading-tight, 1.25);
+}
+
+.statusList {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2) var(--space-6);
+  font-size: var(--text-sm);
+}
+
+.statusList dt {
+  color: var(--color-text-muted, #6b7280);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.statusList dd {
+  color: var(--color-text-primary, #111827);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.status-active { color: var(--color-status-success, #166534); }
+.status-trialing { color: var(--color-brand-primary, #2d6a4f); }
+.status-past_due { color: var(--color-status-warning, #92400e); }
+.status-incomplete { color: var(--color-text-muted, #6b7280); }
+.status-cancelled { color: var(--color-status-error, #b91c1c); }
+
+.accessNote {
+  color: var(--color-status-success, #166534);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.pendingNote {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted, #6b7280);
+}
+
+.resubscribeBox {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* --- Checkout layout --- */
+.checkoutShell {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+  max-width: 64rem;
+  margin-inline: auto;
+  align-items: start;
+}
+
+@media (max-width: 48rem) {
+  .checkoutShell {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+}
+
+.checkoutIntro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.intro {
+  color: var(--color-text-secondary, #374151);
+  line-height: var(--leading-relaxed, 1.625);
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.featureList li {
+  padding-left: var(--space-5);
+  position: relative;
+  color: var(--color-text-secondary, #374151);
+  font-size: var(--text-sm);
+}
+
+.featureList li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--color-brand-primary, #2d6a4f);
+  font-weight: var(--font-weight-bold, 700);
+}
+
+.checkoutFormWrap {
+  background: var(--color-surface-subtle, #f9fafb);
+  border: 1px solid var(--color-border-subtle, #e5e7eb);
+  border-radius: var(--radius-lg, 0.75rem);
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.formHeading {
+  font-size: var(--text-xl, 1.25rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #111827);
+}
+
+.trialNote {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted, #6b7280);
+}

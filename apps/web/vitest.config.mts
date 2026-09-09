@@ -31,6 +31,9 @@ export default defineConfig({
     include: ["src/**/*.test.ts"],
     env: {
       USE_MOCK_CONTENT: "true",
+      // Required for webhook handler tests — the handler now reads this at
+      // request time (not module-init time) so setting it here is sufficient.
+      STRIPE_WEBHOOK_SECRET: "whsec_test_vitest_secret",
     },
     fileParallelism: false,
   },
