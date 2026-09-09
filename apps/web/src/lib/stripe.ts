@@ -9,12 +9,12 @@ const secretKey = process.env.STRIPE_SECRET_KEY;
 
 export const isStripeConfigured = Boolean(secretKey);
 
-// Pinned to the exact version this SDK build (stripe@22.5.0) itself
+// Pinned to the exact version this SDK build (stripe@22.6.1) itself
 // defaults to (see node_modules/stripe/cjs/apiVersion.d.ts) — explicit
 // rather than relying on the SDK's own default, so an SDK upgrade can't
 // silently change checkout/webhook behaviour without this being touched
 // (and re-verified) too.
-const STRIPE_API_VERSION = "2026-07-29.dahlia";
+const STRIPE_API_VERSION = "2026-08-26.dahlia";
 
 /**
  * `null` until `STRIPE_SECRET_KEY` is set (see .env.example) — every
