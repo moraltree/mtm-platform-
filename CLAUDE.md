@@ -103,7 +103,89 @@ Implementation proceeded in work packages:
   see "Guidance for future sessions" for what going live actually requires.
   No real Stripe account exists yet; nothing here has processed a real
   charge.
-- **WP8 — Consumer campaign funnel (partial, `/free30` only)** 🚧 A second,
+- **WP17 — Stripe Subscriptions v1 + Founder-approved platform trial** ✅
+  (Sep 2026, `feature/stripe-subscriptions-v1` → merged to `main` at
+  `f431355`) TEST MODE only throughout — no live credentials, no live
+  charges. Three commits:
+  - `4b3ed03` — Stripe Subscriptions v1: `/subscribe` (real Stripe
+    Checkout, MONTHLY/ANNUAL), `/subscription/success`, `/subscription/
+    cancelled`, `/api/subscription/portal` (Stripe Customer Portal),
+    full webhook handling for `checkout.session.completed`,
+    `customer.subscription.updated`, `customer.subscription.deleted`,
+    `invoice.paid`, `invoice.payment_failed` — all writing to Sanity via
+    the write client. `lib/subscriptionEntitlement.ts` defines the
+    entitlement functions. `lib/subscriptionPlans.ts` maps `"MONTHLY"`/
+    `"ANNUAL"` plan identifiers to the Stripe Price IDs from env vars —
+    the browser never receives a real Stripe Price ID, and the subscribe
+    action cross-checks the plan identifier server-side before creating a
+    session (same "never trust client-supplied price" principle as WP7's
+    shop checkout).
+  - `4230950` — Configurable Stripe-managed free trial (since superseded
+    by the Founder-approved platform model below; `trial_period_days`
+    logic removed in the next commit).
+  - `261fe94` — **Founder-approved platform trial policy**: the free trial
+    is now a standalone platform-managed offering, completely separate
+    from Stripe — 30 days, no card required, no auto-conversion, Starter
+    Collection access only. `trial_period_days` removed from paid checkout
+    entirely; paid checkout always charges immediately.
+
+  **Subscription entitlement tiers** (enforced in
+  `lib/subscriptionEntitlement.ts`, tested in its `.test.ts`):
+  - `hasPaidSubscriptionAccess(status)` — true only for `"active"` (genuine
+    paid subscriber). Never true for `"trialing"`.
+  - `hasTrialAccess(status, trialEnd?)` — true only for `"trialing"` and
+    only when `trialEnd` is in the future (or not set). Expiry-aware.
+  - `hasPaidAccess(status)` — true for `"active"` or `"trialing"` (any
+    form of access — use the narrower functions for entitlement decisions).
+  - `hasStarterCollectionAccess(record)` (`lib/starterCollection.ts`) —
+    true for active paid subscribers (full library includes Starter) and
+    for non-expired trialists (Starter only). A trial subscriber never
+    simultaneously satisfies `hasPaidSubscriptionAccess()`.
+
+  **Platform trial model** (`lib/trialRegistration.ts`):
+  - `registerPlatformTrial(email, options?)` creates a Sanity
+    `subscription` document with `status: "trialing"`, `trialDays: 30`,
+    `trialEnd: now + 30 days`, and no Stripe IDs whatsoever. Eligibility
+    is checked via `checkTrialEligibility(email)` before creating the
+    record — repeat trials are blocked at this point.
+  - Trial duration is always `MAX_TRIAL_DAYS` (30) — never from any client
+    input. `trialEnd` is set server-side only.
+  - Cookie management is the calling server action's responsibility (not
+    inside `registerPlatformTrial`) so the function is testable in
+    isolation. The calling action sets `mtm_sub_ref` (httpOnly) to the
+    returned `correlationRef`.
+  - `STARTER_COLLECTION_STORY_WORLDS` env var (comma-separated slugs,
+    default `"savannah-seven"`) defines which story worlds trial
+    subscribers can access. Content team expands this without code changes.
+  - On paid checkout completion (`checkout.session.completed` webhook),
+    `terminatePlatformTrialForEmail(email)` patches the matching Sanity
+    trial record to `status: "cancelled"`. Errors are caught and logged
+    — they never block the paid subscription write.
+  - No unused trial days are credited on upgrade — the paid subscription
+    start date is the Stripe billing anchor.
+  - Repeat-trial prevention uses the existing `checkTrialEligibility`
+    mechanism — no invasive fingerprinting, no new PII.
+
+  **Key files**:
+  - `lib/trialRegistration.ts` — platform trial provisioning
+  - `lib/starterCollection.ts` — Starter Collection access tier
+  - `lib/subscriptionEntitlement.ts` — entitlement functions
+  - `lib/subscriptionPlans.ts` — plan identifier → Stripe Price ID mapping
+  - `app/subscribe/actions.ts` — paid Stripe Checkout (always immediate)
+  - `app/subscribe/page.tsx` — subscribe page with trial upgrade UX
+  - `app/api/stripe/webhook/route.ts` — full webhook + trial termination
+  - `app/api/subscription/portal/route.ts` — Stripe Customer Portal
+  - `studio/schemaTypes/documents/subscription.ts` — subscription doc
+    (`stripeCheckoutSessionId` optional — absent on platform trials)
+
+  317 tests passing. TypeScript clean. Lint clean. Build clean (37 routes).
+  **TEST MODE only** — `STRIPE_PRICE_MONTHLY`/`STRIPE_PRICE_ANNUAL`/
+  `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` must be set to real
+  test-mode values before any subscription flow actually works; the pages
+  and forms render but checkout is rejected with an honest "not configured"
+  message until then, identical to WP7's inert-until-configured contract.
+
+- **WP8 — Consumer campaign funnel (partial, `/free30` only)** ✅ A second,
   deliberately separate visual/functional system for QR-code and
   direct-link traffic, alongside (not replacing) the corporate site.
   `lib/campaignRoutes.ts` is the hand-maintained registry of which routes
@@ -156,14 +238,14 @@ moral-tree-mark.png` (also an approved, already-generated asset, see
   deliberate default (not a hard requirement), same carve-out as
   `/cart`/checkout routes sitting outside the three null-handling rules —
   flip it if the owner wants a campaign page discoverable via search too.
-  **The signup action does not provision an actual trial** — no customer
-  account/audiobook-delivery/CRM system exists anywhere in this codebase.
-  It validates, rate-limits, and honeypots exactly like `ContactForm`,
-  then (inert-until-configured on `FREE_TRIAL_TO_EMAIL`/
-  `CONTACT_FORM_FROM_EMAIL`, same contract as WP4/WP7) emails a human to
-  follow up by hand. Building real automated provisioning is the
-  genuinely unresolved dependency this WP stopped short of — see
-  "Guidance for future sessions."
+  **The signup action now provisions a real platform trial** (WP17) —
+  `submitFreeTrialSignup` calls `registerPlatformTrial` to create a
+  Sanity subscription record (`status: "trialing"`, `trialEnd = now + 30
+  days`, no Stripe IDs), sets the `mtm_sub_ref` cookie, and sends a
+  best-effort operator notification email. The email notification remains
+  inert-until-configured on `FREE_TRIAL_TO_EMAIL`/`CONTACT_FORM_FROM_EMAIL`
+  — the trial record is still created even if the notification fails. See
+  WP17 above for the full trial model.
 - **WP9 — Shopify merch integration, Phase 1 (nav link only)** ✅ Owner
   decision (2026-08-21, following a repo audit): a real Shopify store now
   exists (Shopify Payments active, GBP payouts enabled) and is the system
@@ -890,14 +972,36 @@ driven configuration already follows, extended to a second application.
 
 - Keep this file's work-package checklist current as WPs land.
 - Do not touch `backend/` — see above.
-- **`/free30`'s signup does not grant an actual free trial** (see WP8) —
-  it notifies a human by email, nothing more. Making "free for 30 nights"
-  real needs a genuine decision + build: some kind of customer
-  account/access-grant system and a way to actually deliver audiobook
-  content (a member area? emailed links? a third-party platform?). That's
-  a real product/architecture decision for the owner, not something to
-  infer and build unprompted. Don't add fake "trial activated" UI states
-  before that system exists.
+- **`/free30`'s signup now provisions a real platform trial** (WP17) — a
+  Sanity `subscription` document with `status: "trialing"` and a 30-day
+  `trialEnd`. No card is collected. The trial gives Starter Collection
+  access only (`STARTER_COLLECTION_STORY_WORLDS` env var). No auto-
+  conversion occurs — the customer must explicitly subscribe. Delivering
+  the actual audiobook content to a trialist (a member area, emailed links,
+  a third-party platform) is still a genuinely unresolved product decision;
+  the Sanity record and entitlement functions are the technical foundation,
+  but there is no content-delivery mechanism yet.
+- **Stripe Subscriptions (WP17) are TEST MODE only** — `STRIPE_PRICE_MONTHLY`,
+  `STRIPE_PRICE_ANNUAL`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET`
+  must all be set to real test-mode values (from the Stripe Dashboard)
+  before subscriptions work end-to-end. Going live means swapping test-mode
+  keys for live keys — an explicit owner step, never done automatically.
+  Configure the webhook endpoint (`https://moraltree.media/api/stripe/webhook`)
+  in the Stripe Dashboard and set `STRIPE_WEBHOOK_SECRET` to the signing
+  secret from `stripe listen` or the Dashboard's webhook detail page.
+- **Trial entitlement is separate from paid entitlement** — never use
+  `hasPaidSubscriptionAccess()` to gate trial-only content; use
+  `hasTrialAccess()` or `hasStarterCollectionAccess()`. A trialist must
+  never gain full-library access. The entitlement functions in
+  `lib/subscriptionEntitlement.ts` and `lib/starterCollection.ts` are the
+  one source of truth — don't inline status checks in page/component code.
+- **`trial_period_days` is not used in paid checkout** — the paid
+  `/subscribe` flow always charges immediately. Do not re-add
+  `trial_period_days` to `subscription_data` in `app/subscribe/actions.ts`;
+  the Stripe trial and the platform trial are deliberately separate paths.
+- **Starter Collection** (`STARTER_COLLECTION_STORY_WORLDS`) defaults to
+  `"savannah-seven"`. Add slugs (comma-separated) to expand trial access
+  as the catalogue grows — no code change needed, env var only.
 - Adding a new campaign/QR landing route (`/blackpool`, `/pampers`,
   `/chester-zoo` are the named examples) means: a thin
   `app/<slug>/page.tsx` rendering `<CampaignLanding campaign="<slug>" />`
@@ -924,18 +1028,21 @@ driven configuration already follows, extended to a second application.
   `apps/studio/schemaTypes/objects/pageBuilder.ts` and
   `apps/studio/schemaTypes/index.ts`, and (from WP3 onward) a matching
   renderer case in the page-builder component in `apps/web`.
-- **No real Stripe account exists yet (WP7)** — same status as Sanity.
-  `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` unset means the shop browses
-  fine but checkout/webhook both degrade honestly (see WP7 above). Setting
-  up a real account, creating live Products/Prices in the Stripe
-  Dashboard, and configuring the webhook endpoint
-  (`https://moraltree.media/api/stripe/webhook`) are external-account
-  steps for the owner to do, same category as DNS/domain changes — don't
-  do this without being asked, and **use test-mode keys** even once asked,
-  unless the owner explicitly says to go live. Once product Prices exist
-  in Stripe, create matching `product` documents in the Studio with each
-  one's `stripePriceId` — there's no sync/import tooling for this, it's a
-  manual one-to-one link by design (see the price-drift note above).
+- **No real Stripe account exists yet (WP7/WP17)** — `STRIPE_SECRET_KEY`/
+  `STRIPE_WEBHOOK_SECRET` unset means shop checkout (WP7) and subscription
+  checkout (WP17) both degrade honestly (see above WPs). Setting up a real
+  account, creating live Products/Prices in the Stripe Dashboard (monthly
+  and annual subscription Prices for WP17; one-off product Prices for WP7),
+  and configuring the webhook endpoint
+  (`https://moraltree.media/api/stripe/webhook`) are external-account steps
+  for the owner to do, same category as DNS/domain changes — don't do this
+  without being asked, and **use test-mode keys** even once asked, unless
+  the owner explicitly says to go live. For WP17 subscription Prices: set
+  the resulting Price IDs in `STRIPE_PRICE_MONTHLY` and `STRIPE_PRICE_ANNUAL`.
+  For WP7 shop product Prices: create matching `product` documents in the
+  Studio with each one's `stripePriceId` — there's no sync/import tooling
+  for this, it's a manual one-to-one link by design (see the price-drift
+  note above).
 - The shop's rate limiting (`app/checkout/actions.ts`) has the identical
   in-memory/single-instance caveat as the contact form's — same fix
   (shared store) applies to both if/when it becomes a real problem, not
