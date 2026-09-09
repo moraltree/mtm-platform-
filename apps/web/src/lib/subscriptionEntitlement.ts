@@ -30,6 +30,10 @@ export interface SubscriptionRecord {
   cancelAtPeriodEnd?: boolean;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
+  /** Approved trial duration in days (0 = no trial, >0 = trial was offered). */
+  trialDays?: number;
+  /** Stripe-reported trial end date (ISO 8601). */
+  trialEnd?: string;
 }
 
 /** Internal Sanity document shape — the minimum fields needed for
@@ -41,6 +45,8 @@ interface SanitySubscriptionDoc {
   cancelAtPeriodEnd?: boolean;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
+  trialDays?: number;
+  trialEnd?: string;
 }
 
 function normaliseSanityStatus(raw: string): SubscriptionStatus {
@@ -76,7 +82,8 @@ export async function getSubscriptionByCorrelationRef(
       const doc = await sanityWriteClient.fetch<SanitySubscriptionDoc | null>(
         `*[_type == "subscription" && correlationRef == $ref][0] {
           status, plan, currentPeriodEnd, cancelAtPeriodEnd,
-          stripeCustomerId, stripeSubscriptionId
+          stripeCustomerId, stripeSubscriptionId,
+          trialDays, trialEnd
         }`,
         { ref: correlationRef },
       );
@@ -88,6 +95,8 @@ export async function getSubscriptionByCorrelationRef(
           cancelAtPeriodEnd: doc.cancelAtPeriodEnd,
           stripeCustomerId: doc.stripeCustomerId,
           stripeSubscriptionId: doc.stripeSubscriptionId,
+          trialDays: doc.trialDays,
+          trialEnd: doc.trialEnd,
         };
       }
     } catch (err) {
@@ -159,15 +168,33 @@ export async function getSubscriptionBySessionId(
 }
 
 /**
- * The canonical entitlement question: does this subscription status
- * represent active paid access to Moral Tree Media?
+ * Broad entitlement: does this status grant access to Moral Tree Media?
  *
- * ACTIVE and TRIALING are considered access-granting.
- * PAST_DUE is intentionally NOT access-granting here — Stripe's own
- * retry/dunning logic may recover it, but this codebase doesn't grant
- * access speculatively during that window. Override this decision by
- * checking `past_due` separately if a grace period is wanted.
+ * Returns true for ACTIVE (paid subscription) and TRIALING (free trial).
+ * PAST_DUE is intentionally NOT access-granting — Stripe's retry/dunning
+ * logic may recover it but this codebase doesn't grant access speculatively
+ * during that window.
+ *
+ * Use `hasPaidSubscriptionAccess` or `hasTrialAccess` when the distinction
+ * between a paid subscription and a free trial matters.
  */
 export function hasPaidAccess(status: SubscriptionStatus): boolean {
   return status === "active" || status === "trialing";
+}
+
+/**
+ * Returns true only for a PAID subscription (not a free trial).
+ * Use this when distinguishing trial access from a paying subscriber matters —
+ * e.g. for analytics, conversion tracking, or reward eligibility.
+ */
+export function hasPaidSubscriptionAccess(status: SubscriptionStatus): boolean {
+  return status === "active";
+}
+
+/**
+ * Returns true only for an ACTIVE FREE TRIAL.
+ * A trial start is NOT a paid conversion — use hasPaidSubscriptionAccess for that.
+ */
+export function hasTrialAccess(status: SubscriptionStatus): boolean {
+  return status === "trialing";
 }

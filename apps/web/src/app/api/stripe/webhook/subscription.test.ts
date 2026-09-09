@@ -456,3 +456,203 @@ describe("webhook — duplicate webhook reward/campaign regression", () => {
     expect(sanityWriteClientMock.patch).toHaveBeenCalledWith("sub-doc-id");
   });
 });
+
+// ── Trial-specific webhook tests ─────────────────────────────────────────
+
+describe("webhook — trial: checkout stores trial metadata", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    sanityWriteClientMock.fetch.mockResolvedValue(null);
+  });
+
+  it("stores trialDays from checkout session metadata when > 0", async () => {
+    const session = makeCheckoutSession({
+      metadata: {
+        checkoutType: "subscription",
+        plan: "MONTHLY",
+        correlationRef: FAKE_CORRELATION_REF,
+        trialDays: "14",
+        trialEligible: "true",
+      },
+    });
+    await postWebhook(
+      makeStripeEvent("checkout.session.completed", session) as Record<string, unknown>,
+    );
+
+    expect(sanityWriteClientMock.create).toHaveBeenCalledTimes(1);
+    const created = sanityWriteClientMock.create.mock.calls[0][0];
+    expect(created.trialDays).toBe(14);
+  });
+
+  it("sets trialStartedAt when trialDays > 0", async () => {
+    const session = makeCheckoutSession({
+      metadata: {
+        checkoutType: "subscription",
+        plan: "MONTHLY",
+        correlationRef: FAKE_CORRELATION_REF,
+        trialDays: "30",
+        trialEligible: "true",
+      },
+    });
+    await postWebhook(
+      makeStripeEvent("checkout.session.completed", session) as Record<string, unknown>,
+    );
+
+    const created = sanityWriteClientMock.create.mock.calls[0][0];
+    expect(created.trialStartedAt).toBeDefined();
+    expect(typeof created.trialStartedAt).toBe("string");
+    // Must be a valid ISO timestamp
+    expect(() => new Date(created.trialStartedAt as string).toISOString()).not.toThrow();
+  });
+
+  it("does NOT set trialStartedAt when trialDays = 0", async () => {
+    const session = makeCheckoutSession({
+      metadata: {
+        checkoutType: "subscription",
+        plan: "MONTHLY",
+        correlationRef: FAKE_CORRELATION_REF,
+        trialDays: "0",
+        trialEligible: "false",
+      },
+    });
+    await postWebhook(
+      makeStripeEvent("checkout.session.completed", session) as Record<string, unknown>,
+    );
+
+    const created = sanityWriteClientMock.create.mock.calls[0][0];
+    expect(created.trialStartedAt).toBeUndefined();
+  });
+
+  it("stores trialEligible=true from checkout metadata", async () => {
+    const session = makeCheckoutSession({
+      metadata: {
+        checkoutType: "subscription",
+        plan: "MONTHLY",
+        correlationRef: FAKE_CORRELATION_REF,
+        trialDays: "7",
+        trialEligible: "true",
+      },
+    });
+    await postWebhook(
+      makeStripeEvent("checkout.session.completed", session) as Record<string, unknown>,
+    );
+
+    const created = sanityWriteClientMock.create.mock.calls[0][0];
+    expect(created.trialEligible).toBe(true);
+  });
+
+  it("stores trialEligible=false when metadata says false", async () => {
+    const session = makeCheckoutSession({
+      metadata: {
+        checkoutType: "subscription",
+        plan: "MONTHLY",
+        correlationRef: FAKE_CORRELATION_REF,
+        trialDays: "0",
+        trialEligible: "false",
+      },
+    });
+    await postWebhook(
+      makeStripeEvent("checkout.session.completed", session) as Record<string, unknown>,
+    );
+
+    const created = sanityWriteClientMock.create.mock.calls[0][0];
+    expect(created.trialEligible).toBe(false);
+  });
+
+  it("stores trialDays=0 when metadata is absent (no trial)", async () => {
+    const session = makeCheckoutSession();
+    // Default makeCheckoutSession has no trialDays in metadata
+    await postWebhook(
+      makeStripeEvent("checkout.session.completed", session) as Record<string, unknown>,
+    );
+
+    const created = sanityWriteClientMock.create.mock.calls[0][0];
+    expect(created.trialDays).toBe(0);
+  });
+
+  it("duplicate checkout for a trialing account patches, not creates (no second trial record)", async () => {
+    // Second delivery — doc already exists
+    sanityWriteClientMock.fetch.mockResolvedValue({ _id: "existing-sub-id" });
+
+    const session = makeCheckoutSession({
+      metadata: {
+        checkoutType: "subscription",
+        plan: "MONTHLY",
+        correlationRef: FAKE_CORRELATION_REF,
+        trialDays: "14",
+        trialEligible: "true",
+      },
+    });
+    await postWebhook(
+      makeStripeEvent("checkout.session.completed", session) as Record<string, unknown>,
+    );
+
+    // Must not create a second document
+    expect(sanityWriteClientMock.create).not.toHaveBeenCalled();
+    expect(sanityWriteClientMock.patch).toHaveBeenCalledWith("existing-sub-id");
+  });
+});
+
+describe("webhook — trial: subscription.updated preserves trialEnd", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    sanityWriteClientMock.fetch.mockResolvedValue({
+      _id: "sub-doc-id",
+      lastStripeEventId: "evt_previous",
+    });
+  });
+
+  it("stores trialEnd when Stripe subscription has trial_end set", async () => {
+    const trialEndTs = 1760000000; // a future Unix timestamp
+    const sub = makeSubscription({
+      status: "trialing",
+      trial_end: trialEndTs,
+    });
+    await postWebhook(
+      makeStripeEvent("customer.subscription.updated", sub, "evt_trial_001") as Record<string, unknown>,
+    );
+
+    expect(sanityPatch.set).toHaveBeenCalled();
+    const setArg = sanityPatch.set.mock.calls[0][0];
+    expect(setArg.trialEnd).toBeDefined();
+    expect(typeof setArg.trialEnd).toBe("string");
+    expect(new Date(setArg.trialEnd as string).getTime()).toBe(trialEndTs * 1000);
+  });
+
+  it("does NOT overwrite trialEnd when trial_end is null (non-trial subscription)", async () => {
+    const sub = makeSubscription({
+      status: "active",
+      trial_end: null,
+    });
+    await postWebhook(
+      makeStripeEvent("customer.subscription.updated", sub, "evt_no_trial_001") as Record<string, unknown>,
+    );
+
+    expect(sanityPatch.set).toHaveBeenCalled();
+    const setArg = sanityPatch.set.mock.calls[0][0];
+    // trialEnd should NOT be in the patch when trial_end is null
+    expect(setArg.trialEnd).toBeUndefined();
+  });
+});
+
+describe("webhook — trial: cancellation during trial period", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    sanityWriteClientMock.fetch.mockResolvedValue({ _id: "sub-doc-id" });
+  });
+
+  it("marks subscription as cancelled when deleted during trialing status", async () => {
+    const sub = makeSubscription({
+      status: "canceled",
+      canceled_at: 1760000100,
+      trial_end: 1760000200, // trial would have ended later
+    });
+    await postWebhook(
+      makeStripeEvent("customer.subscription.deleted", sub) as Record<string, unknown>,
+    );
+
+    expect(sanityPatch.set).toHaveBeenCalled();
+    const setArg = sanityPatch.set.mock.calls[0][0];
+    expect(setArg.status).toBe("cancelled");
+  });
+});

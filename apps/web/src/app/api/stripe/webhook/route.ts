@@ -152,6 +152,12 @@ async function handleSubscriptionCheckoutCompleted(
       ? session.subscription
       : undefined;
 
+  // Parse trial metadata stored by the checkout action.
+  // These come back as strings (Stripe metadata is always string-typed).
+  const trialDays = parseInt(session.metadata?.trialDays ?? "0", 10) || 0;
+  const trialEligible = session.metadata?.trialEligible === "true";
+
+  const now = new Date().toISOString();
   const subscriptionDoc = {
     _type: "subscription",
     correlationRef,
@@ -159,15 +165,19 @@ async function handleSubscriptionCheckoutCompleted(
     stripeCustomerId,
     stripeSubscriptionId,
     plan: session.metadata?.plan ?? undefined,
-    status: "incomplete" as const, // upgraded to "active" by subscription.created/invoice.paid
+    status: "incomplete" as const, // upgraded to "active" or "trialing" by subscription.created/invoice.paid
     customerEmail: session.customer_details?.email ?? undefined,
+    // Trial fields — server-approved at checkout time
+    trialDays,
+    trialEligible,
+    ...(trialDays > 0 && { trialStartedAt: now }),
     campaignId: session.metadata?.campaignId ?? undefined,
     acquisitionSource: session.metadata?.acquisitionSource ?? undefined,
     partnerId: session.metadata?.partnerId ?? undefined,
     storyWorldId: session.metadata?.storyWorldId ?? undefined,
     lastStripeEventId: eventId,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
   };
 
   if (!sanityWriteClient) {
@@ -234,6 +244,9 @@ function subscriptionUpdateFields(
 ): Record<string, unknown> {
   // Note: current_period_start/end were removed in Stripe API version
   // 2025+. Period dates must be derived from invoices when needed.
+  const trialEndTs = sub.trial_end
+    ? new Date(sub.trial_end * 1000).toISOString()
+    : undefined;
   return {
     status: normaliseSanityStatus(sub.status),
     stripeCustomerId:
@@ -242,9 +255,10 @@ function subscriptionUpdateFields(
     cancelledAt: sub.canceled_at
       ? new Date(sub.canceled_at * 1000).toISOString()
       : undefined,
-    trialEnd: sub.trial_end
-      ? new Date(sub.trial_end * 1000).toISOString()
-      : undefined,
+    // trialEnd (from Stripe) — the authoritative trial expiry date.
+    // Only updated when the subscription has a trial; existing value
+    // is preserved when trial_end is null (e.g. after trial converts).
+    ...(trialEndTs !== undefined && { trialEnd: trialEndTs }),
     lastStripeEventId: eventId,
     updatedAt: new Date().toISOString(),
   };

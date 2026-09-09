@@ -100,10 +100,40 @@ export default defineType({
       title: "Cancelled at",
       type: "datetime",
     }),
+    // ── Trial fields ────────────────────────────────────────────────────
+    // Written by the webhook from checkout session metadata. `trialDays`
+    // is the server-approved duration at checkout time (0 = no trial).
+    // `trialEligible` records whether the account was newly eligible —
+    // useful for auditing if the eligibility logic changes.
+    defineField({
+      name: "trialDays",
+      title: "Approved trial days",
+      type: "number",
+      description:
+        "The trial duration approved at checkout time (0 = no trial). " +
+        "Set by the server — never supplied by the browser.",
+      initialValue: 0,
+    }),
+    defineField({
+      name: "trialEligible",
+      title: "Was trial-eligible at checkout",
+      type: "boolean",
+      description:
+        "True when the email passed the repeat-trial eligibility check at checkout.",
+      initialValue: false,
+    }),
+    defineField({
+      name: "trialStartedAt",
+      title: "Trial started at",
+      type: "datetime",
+      description: "Set when the trial subscription is first confirmed by webhook.",
+    }),
     defineField({
       name: "trialEnd",
-      title: "Trial end",
+      title: "Trial end (Stripe)",
       type: "datetime",
+      description:
+        "The Stripe-reported trial end date, populated from customer.subscription.created/updated events.",
     }),
     defineField({
       name: "customerEmail",

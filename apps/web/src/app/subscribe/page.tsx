@@ -14,6 +14,12 @@ import {
 import {
   SUBSCRIPTION_CORRELATION_COOKIE,
 } from "@/lib/subscriptionCorrelation";
+import {
+  FIRST_TOUCH_COOKIE_NAME,
+  LATEST_TOUCH_COOKIE_NAME,
+  parseAttributionCookie,
+} from "@/lib/attribution/cookie";
+import { resolveTrialDaysFromConfig } from "@/lib/trialConfig";
 import { StarIcon } from "./subscribe-icons";
 import { SubscribeForm } from "./SubscribeForm";
 import styles from "./subscribe-page.module.css";
@@ -59,6 +65,22 @@ export default async function SubscribePage() {
   const existing = correlationRef
     ? await getSubscriptionByCorrelationRef(correlationRef)
     : null;
+
+  // Resolve the advertised trial duration from campaign attribution cookies.
+  // This is a display-only preview — the actual trial applied at checkout may
+  // differ if the visitor is ineligible. We intentionally don't run the
+  // eligibility check on page load (it requires the email address, which is
+  // captured in the form, and we avoid blocking the page render on a Sanity
+  // query unless we have to).
+  const latestAttribution = parseAttributionCookie(
+    cookieStore.get(LATEST_TOUCH_COOKIE_NAME)?.value,
+  );
+  // First-touch attribution read but only used for display in the coming-soon section.
+  cookieStore.get(FIRST_TOUCH_COOKIE_NAME);
+  const advertisedTrialDays = resolveTrialDaysFromConfig(
+    latestAttribution?.campaignId,
+    latestAttribution?.acquisitionSource,
+  );
 
   const hasAccess = existing ? hasPaidAccess(existing.status) : false;
 
@@ -127,6 +149,11 @@ export default async function SubscribePage() {
 
   // Plans are live — show the checkout form.
   if (plansConfigured) {
+    const trialHeading =
+      advertisedTrialDays > 0
+        ? `Start your ${advertisedTrialDays}-day free trial`
+        : "Start your subscription";
+
     return (
       <Container className={styles.wrap}>
         <div className={styles.checkoutShell}>
@@ -134,11 +161,16 @@ export default async function SubscribePage() {
             <StarIcon />
             <h1 className={styles.heading}>Subscribe to Moral Tree Media</h1>
             <p className={styles.intro}>
-              Unlimited access to the full audiobook library across every Story
-              World, as the catalogue grows. Choose monthly or annual billing —
-              cancel anytime.
+              {advertisedTrialDays > 0
+                ? `Try Moral Tree Media free for ${advertisedTrialDays} days, then choose monthly or annual billing. Cancel anytime.`
+                : "Unlimited access to the full audiobook library across every Story World, as the catalogue grows. Choose monthly or annual billing — cancel anytime."}
             </p>
             <ul className={styles.featureList}>
+              {advertisedTrialDays > 0 && (
+                <li>
+                  {advertisedTrialDays} days free — then pay only if you love it
+                </li>
+              )}
               <li>Every Story World, one subscription</li>
               <li>New titles included as they&rsquo;re released</li>
               <li>Family-friendly — designed for a household</li>
@@ -146,8 +178,8 @@ export default async function SubscribePage() {
             </ul>
           </div>
           <div className={styles.checkoutFormWrap}>
-            <h2 className={styles.formHeading}>Start your subscription</h2>
-            <SubscribeForm />
+            <h2 className={styles.formHeading}>{trialHeading}</h2>
+            <SubscribeForm trialDays={advertisedTrialDays} />
             <p className={styles.trialNote}>
               Already on the free trial?{" "}
               <a href="/free30">Visit the free trial page</a> — your trial

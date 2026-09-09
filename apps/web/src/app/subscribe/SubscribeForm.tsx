@@ -13,13 +13,27 @@ import styles from "./subscribe.module.css";
 export interface SubscribeFormProps {
   /** Pre-selected plan — passed from the parent page's URL param when set. */
   defaultPlan?: "MONTHLY" | "ANNUAL";
+  /**
+   * Advertised trial duration in days (0 = no trial, resolved server-side
+   * from campaign config). The actual trial applied at checkout may differ
+   * if the visitor is ineligible — this is purely a display hint.
+   */
+  trialDays?: number;
 }
 
-export function SubscribeForm({ defaultPlan = "MONTHLY" }: SubscribeFormProps) {
+export function SubscribeForm({
+  defaultPlan = "MONTHLY",
+  trialDays = 0,
+}: SubscribeFormProps) {
   const [state, dispatch, pending] = useActionState<
     SubscribeCheckoutState,
     FormData
   >(createSubscriptionCheckout, initialSubscribeCheckoutState);
+
+  const hasTrial = trialDays > 0;
+  const submitLabel = hasTrial
+    ? `Start your ${trialDays}-day free trial`
+    : "Start subscription";
 
   return (
     <form action={dispatch} className={styles.form} noValidate>
@@ -90,12 +104,19 @@ export function SubscribeForm({ defaultPlan = "MONTHLY" }: SubscribeFormProps) {
       </div>
 
       <p className={styles.billingNote}>
-        You&rsquo;ll be taken to Stripe to enter your payment details. No
-        charge is made until you confirm at Stripe.
+        {hasTrial
+          ? `Your ${trialDays}-day free trial starts when you complete checkout. ` +
+            `You'll enter your payment details now — your card will only be ` +
+            `charged when your trial ends unless you cancel first.`
+          : "You’ll be taken to Stripe to enter your payment details. No charge is made until you confirm at Stripe."}
       </p>
 
       <Button type="submit" disabled={pending} size="lg">
-        {pending ? "Starting checkout…" : "Start subscription"}
+        {pending
+          ? hasTrial
+            ? "Starting your free trial…"
+            : "Starting checkout…"
+          : submitLabel}
       </Button>
     </form>
   );
