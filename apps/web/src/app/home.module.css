@@ -9,8 +9,18 @@
  * null-handling rule 3 (Home is a listing/utility page).
  */
 
+/* Mobile-only: one step down the existing spacing scale (--space-8 ->
+   --space-7, an existing token, not a new value) — owner mobile review
+   found the gap between sections excessive at ~390px. Restored to
+   --space-8 at 40rem+ below, so tablet/desktop spacing is unchanged. */
 .section {
-  padding-block: var(--space-8);
+  padding-block: var(--space-7);
+}
+
+@media (min-width: 40rem) {
+  .section {
+    padding-block: var(--space-8);
+  }
 }
 
 .sectionSubtle {
@@ -60,14 +70,26 @@
 
 .storyWorldMedia {
   position: relative;
-  aspect-ratio: 16 / 10;
+  /* Fix (final visual pass): this box was 16/10 (1.6, landscape) against
+     the actual photo's 912x1136 (~0.8, portrait) — nearly double the
+     aspect-ratio mismatch, so object-fit: contain (below) was correct
+     but had a huge amount of box to letterbox into, reading as
+     "excessive empty space" around the artwork. 4/5 matches the source
+     photo almost exactly (same ratio Hero.module.css's own .media uses
+     for the same reason) — contain now needs little to no letterboxing,
+     so the visible artwork itself fills far more of the box. */
+  aspect-ratio: 4 / 5;
   background: var(--color-surface-subtle);
 }
 
-.storyWorldMediaBadge {
-  position: absolute;
-  top: var(--space-3);
-  right: var(--space-3);
+/* Fix (WP11 visual QA): this image had no object-fit at all, so the
+   browser's default (fill — stretch to the box in both dimensions,
+   ignoring aspect ratio) silently squashed the ensemble photo to this
+   box's ratio. contain preserves the photo's real proportions — every
+   character keeps their real shape — letterboxing within the box rather
+   than distorting to fill it. */
+.storyWorldMediaImage {
+  object-fit: contain;
 }
 
 .storyWorldBody {
@@ -78,8 +100,13 @@
   padding: var(--space-5);
 }
 
+/* Deliberately stronger than .sectionHeading/.sectionBody around it — this
+   is the one real, live Story World, and should read as such rather than
+   blend into the surrounding corporate copy. */
 .storyWorldTitle {
-  font-size: var(--text-lg);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-heading-accent);
 }
 
 .storyWorldText {
@@ -90,9 +117,45 @@
 
 @media (min-width: 64rem) {
   .storyWorldLayout {
-    grid-template-columns: 1fr 1fr;
+    /* Moderate skew toward the artwork (was 1fr 1fr) — more visual
+       presence for the one real, live Story World, still comfortably
+       roomy for the copy/CTAs beside it. */
+    grid-template-columns: 6fr 5fr;
     gap: var(--space-8);
+    /* The now-taller (4/5) card can exceed the text column's natural
+       height — center rather than start so the shorter column doesn't
+       just sit pinned to the top with dead space below it. */
+    align-items: center;
   }
+}
+
+/* --- Meet the cast ----------------------------------------------------- */
+/* Cast presentation itself now lives in the shared
+   components/patterns/CastPortraitGrid (24 Aug 2026 refinement sprint —
+   see its own doc comment); nothing page-local left to style here. */
+
+/* --- Mediums heading stamp ---------------------------------------------- */
+
+.mediumsHeadingRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mediumsStamp {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+  background: var(--color-surface-subtle);
+}
+
+.mediumsStamp img {
+  object-fit: cover;
 }
 
 /* --- Mediums / pillars ----------------------------------------------- */

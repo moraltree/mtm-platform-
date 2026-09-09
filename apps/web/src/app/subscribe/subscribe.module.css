@@ -1,0 +1,98 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 36rem;
+}
+
+.formError {
+  color: var(--color-status-error, #b91c1c);
+  font-size: var(--text-sm);
+  background: color-mix(in srgb, var(--color-status-error, #b91c1c) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-status-error, #b91c1c) 30%, transparent);
+  border-radius: var(--radius-sm, 0.25rem);
+  padding: var(--space-3) var(--space-4);
+}
+
+.planGroup {
+  border: 1px solid var(--color-border-subtle, #e5e7eb);
+  border-radius: var(--radius-md, 0.5rem);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.planLegend {
+  font-weight: var(--font-weight-medium, 500);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary, #374151);
+  padding: 0 var(--space-1);
+}
+
+.planOption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm, 0.25rem);
+  border: 1px solid var(--color-border-subtle, #e5e7eb);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.planOption:has(.planRadio:checked) {
+  border-color: var(--color-brand-primary, #2d6a4f);
+  background-color: color-mix(
+    in srgb,
+    var(--color-brand-primary, #2d6a4f) 5%,
+    transparent
+  );
+}
+
+.planRadio {
+  accent-color: var(--color-brand-primary, #2d6a4f);
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+.planLabel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5, 0.125rem);
+}
+
+.planName {
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-primary, #111827);
+}
+
+.planBadge {
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-brand-primary, #2d6a4f);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.fieldError {
+  color: var(--color-status-error, #b91c1c);
+  font-size: var(--text-sm);
+  margin-top: var(--space-1);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.emailField {
+  /* Full width across the two-name fields */
+  grid-column: 1 / -1;
+}
+
+.billingNote {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted, #6b7280);
+  line-height: var(--leading-relaxed, 1.625);
+}

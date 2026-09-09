@@ -24,8 +24,8 @@
  *   - --color-brand-600 as text/link colour on --color-surface / -subtle: 7.68:1 / 6.88:1
  *   - --color-brand-700 as text on --color-brand-100 (badge) and on
  *     --color-on-brand (ConsentBanner's accept button): 9.80:1 / 11.73:1
- *   - --color-heading-accent (Hero headline only) on --color-surface /
- *     --color-surface-subtle: 10.18:1 / 9.12:1
+ *   - --color-heading-accent (Hero headline, homepage Story World teaser
+ *     title) on --color-surface / --color-surface-subtle: 10.18:1 / 9.12:1
  *   All comfortably clear WCAG AA's 4.5:1 for normal text.
  *   --color-border and --color-accent-gold are decorative/non-text and
  *   were instead tuned for the ~3:1 UI-component/graphical-object

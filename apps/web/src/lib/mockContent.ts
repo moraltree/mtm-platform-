@@ -1,9 +1,11 @@
 import type {
+  CampaignDoc,
   LegalPageDoc,
   LinkField,
   NewsPostDoc,
   PageDoc,
   PageId,
+  PartnerDoc,
   PersonDoc,
   PortableTextContent,
   ProductDoc,
@@ -33,7 +35,13 @@ function key(prefix: string): string {
   return `${prefix}-${counter}`;
 }
 
-function mockImage(alt: string): SanityImageRef {
+// Exported (Phase 2) so lib/devRecords.ts — real-but-provisional Story
+// World data and fictional test-partner data, kept deliberately separate
+// from this file's own "purely fictional" content, see that file's doc
+// comment — can build the same placeholder-image shape without a second
+// implementation. `urlFor()` (lib/sanity/image.ts) already special-cases
+// this exact mock ref shape to resolve to /placeholder.png.
+export function mockImage(alt: string): SanityImageRef {
   return {
     asset: { _ref: "image-mock-800x600-png", _type: "reference" },
     alt,
@@ -523,12 +531,108 @@ export const mockStoryWorlds: StoryWorldDoc[] = [
     _id: "mock-sw-3",
     title: "Understory",
     slug: { current: "understory" },
+    // Fictional demo data only — used to exercise the campaign platform's
+    // Story-World-driven rendering (lib/theme, the /start/[storyWorld]/
+    // [campaign] route) under USE_MOCK_CONTENT=true, same "clearly
+    // fictional, never a real claim" contract as the rest of this file.
+    // Real Story World migration (e.g. Zulu/Savannah Seven) is explicitly
+    // deferred — see the architecture proposal's Phase 1 report.
+    key: "understory",
     tagline:
       "An animated anthology about the smallest creatures making the biggest decisions.",
+    shortDescription:
+      "Tiny creatures, big decisions — a campaign-safe one-line pitch.",
     formats: ["animation"],
     status: "announced",
     heroImage: mockImage("Understory key art"),
+    characterRoster: [
+      {
+        name: "Pip",
+        portrait: mockImage("Pip the field mouse"),
+        relativeScale: 1,
+        approvedForCampaign: true,
+      },
+      {
+        name: "Bramble",
+        portrait: mockImage("Bramble the beetle"),
+        relativeScale: 0.8,
+        approvedForCampaign: true,
+      },
+      {
+        name: "Hollow",
+        portrait: mockImage("Hollow the owlet"),
+        relativeScale: 1.2,
+        approvedForCampaign: false,
+      },
+    ],
+    campaignDefaults: {
+      headline: "Meet the smallest heroes in the forest.",
+      supportingCopy:
+        "Bedtime stories about the tiny creatures who keep the whole understory running.",
+      ctaLabel: "START THE ADVENTURE",
+      benefits: [
+        "Calm, screen-free listening",
+        "A new episode every night",
+        "Stories that reward paying attention to the small things",
+      ],
+      trustCopy: "Made for families. Reviewed for age-appropriate content.",
+    },
     featured: false,
+  },
+];
+
+// --- Campaign platform (Partner/Campaign) -----------------------------------
+// Fictional demo data only — see the Understory entry above's comment.
+// Exercises the new /start/[storyWorld]/[campaign] route's Sanity+mock
+// query layer (lib/sanity/queries.ts#getCampaignForRoute) end to end
+// without depending on a real Sanity project or on real Zulu content.
+
+export const mockPartners: PartnerDoc[] = [
+  {
+    _id: "mock-partner-1",
+    name: "Meadow Cove Nature Trust",
+    key: "meadow-cove-nature-trust",
+    slug: { current: "meadow-cove-nature-trust" },
+    brandingTier: "co-branded",
+    broughtToByText: "Meadow Cove Nature Trust",
+    showBroughtToBy: true,
+    poweredByText: "Powered by Moral Tree Media",
+    showPoweredBy: true,
+    status: "active",
+  },
+];
+
+export const mockCampaigns: CampaignDoc[] = [
+  {
+    _id: "mock-campaign-1",
+    title: "Meadow Cove launch campaign",
+    key: "meadow-cove-launch",
+    slug: { current: "meadow-cove-launch" },
+    partner: mockPartners[0],
+    storyWorld: mockStoryWorlds.find((sw) => sw.slug.current === "understory"),
+    offer: { trialLengthDays: 14 },
+    ctaWording: "START THE ADVENTURE",
+    status: "active",
+    sectionOverrides: [],
+    trackingIdentifiers: {
+      internalCode: "meadow-cove-2026",
+      defaultUtm: { source: "partner-site" },
+    },
+    acquisitionSources: [
+      {
+        label: "Nature Trust gift-shop poster",
+        channelType: "print",
+        code: "meadow-cove-giftshop",
+        shortCode: "mc-giftshop",
+        active: true,
+      },
+      {
+        label: "Nature Trust Instagram bio link",
+        channelType: "social",
+        code: "meadow-cove-ig",
+        active: true,
+      },
+    ],
   },
 ];
 

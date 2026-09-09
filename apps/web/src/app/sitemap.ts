@@ -16,6 +16,14 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 // lib/editorialPage.tsx / individual page.tsx files for why) — every other
 // pageId is only included once a real `page` document exists for it, so
 // the sitemap never points search engines at a 404.
+// Publishing/Audiobooks/Animation joined this list 23 Aug 2026 QA pass:
+// they moved off `lib/editorialPage.tsx`'s 404-on-missing-doc rule onto
+// their own honest "proposition shell" fallback (see e.g.
+// app/publishing/page.tsx's doc comment) — like every other page here,
+// they now always render something, so a missing `page` document is no
+// reason to hide them from the sitemap. About joined 24 Aug 2026
+// (refinement sprint) for the same reason — see app/about/page.tsx's doc
+// comment.
 const ALWAYS_AVAILABLE: PageId[] = [
   "home",
   "leadership",
@@ -23,6 +31,10 @@ const ALWAYS_AVAILABLE: PageId[] = [
   "news",
   "story-worlds",
   "shop",
+  "publishing",
+  "audiobooks",
+  "animation",
+  "about",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

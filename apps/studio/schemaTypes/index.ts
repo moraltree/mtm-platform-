@@ -9,11 +9,16 @@ import legalPage from "./documents/legalPage";
 import siteSettings from "./documents/siteSettings";
 import product from "./documents/product";
 import order from "./documents/order";
+import subscription from "./documents/subscription";
+import partner from "./documents/partner";
+import campaign from "./documents/campaign";
 
 // Objects — shared primitives
 import seo from "./objects/seo";
 import link from "./objects/link";
 import blockContent from "./objects/blockContent";
+import themeTokens from "./objects/themeTokens";
+import acquisitionSource from "./objects/acquisitionSource";
 
 // Objects — page builder + blocks
 import pageBuilder from "./objects/pageBuilder";
@@ -40,11 +45,16 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   siteSettings,
   product,
   order,
+  subscription,
+  partner,
+  campaign,
 
   // Shared primitives
   seo,
   link,
   blockContent,
+  themeTokens,
+  acquisitionSource,
 
   // Page builder
   pageBuilder,

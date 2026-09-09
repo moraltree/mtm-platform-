@@ -1,0 +1,678 @@
+/*
+ * Shared campaign/QR landing page template (CampaignLanding.tsx). Mobile-
+ * first throughout — most QR scans arrive on a phone — with `min-width`
+ * enhancements for tablet/desktop, same convention as every other CSS
+ * module in this codebase. Deliberately its own visual system, not the
+ * corporate `home.module.css` patterns: this page has no corporate
+ * Header/Footer (CorporateChromeGate) and a single conversion goal, so it
+ * doesn't need to look like the rest of the site's page chrome — it does
+ * still consume the same design tokens (tokens.css) throughout, so the
+ * warm cream/cocoa/espresso brand system carries over intact.
+ *
+ * Light end to end, deliberately — an earlier draft used dark
+ * cocoa/espresso hero and finalCta sections; owner feedback was that it
+ * read as "a dark generic signup page," not a warm campaign page, so
+ * every section below is one of the light surface tokens
+ * (--color-surface / --color-surface-subtle / --color-brand-100) and
+ * every text colour is a pairing already audited in tokens.css itself —
+ * nothing new to verify here. The one large/bold-only exception,
+ * unchanged from before: --color-accent-gold on --color-surface
+ * (3.38:1) — tokens.css's own documented "decorative/large-emphasis
+ * only" rule, used here for .tagline only.
+ *
+ * Two different image treatments, deliberately: the cast section's one
+ * full-cast group *photo* (lib/characterGroups.ts) uses object-fit:
+ * cover — an establishing scene tolerating a cropped edge is the normal
+ * trade-off for that kind of banner imagery. The hero's own left/right
+ * imagery (HeroCastCluster.tsx) is built from individual approved
+ * character portraits instead and uses object-fit: contain throughout —
+ * same rule the corporate homepage Hero uses for Zulu: a character must
+ * never be cropped to force a scale/frame a portrait wasn't composed
+ * for. See HeroCastCluster.tsx's doc comment for why the hero moved away
+ * from a full-cast photo at all (a canonical relative-scale correction,
+ * not a style preference).
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+}
+
+/* --- Minimal brand bar (not corporate nav) ------------------------------ */
+
+/* Vertical breathing room scales with the mark itself (space-5 mobile,
+   space-6 tablet+ — up from space-4 everywhere) — a bigger mark crowded
+   against the hero below it would undercut the point of enlarging it. */
+.brandBar {
+  padding-block: var(--space-5);
+  background: var(--color-surface);
+  border-bottom: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+.brandBarInner {
+  display: flex;
+  justify-content: center;
+}
+
+.brandLockup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* Established the brand without competing with the offer below it — a
+   deliberately mid-sized mark, not a full hero image. Sized 4.5rem on
+   mobile (+50% over the original 3rem) and 5.25rem from tablet up
+   (+75%) — bigger on the wider breakpoints, where there's headroom
+   above the fold to spare, while still staying clean at 390/430px. */
+.brandTreeIcon {
+  position: relative;
+  flex: none;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+.brandTreeIcon img {
+  object-fit: cover;
+}
+
+.brandMark {
+  /* Bumped from text-sm alongside the icon so the lockup still reads as
+     one balanced mark, not an oversized icon next to unchanged tiny
+     text. */
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-brand-600);
+}
+
+@media (min-width: 40rem) {
+  .brandBar {
+    padding-block: var(--space-6);
+  }
+
+  .brandTreeIcon {
+    width: 5.25rem;
+    height: 5.25rem;
+  }
+}
+
+/* --- Hero ---------------------------------------------------------------- */
+
+.hero {
+  padding-block: var(--space-5) var(--space-6);
+  /* Soft cream-to-ivory wash, not a flat colour — warm and bright without
+     being a new hue (both ends are existing surface tokens). Reads the
+     plain core token names on purpose (Phase 3) — a resolved Partner/
+     Story-World/Campaign theme re-declares `--color-surface`/
+     `--color-surface-subtle` on `.page` itself (see
+     lib/theme/resolveTheme.ts#themeToCssVariables' doc comment on why
+     that's safe); `/free30` never sets `themeStyle`, so `.page` never
+     redeclares them there and this resolves to the untouched `:root`
+     values exactly as before. */
+  background: linear-gradient(
+    180deg,
+    var(--color-surface) 0%,
+    var(--color-surface-subtle) 100%
+  );
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "imgLeft imgRight" "content content";
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.heroImageLeft {
+  grid-area: imgLeft;
+}
+
+.heroImageRight {
+  grid-area: imgRight;
+}
+
+.heroImageLeft,
+.heroImageRight {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* --- Hero cast cluster (HeroCastCluster.tsx) ------------------------------
+   One "anchor" (canonically larger) character above a row of smaller
+   companions — the size hierarchy itself is the composition. Every card
+   uses object-fit: contain (never cover) — same rule the corporate
+   homepage Hero uses for Zulu: these are the same approved single-
+   character portraits used throughout the rest of the site, and a
+   character must never be cropped to force a scale a portrait wasn't
+   composed for. 4/5 (not the rest of the page's 3/4) matches the source
+   website-pose photos' own ~0.8 ratio closely, keeping visible
+   letterboxing to a minimum. */
+
+.castCluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.clusterCompanions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+  width: 100%;
+}
+
+.clusterPortrait {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+  min-width: 0; /* let flex-basis: 0 actually shrink below content size on narrow columns, instead of overflowing */
+}
+
+.clusterPortrait_anchor {
+  width: 100%;
+  max-width: 9rem;
+  box-shadow: var(--shadow-md);
+}
+
+/* Companions use flex-grow (not a fixed width) so the row always fits its
+   column at any viewport — grow ratios keep medium visibly bigger than
+   small, capped by max-width once there's room, rather than needing
+   separate hand-tuned sizes per breakpoint. */
+.clusterPortrait_medium {
+  flex: 1.3 1 0;
+  max-width: 6rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.clusterPortrait_small {
+  flex: 1 1 0;
+  max-width: 4.75rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.clusterPortraitImage {
+  object-fit: contain;
+}
+
+/* Deliberately no further growth at wider breakpoints (there was an
+   11rem bump here before the 24 Aug 2026 refinement sprint) — "reduce
+   excessive artwork scale" applies here too: the form, not the flanking
+   art, should be the page's dominant visual element even on a large
+   desktop viewport. */
+
+.heroContent {
+  grid-area: content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: var(--space-5);
+}
+
+.kicker {
+  /* Fraunces by default (CampaignLanding.tsx's `fraunces` next/font/
+     google load, applied as `--font-campaign-headline` on .page) —
+     `--campaign-font-heading` (lib/theme/resolveTheme.ts) takes
+     precedence when a Story World/Campaign theme sets its own heading
+     font; unset for `/free30`, which is what keeps Fraunces in effect
+     there. Georgia is the final fallback while a variable font loads/if
+     it fails. Body/tagline/form stay the site-wide sans throughout. */
+  font-family:
+    var(--campaign-font-heading, var(--font-campaign-headline)), Georgia, serif;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  /* Same warm cappuccino emphasis token the corporate homepage's own
+     Hero headline uses (Hero.module.css) — reads the plain core token
+     name on purpose; see .hero's comment on why a resolved theme
+     overriding `--color-heading-accent` on `.page` is safe and doesn't
+     need a fallback chain here. */
+  color: var(--color-heading-accent);
+}
+
+.tagline {
+  margin-top: var(--space-3);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent-gold);
+}
+
+.description {
+  margin-top: var(--space-4);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-muted);
+  max-width: 30rem;
+}
+
+.heroForm {
+  margin-top: var(--space-6);
+  width: 100%;
+  max-width: 28rem;
+}
+
+@media (min-width: 40rem) {
+  .kicker {
+    font-size: var(--text-4xl);
+  }
+}
+
+/* 56rem (896px), not 64rem (1024px) — 24 Aug 2026 refinement sprint:
+   real iPad landscape widths (1024px standard/mini, 1180px+ Air/Pro) sit
+   comfortably above this, so the flanking "art / form / art" layout
+   reliably applies there instead of tipping into the taller mobile
+   layout below (images stacked *above* the form) that iPad QA flagged
+   as crowded. iPad portrait (768-834px) still gets the mobile layout,
+   which is expected — this is specifically the landscape fix. */
+@media (min-width: 56rem) {
+  .heroGrid {
+    /* Narrower columns and a smaller gap than before (was 18rem/
+       space-8) — "reduce excessive artwork scale and unnecessary
+       whitespace, the form should be the dominant visual element." */
+    grid-template-columns: 14rem 1fr 14rem;
+    grid-template-areas: "imgLeft content imgRight";
+    gap: var(--space-6);
+    align-items: center;
+  }
+
+  .heroContent {
+    margin-top: 0;
+  }
+}
+
+/* --- Signup form (one instance now — see CampaignLanding.tsx's finalCta
+   comment) ------------------------------------------------------------- */
+
+.signupForm {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.signupCard {
+  /* Lighter than the page's own cream/ivory background, so the form
+     still reads as a distinct, elevated card rather than blending flat
+     into the section behind it. */
+  background: var(--color-on-brand);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-md);
+}
+
+.signupField {
+  flex: 1;
+  margin-bottom: var(--space-3);
+}
+
+.registrationIntro {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.nameRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  /* Takes over the "space before the next field" job each child's own
+     `.signupField` margin-bottom would otherwise do (see the override
+     below) — one `margin-bottom` on the row itself, same visual gap
+     before the email field as every other field has after it. */
+  margin-bottom: var(--space-3);
+}
+
+/* `.nameRow`'s own `gap` already spaces First/Last name apart (in both
+   the mobile stacked layout and the desktop side-by-side one below) —
+   without this override, each child's own `.signupField` margin-bottom
+   stacked on top of that gap, doubling the visual space between First
+   and Last name versus every other field's spacing on the same form. */
+.nameRow > .signupField {
+  margin-bottom: 0;
+}
+
+.consentGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-block: var(--space-3) var(--space-4);
+}
+
+.signupButton {
+  white-space: normal;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.01em;
+  width: 100%;
+}
+
+@media (min-width: 40rem) {
+  .nameRow {
+    flex-direction: row;
+  }
+
+  .nameRow .signupField {
+    flex: 1;
+    /* Without this, a flex item's default `min-width: auto` lets its
+       intrinsic content width win over `flex: 1` under real width
+       pressure (the exact "First/Last name misaligned" symptom the 24
+       Aug 2026 refinement sprint's iPad QA flagged) — First/Last name
+       would then not shrink to genuinely equal widths whenever the row
+       is tight, e.g. flanked by the hero's character art. */
+    min-width: 0;
+  }
+}
+
+.reassurance {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.formError {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-danger);
+  background: var(--color-danger-surface);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.formSuccess {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-success);
+  background: var(--color-surface-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* --- Benefits ------------------------------------------------------------ */
+
+.benefits {
+  padding-block: var(--space-7);
+  background: var(--color-surface);
+}
+
+.benefitsHeading {
+  font-size: var(--text-lg);
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
+.benefitList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-5);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.benefitItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.benefitIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  flex: none;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-100);
+  color: var(--color-accent-gold);
+}
+
+.benefitLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+@media (min-width: 40rem) {
+  .benefitList {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* --- Trust ---------------------------------------------------------------- */
+
+.trust {
+  padding-block: var(--space-7);
+  background: var(--color-surface-subtle);
+  text-align: center;
+}
+
+.trustInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 34rem;
+}
+
+.trustBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-100);
+  color: var(--color-accent-gold);
+}
+
+.trustHeadline {
+  margin-top: var(--space-4);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
+}
+
+.trustBody {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+}
+
+.deviceIntro {
+  margin-top: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.deviceList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-5);
+  margin-top: var(--space-3);
+  list-style: none;
+  padding: 0;
+}
+
+.deviceItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+}
+
+.deviceIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+  color: var(--color-brand-600);
+}
+
+/* --- Cast intro ------------------------------------------------------------ */
+
+.cast {
+  padding-block: var(--space-8);
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.castInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 34rem;
+}
+
+/* The group photo is the primary visual device here (not the small
+   circular portraits the first draft used) — wide, prominent, framed
+   like a photo card rather than a thumbnail. */
+.castImageWrap {
+  position: relative;
+  width: 100%;
+  /* 4/5 closely matches the source photo's own ~0.8 portrait ratio (see
+     lib/characterGroups.ts) — a wider crop here would cut into the
+     circle of characters around the book. */
+  max-width: 24rem;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.castImage {
+  object-fit: cover;
+}
+
+.castHeading {
+  margin-top: var(--space-6);
+  font-size: var(--text-xl);
+}
+
+.castBody {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+}
+
+.castNames {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-brand-600);
+}
+
+/* --- Final CTA -------------------------------------------------------------- */
+
+.finalCta {
+  padding-block: var(--space-8);
+  /* Pale gold-sand tint, not another neutral surface — a soft, warm
+     "landing spot" for the second CTA, still fully within the light
+     palette (see file comment). */
+  background: var(--color-brand-100);
+  text-align: center;
+}
+
+.finalCtaInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 30rem;
+}
+
+.finalCtaHeading {
+  font-size: var(--text-2xl);
+  color: var(--color-heading-accent);
+}
+
+.finalCtaBody {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-5);
+  color: var(--color-text-muted);
+}
+
+/* --- Minimal footer (not the corporate Footer) ------------------------------ */
+
+.minimalFooter {
+  padding-block: var(--space-5);
+  background: var(--color-surface-subtle);
+  border-top: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+.minimalFooterInner {
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* --- Generic Story World mode (Phase 1) -------------------------------------
+   Used only when CampaignLanding receives a `storyWorld` prop (the new
+   /start/[storyWorld]/[campaign] route) — /free30 never passes one, so
+   none of this affects its existing rendering. Appended at file end so
+   `.heroGridCentered`'s rules win over `.heroGrid`'s own (including its
+   min-width: 64rem override above) by source order — both are single-
+   class selectors of equal specificity. */
+
+.heroGridCentered {
+  grid-template-columns: 1fr;
+  grid-template-areas: "content";
+}
+
+@media (min-width: 64rem) {
+  .heroGridCentered {
+    grid-template-columns: 1fr;
+    grid-template-areas: "content";
+    max-width: 42rem;
+    margin-inline: auto;
+  }
+}
+
+/* The roster grid itself now renders through the shared
+   components/patterns/CastPortraitGrid (24 Aug 2026 refinement sprint —
+   this was a third, independently-drifting circular-avatar
+   implementation found alongside Home's and the Story World detail
+   page's own; see that component's doc comment). `.castRosterWrap` just
+   supplies the same top spacing `.castRosterGrid` used to. */
+.castRosterWrap {
+  margin-top: var(--space-6);
+  width: 100%;
+}
+
+.minimalFooterInner a {
+  color: var(--color-brand-600);
+  text-decoration: underline;
+}

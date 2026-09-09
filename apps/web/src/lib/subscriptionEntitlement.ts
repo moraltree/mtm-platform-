@@ -1,0 +1,218 @@
+import { stripe } from "./stripe";
+import { sanityWriteClient } from "./sanity/writeClient";
+import type { SubscriptionPlan } from "./subscriptionPlans";
+
+/**
+ * The trusted server-side entitlement check for Moral Tree Media paid
+ * subscriptions and free trials. Always runs server-side — never trusts
+ * localStorage, URL parameters, or success redirects alone.
+ *
+ * Status semantics:
+ *   active    — paid subscription is current (full library access)
+ *   trialing  — platform-managed free trial (Starter Collection access only)
+ *   past_due  — payment failed; grace period may still grant access (Stripe policy)
+ *   incomplete — checkout session completed but subscription not yet confirmed
+ *   cancelled  — subscription or trial was cancelled or converted to paid
+ *   unknown    — no record found (new visitor, or Sanity/Stripe not configured)
+ *
+ * Trial access is SEPARATE from paid access. A trialing subscriber never
+ * satisfies hasPaidSubscriptionAccess(). Use hasTrialAccess() for trial
+ * entitlement and hasStarterCollectionAccess() (starterCollection.ts) for
+ * the combined "trial or paid" content gate.
+ */
+export type SubscriptionStatus =
+  | "active"
+  | "trialing"
+  | "past_due"
+  | "incomplete"
+  | "cancelled"
+  | "unknown";
+
+export interface SubscriptionRecord {
+  status: SubscriptionStatus;
+  plan?: SubscriptionPlan;
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd?: boolean;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  /** Approved trial duration in days (0 = no trial, >0 = trial was offered). */
+  trialDays?: number;
+  /** Stripe-reported trial end date (ISO 8601). */
+  trialEnd?: string;
+}
+
+/** Internal Sanity document shape — the minimum fields needed for
+ * entitlement decisions. */
+interface SanitySubscriptionDoc {
+  status: string;
+  plan?: string;
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd?: boolean;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  trialDays?: number;
+  trialEnd?: string;
+}
+
+function normaliseSanityStatus(raw: string): SubscriptionStatus {
+  const known: Record<string, SubscriptionStatus> = {
+    active: "active",
+    trialing: "trialing",
+    past_due: "past_due",
+    incomplete: "incomplete",
+    incomplete_expired: "cancelled",
+    cancelled: "cancelled",
+    unpaid: "past_due",
+    paused: "cancelled",
+  };
+  return known[raw] ?? "unknown";
+}
+
+/**
+ * Look up subscription state by the correlationRef we set as a cookie
+ * before redirecting to Stripe Checkout.
+ *
+ * Primary path: Sanity (queryable without a Stripe API call).
+ * Fallback: Stripe API direct lookup when Sanity isn't configured.
+ * Returns `{ status: "unknown" }` when neither source has a record.
+ */
+export async function getSubscriptionByCorrelationRef(
+  correlationRef: string,
+): Promise<SubscriptionRecord> {
+  if (!correlationRef) return { status: "unknown" };
+
+  // Primary: Sanity subscription document (written by webhook)
+  if (sanityWriteClient) {
+    try {
+      const doc = await sanityWriteClient.fetch<SanitySubscriptionDoc | null>(
+        `*[_type == "subscription" && correlationRef == $ref][0] {
+          status, plan, currentPeriodEnd, cancelAtPeriodEnd,
+          stripeCustomerId, stripeSubscriptionId,
+          trialDays, trialEnd
+        }`,
+        { ref: correlationRef },
+      );
+      if (doc) {
+        return {
+          status: normaliseSanityStatus(doc.status),
+          plan: doc.plan as SubscriptionPlan | undefined,
+          currentPeriodEnd: doc.currentPeriodEnd,
+          cancelAtPeriodEnd: doc.cancelAtPeriodEnd,
+          stripeCustomerId: doc.stripeCustomerId,
+          stripeSubscriptionId: doc.stripeSubscriptionId,
+          trialDays: doc.trialDays,
+          trialEnd: doc.trialEnd,
+        };
+      }
+    } catch (err) {
+      console.error("Subscription entitlement: Sanity query failed:", err);
+    }
+  }
+
+  return { status: "unknown" };
+}
+
+/**
+ * Look up subscription state by the Stripe Checkout Session ID.
+ * Used on the success page to confirm the session's subscription status
+ * without relying on the webhook having already fired.
+ *
+ * Does NOT grant entitlement — only reports what Stripe's API says. The
+ * webhook-written Sanity record is the authoritative entitlement source
+ * because it includes idempotency checking and duplicate event protection.
+ */
+export async function getSubscriptionBySessionId(
+  sessionId: string,
+): Promise<SubscriptionRecord> {
+  if (!stripe || !sessionId) return { status: "unknown" };
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ["subscription"],
+    });
+
+    if (session.mode !== "subscription") return { status: "unknown" };
+
+    const sub = session.subscription;
+    if (!sub || typeof sub === "string") {
+      // No subscription object yet — the webhook may not have fired.
+      return { status: "incomplete" };
+    }
+
+    const stripeStatus = sub.status;
+    const status: SubscriptionStatus = (() => {
+      switch (stripeStatus) {
+        case "active":
+          return "active";
+        case "trialing":
+          return "trialing";
+        case "past_due":
+          return "past_due";
+        case "incomplete":
+        case "incomplete_expired":
+          return "incomplete";
+        case "canceled":
+          return "cancelled";
+        default:
+          return "unknown";
+      }
+    })();
+
+    // current_period_end was removed in Stripe API ≥2025 — omit it here.
+    return {
+      status,
+      stripeCustomerId:
+        typeof session.customer === "string" ? session.customer : undefined,
+      stripeSubscriptionId: sub.id,
+      cancelAtPeriodEnd: sub.cancel_at_period_end,
+    };
+  } catch (err) {
+    console.error("Subscription entitlement: Stripe session lookup failed:", err);
+    return { status: "unknown" };
+  }
+}
+
+/**
+ * Broad entitlement: does this status grant access to Moral Tree Media?
+ *
+ * Returns true for ACTIVE (paid subscription) and TRIALING (free trial).
+ * PAST_DUE is intentionally NOT access-granting — Stripe's retry/dunning
+ * logic may recover it but this codebase doesn't grant access speculatively
+ * during that window.
+ *
+ * Use `hasPaidSubscriptionAccess` or `hasTrialAccess` when the distinction
+ * between a paid subscription and a free trial matters.
+ */
+export function hasPaidAccess(status: SubscriptionStatus): boolean {
+  return status === "active" || status === "trialing";
+}
+
+/**
+ * Returns true only for a PAID subscription (not a free trial).
+ * Use this when distinguishing trial access from a paying subscriber matters —
+ * e.g. for analytics, conversion tracking, or reward eligibility.
+ */
+export function hasPaidSubscriptionAccess(status: SubscriptionStatus): boolean {
+  return status === "active";
+}
+
+/**
+ * Returns true only for an active, non-expired free trial.
+ *
+ * Pass `trialEnd` (the ISO 8601 expiry date stored in the subscription
+ * record) to enforce the 30-day limit. Without it, only the status is
+ * checked (useful in contexts where the expiry is checked separately).
+ *
+ * A trial start is NOT a paid conversion — use hasPaidSubscriptionAccess
+ * for paid-subscriber-only decisions (analytics, rewards, full-library access).
+ */
+export function hasTrialAccess(
+  status: SubscriptionStatus,
+  trialEnd?: string | null,
+): boolean {
+  if (status !== "trialing") return false;
+  if (trialEnd) {
+    return new Date(trialEnd) > new Date();
+  }
+  return true;
+}

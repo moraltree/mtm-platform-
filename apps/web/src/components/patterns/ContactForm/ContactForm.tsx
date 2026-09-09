@@ -5,12 +5,22 @@ import Script from "next/script";
 import { Container } from "@/components/ui/Container";
 import { TextField, TextArea } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
-import { submitContactForm, initialContactFormState } from "./actions";
+import { Badge } from "@/components/ui/Badge";
+import { submitContactForm } from "./actions";
+import { initialContactFormState } from "./state";
+import { ENQUIRY_TYPES, type EnquiryType } from "@/lib/enquiryTypes";
 import styles from "./ContactForm.module.css";
 
 export interface ContactFormProps {
   heading?: string;
   intro?: string;
+  /** Context from where the visitor arrived (e.g. Publishing's "Talk to
+   * us about publishing" button) — see lib/enquiryTypes.ts. Shown as a
+   * visible badge and carried through as a hidden field into the
+   * notification email's subject line. Omitted (not `"general"`)
+   * entirely suppresses the badge — the plain generic Contact page
+   * shouldn't show a "General enquiry" label nobody asked for. */
+  enquiryType?: EnquiryType;
 }
 
 // Public by design (it identifies the widget, not a secret) — unset means
@@ -19,7 +29,7 @@ export interface ContactFormProps {
 // is configured. See .env.example.
 const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
-export function ContactForm({ heading, intro }: ContactFormProps) {
+export function ContactForm({ heading, intro, enquiryType }: ContactFormProps) {
   const [state, formAction, pending] = useActionState(
     submitContactForm,
     initialContactFormState,
@@ -33,6 +43,11 @@ export function ContactForm({ heading, intro }: ContactFormProps) {
   return (
     <section className={styles.section}>
       <Container className={styles.inner}>
+        {enquiryType && (
+          <Badge tone="brand" className={styles.enquiryBadge}>
+            {ENQUIRY_TYPES[enquiryType]}
+          </Badge>
+        )}
         {heading && <h2>{heading}</h2>}
         {intro && <p className={styles.intro}>{intro}</p>}
 
@@ -42,6 +57,9 @@ export function ContactForm({ heading, intro }: ContactFormProps) {
           className={styles.form}
           noValidate
         >
+          {enquiryType && (
+            <input type="hidden" name="enquiryType" value={enquiryType} />
+          )}
           {/* Honeypot — see actions.ts. Hidden off-screen (not display:none/
               hidden, which unsophisticated bots often skip) and out of both
               the tab order and the accessibility tree. */}

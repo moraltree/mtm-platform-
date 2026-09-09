@@ -7,11 +7,19 @@ import { Badge } from "@/components/ui/Badge";
 import { Hero } from "@/components/patterns/Hero";
 import { CtaPanel } from "@/components/patterns/CtaPanel";
 import { PageSections } from "@/components/patterns/PageSections";
-import { getPageByPageId } from "@/lib/sanity/queries";
+import { getPageByPageId, getStoryWorldBySlug } from "@/lib/sanity/queries";
+import { urlFor } from "@/lib/sanity/image";
 import { adaptSections } from "@/lib/pageSections";
 import { buildMetadata } from "@/lib/metadata";
 import { cx } from "@/lib/cx";
-import { getCharacterPose } from "@/lib/characters";
+import {
+  getCharacterPose,
+  getCharactersInCanonicalOrder,
+} from "@/lib/characters";
+import {
+  CastPortraitGrid,
+  type CastPortraitMember,
+} from "@/components/patterns/CastPortraitGrid";
 import { BookIcon, HeadphonesIcon, FilmIcon } from "./home-icons";
 import styles from "./home.module.css";
 
@@ -23,6 +31,43 @@ import styles from "./home.module.css";
 // hero media). Falls back to `undefined` (Hero renders with no image,
 // same as before this change) if that pose is ever missing.
 const HOME_HERO_IMAGE = getCharacterPose("zulu", "three-quarter-wave");
+
+// "Meet the cast" section, below: renders through the same shared
+// CastPortraitGrid the Savannah Seven Story World detail page uses (24
+// Aug 2026 refinement sprint — the two pages had independently-drifting
+// circular-avatar implementations before this), in
+// `lib/characters.ts#getCharactersInCanonicalOrder`'s site-wide order —
+// see that function's own doc comment for why this differs from the
+// manifest's `order` field. Each card links to that character's profile
+// page under the Savannah Seven Story World (the only Story World with a
+// real cast today — see `app/story-worlds/[slug]/cast/[character]`).
+const CAST_MEMBERS: CastPortraitMember[] = getCharactersInCanonicalOrder().map(
+  (character) => {
+    const pose = getCharacterPose(character.slug, "front-portrait");
+    return {
+      key: character.slug,
+      name: character.canonicalName,
+      imageSrc: pose?.path,
+      imageAlt: pose?.alt,
+      href: `/story-worlds/savannah-seven/cast/${character.slug}`,
+    };
+  },
+);
+
+// A small, purely decorative Zulu "stamp" inline with the mediums-section
+// heading (alt="" — the heading already carries the accessible name) —
+// a repeated brand mark rather than a new per-medium mapping, since
+// nothing in this repo's canon assigns individual characters to
+// Publishing/Audiobooks/Animation specifically.
+const MEDIUMS_STAMP = getCharacterPose("zulu", "playful-tilt");
+
+// Mirrors story-worlds/[slug]/page.tsx's own STATUS_LABELS — kept as a
+// separate, tiny copy rather than a shared import across route files.
+const TEASER_STATUS_LABELS: Record<string, string> = {
+  "in-development": "In development",
+  released: "Released",
+  announced: "Announced",
+};
 
 // Home is the site's front door — unlike the pure-editorial pages, a
 // missing `page` document falls back to a real, premium homepage built
@@ -44,29 +89,44 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata(page.seo?.metaTitle, page.seo);
 }
 
+// Deliberately written to name the cast (now introduced above, in "Meet
+// the cast") rather than describe Publishing/Audiobooks/Animation as
+// three interchangeable services — the same Story World and characters
+// carry across all three, this just says so, without revealing the
+// still-unannounced setting/synopsis/title (see the teaser section above).
 const MEDIUMS = [
   {
     Icon: BookIcon,
     title: "Publishing",
-    body: "Picture books and middle-grade fiction built to be read again, not once and shelved.",
+    body: "Follow Zulu and his circle of friends into picture books and middle-grade fiction built to be read again, not once and shelved.",
     href: "/publishing",
   },
   {
     Icon: HeadphonesIcon,
     title: "Audiobooks",
-    body: "Narrated editions that carry each Story World into the car, the bedtime routine, and beyond.",
+    body: "Hear their story narrated for the car, the bedtime routine, and beyond.",
     href: "/audiobooks",
   },
   {
     Icon: FilmIcon,
     title: "Animation",
-    body: "Animated adaptations in development, extending each Story World to the screen.",
+    body: "Watch their world take shape for the screen — animated adaptations in development.",
     href: "/animation",
   },
 ];
 
 export default async function Home() {
   const page = await getPageByPageId("home");
+  // Real, not mock/placeholder — see lib/storyWorlds/registry.ts. Sanity
+  // first, then the seed registry, same fallback chain the corporate
+  // /story-worlds pages already use; the moment a real Sanity home `page`
+  // document exists this whole branch (and this fetch) stops rendering.
+  const savannahSeven = !page
+    ? await getStoryWorldBySlug("savannah-seven")
+    : null;
+  const savannahSevenImage = savannahSeven?.gallery?.[0]
+    ? urlFor(savannahSeven.gallery[0])?.width(800).url()
+    : undefined;
 
   if (!page) {
     return (
@@ -74,6 +134,7 @@ export default async function Home() {
         <Hero
           eyebrow="Moral Tree Media"
           heading="Story worlds with a moral centre, told across every medium."
+          mission="Helping children become great citizens of the world — kind, equal, and proud of their differences."
           subheading="We build children's story worlds — and the publishing, audiobook, and animation experiences that carry them into the real world — for families who want stories that mean something."
           media={
             HOME_HERO_IMAGE
@@ -125,37 +186,56 @@ export default async function Home() {
             <div className={styles.storyWorldLayout}>
               <div className={styles.storyWorldCard}>
                 <div className={styles.storyWorldMedia}>
-                  <Image
-                    src="/placeholder.png"
-                    alt="Placeholder — final Story World artwork pending"
-                    fill
-                    sizes="(min-width: 64rem) 40vw, 100vw"
-                  />
-                  <span className={styles.storyWorldMediaBadge}>
-                    <Badge tone="neutral">Placeholder artwork</Badge>
-                  </span>
+                  {savannahSevenImage && (
+                    <Image
+                      src={savannahSevenImage}
+                      alt={savannahSeven?.gallery?.[0]?.alt || ""}
+                      fill
+                      sizes="(min-width: 64rem) 40vw, 100vw"
+                      className={styles.storyWorldMediaImage}
+                    />
+                  )}
                 </div>
                 <div className={styles.storyWorldBody}>
-                  <Badge tone="brand">Coming soon</Badge>
+                  {savannahSeven?.status && (
+                    <Badge tone="brand">
+                      {TEASER_STATUS_LABELS[savannahSeven.status] ??
+                        savannahSeven.status}
+                    </Badge>
+                  )}
                   <h3 className={styles.storyWorldTitle}>
-                    Story World reveals coming soon
+                    {savannahSeven?.title ?? "Story World reveals coming soon"}
                   </h3>
                   <p className={styles.storyWorldText}>
-                    Character, setting, and synopsis details are still in
-                    development and will be announced here and on our Story
-                    Worlds page once approved.
+                    {savannahSeven?.tagline ??
+                      "Setting and synopsis details are still in development and will be announced here and on our Story Worlds page once approved — meet the characters below in the meantime."}
                   </p>
                 </div>
               </div>
               <div>
                 <p className={styles.sectionBody}>
-                  Visit the Story Worlds page for the current catalogue as each
-                  world is confirmed and published.
+                  {savannahSeven
+                    ? "See the full cast and details, or browse the catalogue as more Story Worlds are announced."
+                    : "Visit the Story Worlds page for the current catalogue as each world is confirmed and published."}
                 </p>
                 <div className={styles.sectionLinks}>
-                  <Button href="/story-worlds" variant="primary">
-                    Visit Story Worlds
+                  <Button
+                    href={
+                      savannahSeven
+                        ? `/story-worlds/${savannahSeven.slug.current}`
+                        : "/story-worlds"
+                    }
+                    variant="primary"
+                  >
+                    {savannahSeven
+                      ? "Explore Savannah Seven"
+                      : "Visit Story Worlds"}
                   </Button>
+                  {savannahSeven && (
+                    <Button href="/story-worlds" variant="secondary">
+                      See all Story Worlds
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
@@ -165,11 +245,37 @@ export default async function Home() {
         <section className={styles.section}>
           <Container>
             <div className={styles.sectionHead}>
-              <h2 className={styles.sectionHeading}>
-                How our stories reach families
-              </h2>
+              <h2 className={styles.sectionHeading}>Meet the cast</h2>
               <p className={styles.sectionBody}>
-                One Story World, three ways to experience it.
+                Zulu and his circle of friends, who&rsquo;ll appear throughout
+                our first Story World.
+              </p>
+            </div>
+            <CastPortraitGrid members={CAST_MEMBERS} />
+          </Container>
+        </section>
+
+        <section className={cx(styles.section, styles.sectionSubtle)}>
+          <Container>
+            <div className={styles.sectionHead}>
+              <div className={styles.mediumsHeadingRow}>
+                {MEDIUMS_STAMP && (
+                  <span className={styles.mediumsStamp}>
+                    <Image
+                      src={MEDIUMS_STAMP.path}
+                      alt=""
+                      fill
+                      sizes="2.5rem"
+                    />
+                  </span>
+                )}
+                <h2 className={styles.sectionHeading}>
+                  How our stories reach families
+                </h2>
+              </div>
+              <p className={styles.sectionBody}>
+                One Story World, three ways to experience it — the same
+                characters you just met, carried into every medium.
               </p>
             </div>
             <div className={styles.pillarGrid}>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
+import { BrandMark } from "@/components/patterns/BrandMark";
 import { PageSections } from "@/components/patterns/PageSections";
 import { getNewsPosts, getPageByPageId } from "@/lib/sanity/queries";
 import { adaptSections } from "@/lib/pageSections";
@@ -55,7 +56,24 @@ export default async function NewsIndexPage() {
           })}
         </div>
       ) : (
-        <p className={styles.empty}>No news posts yet — check back soon.</p>
+        <div className={styles.empty}>
+          {/* The standard corporate-page brand visual (24 Aug 2026
+              refinement sprint — see components/patterns/BrandMark's own
+              doc comment for why the previous ad hoc circular-cropped
+              version here read as "too small"), not invented "news"
+              imagery — a tasteful visual anchor for an honestly-empty
+              page. */}
+          <BrandMark className={styles.emptyVisual} />
+          <div>
+            <h2 className={styles.emptyHeading}>Updates coming soon</h2>
+            <p className={styles.emptyBody}>
+              We haven&rsquo;t published any announcements yet. Real news from
+              Moral Tree Media — Story World milestones, publishing and
+              audiobook updates, and press coverage — will appear here as it
+              happens.
+            </p>
+          </div>
+        </div>
       )}
     </Container>
   );

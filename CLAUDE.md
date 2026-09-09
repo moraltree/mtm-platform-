@@ -103,6 +103,471 @@ Implementation proceeded in work packages:
   see "Guidance for future sessions" for what going live actually requires.
   No real Stripe account exists yet; nothing here has processed a real
   charge.
+- **WP8 — Consumer campaign funnel (partial, `/free30` only)** 🚧 A second,
+  deliberately separate visual/functional system for QR-code and
+  direct-link traffic, alongside (not replacing) the corporate site.
+  `lib/campaignRoutes.ts` is the hand-maintained registry of which routes
+  count as "campaign" routes (currently just `/free30`); `CorporateChromeGate`
+  (`components/patterns/CorporateChromeGate`) reads it to suppress the
+  corporate `Header`/`Footer` on those routes only — a client-side
+  `usePathname()` gate around Server-Component-rendered children, chosen
+  specifically so it doesn't force any route (campaign or corporate) into
+  dynamic/per-request rendering (see its own doc comment for why that
+  ruled out reading `headers()`/pathname in the shared root layout).
+  `components/patterns/CampaignLanding` is the reusable landing-page
+  template (`CampaignLanding.tsx` + `SignupForm.tsx` + `actions.ts` +
+  `campaign-icons.tsx`) — `campaign`/`source` route through the page into
+  the signup Server Action as hidden fields, so a later analytics
+  integration has real per-campaign/per-source data from day one. Light
+  cream/ivory/brand-100 palette throughout (no dark sections — an
+  earlier dark-hero draft read as "a generic dark signup page," not a
+  warm campaign page, per owner feedback). `lib/characterGroups.ts` (a
+  `characters.ts`-style manifest for three already-approved full-cast
+  group photos, `public/images/characters/full-cast/`, copied from the
+  master library's `15-approved/` "website-use ready" subset) now backs
+  only the cast section's one photo — the hero's own left/right imagery
+  moved away from full-cast photos entirely (see
+  `HeroCastCluster.tsx`'s doc comment): none of that manifest's group
+  photos both satisfy `lib/characters.ts#relativeScale` (the master
+  library's owner-approved canonical scale table — Zala/Kofi read
+  clearly largest, Sid smallest — added to the character manifest
+  specifically for this) _and_ share a background/lighting treatment
+  with each other, so the hero instead composes two "one anchor + three
+  smaller companions" clusters directly from the same individual
+  approved character portraits used everywhere else on the site, sized
+  by tier to match the canonical order. `object-fit: contain` throughout
+  the cluster (never crop a character), unlike the cast section's one
+  full-cast photo which still uses `cover` (an establishing scene, not a
+  solo portrait). The brand bar is a
+  proper icon+wordmark lockup, not text-only — `public/images/brand/
+moral-tree-mark.png` (also an approved, already-generated asset, see
+  its own README) is the actual Moral Tree symbol, not just the words
+  "Moral Tree Media". The hero headline (`.kicker` only — body/tagline/
+  form stay Geist Sans) uses Fraunces, a warm display serif loaded via
+  `next/font/google` directly in `CampaignLanding.tsx` and scoped with a
+  CSS variable (`--font-campaign-headline`) rather than added to the
+  root layout — deliberately not a site-wide typography change.
+  `/free30/page.tsx` is the one route built so far; adding `/blackpool`,
+  `/pampers`, or `/chester-zoo` later means a thin `app/<slug>/page.tsx`
+  rendering `<CampaignLanding campaign="<slug>" .../>` (optionally with a
+  partial `content` override) plus adding `<slug>` to
+  `CAMPAIGN_ROUTE_SLUGS` — don't forget the latter, or that route quietly
+  keeps the full corporate nav. `robots: {index:false, follow:true}` is a
+  deliberate default (not a hard requirement), same carve-out as
+  `/cart`/checkout routes sitting outside the three null-handling rules —
+  flip it if the owner wants a campaign page discoverable via search too.
+  **The signup action does not provision an actual trial** — no customer
+  account/audiobook-delivery/CRM system exists anywhere in this codebase.
+  It validates, rate-limits, and honeypots exactly like `ContactForm`,
+  then (inert-until-configured on `FREE_TRIAL_TO_EMAIL`/
+  `CONTACT_FORM_FROM_EMAIL`, same contract as WP4/WP7) emails a human to
+  follow up by hand. Building real automated provisioning is the
+  genuinely unresolved dependency this WP stopped short of — see
+  "Guidance for future sessions."
+- **WP9 — Shopify merch integration, Phase 1 (nav link only)** ✅ Owner
+  decision (2026-08-21, following a repo audit): a real Shopify store now
+  exists (Shopify Payments active, GBP payouts enabled) and is the system
+  of record for merchandise — catalogue, SKUs, variants, inventory,
+  pricing, checkout, orders, fulfilment. This repo's only role in Phase 1
+  is linking primary nav's "Shop" item straight to the Shopify-hosted
+  storefront (`lib/shop.ts`'s `NEXT_PUBLIC_SHOP_URL`, resolved in
+  `siteDefaults.ts`'s `DEFAULT_PRIMARY_NAV` — external link, opens in a
+  new tab, same disclosure-nav markup serves desktop and mobile). No
+  local cart count is shown (Header's cart icon/badge removed) since
+  Shopify owns the cart now. WP7's Sanity `product`/`order` schemas,
+  `/shop`, `/shop/[slug]`, `/cart`, `/checkout/*`, `lib/cart.ts`, and the
+  Stripe webhook are **left in place but unlinked from nav** — dormant,
+  not deleted, until this integration is proven in production (see
+  "Guidance for future sessions"). No Storefront API/headless integration
+  yet (Phase 3, not started) — see the audit report for the full A/B/C
+  comparison and phased plan. `NEXT_PUBLIC_SHOP_URL` is unset in every
+  environment right now (no real storefront URL was available yet), so
+  "Shop" is currently omitted from nav entirely rather than falling back
+  to the legacy internal route — set the var to make it appear.
+- **WP10 — Story Worlds: Savannah Seven seed content** ✅ The `/story-
+worlds` route/template (WP6) was already fully generic — no page/
+  component changes were needed for multi-Story-World support, only a
+  data layer. `lib/storyWorlds/registry.ts` is a new, real (not mock/
+  dev-gated) `StoryWorldDoc` fallback — `queries.ts`'s
+  `getStoryWorlds`/`getFeaturedStoryWorlds`/`getStoryWorldBySlug` try a
+  real Sanity result first, then this registry, then (only with
+  `USE_MOCK_CONTENT=true`) `mockContent.ts`'s fictional fixtures — same
+  "no page document → real hand-authored fallback" precedent Home's own
+  null-state already established, applied per-Story-World here instead
+  of site-wide. It is temporary seed content, not a second CMS: the
+  moment a real Sanity `storyWorld` document exists for a slug, Sanity's
+  result wins automatically and the registry entry is never consulted
+  again for that slug — nothing to migrate by hand. `lib/sanity/
+image.ts#urlFor` gained one additive `local-file:` sentinel branch so
+  the registry's images (real files under `public/`, not Sanity CDN
+  assets) resolve through the exact same `urlFor(x)?.width(n).url()`
+  call every other image consumer already uses — zero effect on any real
+  Sanity ref or existing mock ref anywhere else in the codebase.
+  `SAVANNAH_SEVEN_STORY_WORLD` (`key: "zulu"`, `slug: "savannah-seven"`)
+  is the one populated entry — real character roster generated directly
+  from `lib/characters.ts#getAllCharacters()` (one source of truth, not
+  re-typed), hero art copied unmodified from the master asset library's
+  own purpose-made `hero-03-story-worlds-index-card-crop-16x9.png` (see
+  `public/images/story-worlds/savannah-seven/README.md` for the crop-
+  choice reasoning), gallery reusing the full-cast photos already in
+  `public/images/characters/full-cast/`. Copy is limited to lines already
+  approved/live elsewhere on the site (the /free30 tagline). River
+  Rangers/Firefly Hollow/Ocean World are deliberately **not** stubbed in
+  — no entry means the existing honest empty-list/404 behavior applies,
+  same as any other unpopulated listing in this codebase; add each once
+  it has real approved content, never a placeholder. The reusable detail
+  template (`story-worlds/[slug]/page.tsx`) gained one generic "Meet the
+  cast" section reading `storyWorld.characterRoster` (previously rendered
+  by no corporate-route template at all — only the campaign platform's
+  `/start/[storyWorld]/[campaign]` read it) — `characterRoster` was also
+  added to `getStoryWorldBySlug`'s GROQ projection so a real Sanity
+  document populates the same section identically once one exists.
+  `mockContent.ts`, `devRecords.ts` (River Rangers' own campaign-platform
+  fixture), the campaign platform, `/free30`, and Shopify/Stripe/Vercel
+  config are all untouched.
+- **WP11 — Story Worlds visual refinement** (card sizing/balance, image
+  crop fixes) — recorded in `PROGRESS.md`/git history
+  (`98857b8`..`f0defea`) but this checklist was never updated for it; not
+  addressed as part of WP12 below, noted here only so the gap is visible
+  rather than silently skipped.
+- **WP12 — Adult registration, communications consent, offer types,
+  reward/voucher contract, conversion events** ✅ Extends the campaign
+  platform that was itself built across an earlier, separately-tracked
+  "Phases 0–5" engagement (`1ec92a5`, never folded into this checklist
+  before now — see `CAMPAIGN_PLATFORM_CMS_CONTRACT.md`, `app/start/
+[storyWorld]/[campaign]`, `app/s/[shortCode]`, `lib/attribution/`,
+  `lib/platform/`, `lib/repository/`, `lib/theme/`, `lib/campaignRules.ts`
+  — all of it pre-existing, reused unchanged here). `SignupForm.tsx` (the
+  one form `/free30` and every `/start/...` campaign share) now registers
+  the **adult** — first/last name, email, optional country, required
+  adult/guardian confirmation and Terms/Privacy acceptance, and a
+  separate, optional, unchecked-by-default marketing checkbox — never the
+  child. `lib/registrationConsent.ts` is the typed consent record
+  (deliberately not merged with `lib/consent.ts`'s cookie-banner
+  consent — see that file's own doc comment). `lib/registration/
+validate.ts` is the one validation function both `/free30`'s and
+  `/start/...`'s Server Actions call, so the two can't drift apart.
+  `CampaignDoc.offer.offerType` (`"free-trial" | "percentage-discount" |
+"fixed-offer" | "reward-linked"`) is additive/optional — a missing
+  value still means `"free-trial"`, every existing campaign's actual
+  behaviour, so nothing needed migrating. `lib/rewards/types.ts` is a
+  **typed-only** partner-agnostic reward/voucher contract
+  (`PartnerRewardRule`, `RewardEligibilityMetadata`, etc.) — no Sanity
+  document type, no redemption system, no partner named anywhere.
+  `StartTrialRequest` (`lib/platform/contract.ts`) now carries the
+  adult's identity, partner/Story-World/campaign/acquisition-source
+  identity, an `OfferIdentity`, the unchanged `attribution`, the new
+  `consent`, and an optional `rewardEligibility` — `emailStandInPlatformClient`
+  is still the only implementation, still just emails a human, still
+  creates/persists nothing. `lib/analytics/events.ts` is a typed
+  `ConversionEvent` boundary (landing viewed → CTA clicked → registration
+  started/completed → subscription handoff started, plus a trial-
+  activated and subscription-outcome placeholder and a reward-eligibility
+  event) — logged only (`consoleConversionEventSink`), no real
+  destination, no PII in any payload (opaque IDs only, enforced by the
+  types). See `CAMPAIGN_PLATFORM_CMS_CONTRACT.md`'s new "Adult
+  registration, consent, and the subscription-ready handoff" section for
+  the full contract. Corporate site, Shopify integration, `/free30`'s
+  existing visual design, Story Worlds, attribution cookies, and the
+  short-code system are all unmodified — only the shared registration
+  form/action grew new fields.
+- **WP13 — QA pass: contact-form crash, cast presentation, Publishing/
+  Audiobooks/Animation shells** ✅ (23 Aug 2026, `feature/shopify-
+storefront-nav-link`) A real, previously-unknown production bug —
+  **every** `useActionState` form on the site (Contact, `/free30`, every
+  `/start/[storyWorld]/[campaign]`) threw "A 'use server' file can only
+  export async functions, found object" the moment it was actually
+  submitted (confirmed live in both `next dev` and a production
+  `next build && next start` — Next's `ensureServerEntryExports` check,
+  `node_modules/next/dist/build/webpack/loaders/next-flight-loader/
+action-validate.js`, only runs at runtime, never during `next build`,
+  which is why it shipped unnoticed). Root cause: `ContactForm/actions.ts`
+  and `CampaignLanding/actions.ts` each exported a plain `initial*State`
+  object alongside their server action — illegal in a `"use server"` file.
+  Fixed by moving each to a sibling `state.ts` (non-`"use server"`)
+  module; see `ContactForm/state.ts` and `CampaignLanding/state.ts`'s own
+  doc comments for the full mechanism. `ContactForm` itself was otherwise
+  already correct (validation, honeypot, rate limiting, honest "not
+  configured" degradation) — regression-tested in the new
+  `ContactForm/actions.test.ts`. **Email delivery is still not configured
+  in production** (`RESEND_API_KEY`/`CONTACT_FORM_TO_EMAIL`/
+  `CONTACT_FORM_FROM_EMAIL` all unset — confirmed via `vercel env ls
+production`) — the form now degrades honestly instead of crashing, but
+  won't actually deliver a message until the owner provisions a Resend
+  account and sets those three vars (optionally
+  `NEXT_PUBLIC_TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY` for spam
+  protection); no credentials were invented. Home's "Meet the cast"
+  section now shows all 8 characters (Zulu was previously excluded,
+  reading as "missing") in a page-local order (Zulu, Nara, Mango, Zala,
+  Sid, Rocky, Kofi, Lulu) and switched from a cropped circular avatar
+  (`object-fit: cover` forcing the "close-up-headshot" pose into a 1:1
+  circle — cropping ears/silhouette on several characters) to an
+  uncropped 2:3 portrait card (`object-fit: contain`, the "front-portrait"
+  pose) — see `app/page.tsx`/`home.module.css`'s updated comments. Audited
+  every Mango appearance against the master asset library's own approved
+  canonical scale reference (`14-batch2-corrected/savannah-seven-scale-
+lineup-batch2-v1.png`): the numeric `relativeScale` canon in
+  `lib/characters.ts` is correct and unchanged (Mango is the second-
+  smallest character, ahead of only Sid) and the CSS-driven paths
+  (`HeroCastCluster`, Home's cast grid) already size him correctly — the
+  actual defect is baked into four pre-existing composite images
+  (`full-cast-01-group-portrait.png`, `full-cast-09-storytime-circle.png`,
+  `savannah-seven/hero.png`, and by extension `full-cast-05-sunset-
+silhouette-warm.png`), all of which draw Mango notably larger than the
+  approved lineup dictates. No approved alternative composite in the
+  master library's `15-approved/` fixes this (`full-cast-10-parade-
+formation.png` has the same defect), so nothing was swapped or edited —
+  this needs a real artwork correction pass, not a code fix; flagged for
+  the owner rather than silently reinterpreting canon or touching
+  approved art. The Partner CTA's "Start a conversation" button was
+  rendering with Button's default dark `.secondary` outline/text instead
+  of `CtaPanel.module.css`'s intended white-on-brand override — both
+  rules share the same CSS specificity, so which one won depended on
+  bundler stylesheet order (confirmed losing in production); fixed by
+  bumping the override's specificity (`.ctaOnBrand.ctaOnBrand`) rather
+  than relying on source-order luck. Story Worlds hub cards were already
+  fully clickable, data-driven, and unhardcoded (`Card`'s `href` wraps the
+  whole card in a real `next/link`, routing is `getStoryWorlds()`-driven
+  with no Savannah-Seven-specific logic, and the grid already scales to
+  ~6 items) — verified, no changes needed. Publishing/Audiobooks/
+  Animation moved off `lib/editorialPage.tsx`'s 404-on-missing-`page`-doc
+  rule (null-handling rule 1) onto their own honest "proposition shell"
+  fallback (a new shared `components/patterns/PropositionShell`) — a real
+  Sanity `page` document, once one exists, still wins immediately, same
+  "CMS wins the instant it exists" precedent as Home's own null-state; the
+  three routes joined `sitemap.ts`'s `ALWAYS_AVAILABLE` accordingly. Each
+  shell describes a real future proposition (physical books/Story World
+  collections/printables for Publishing; bedtime audio/samples/subscriber
+  access for Audiobooks, linking the genuinely-real `/free30` trial rather
+  than a fabricated one; short clips/QR-triggered scenes for Animation)
+  with no invented titles, partnerships, or claims of current
+  availability. News' empty state got a small honest polish (a bordered
+  "Updates coming soon" panel instead of one bare muted line) — its
+  underlying rule-3 behaviour (never 404s) was already correct. Shopify
+  nav-link behaviour (WP9) was re-verified, not changed: with
+  `NEXT_PUBLIC_SHOP_URL` unset, "Shop" is correctly omitted from nav; it's
+  set in production, so "Shop" already appears there pointing at the real
+  external storefront. A full route audit (Home, Story Worlds, Publishing,
+  Audiobooks, Animation, Shop, News, About, Contact, `/free30`, Savannah
+  Seven) against a true production-equivalent build
+  (`USE_MOCK_CONTENT=false next build && next start` — the default
+  `.env.local` has mock content on, which was masking exactly the
+  null-state branches this pass needed to verify) confirmed every route
+  returns the correct status (200 for all of the above, real 404s
+  unchanged for About/Founder/Mission, which this pass deliberately left
+  alone). Campaign routes, the QR/short-code system, the adult
+  registration journey, `/free30`'s existing visual design, and Shopify
+  integration are otherwise unmodified — all 129 existing + new tests
+  pass, lint/typecheck/format clean, production build clean.
+- **WP14 — Refinement sprint: About page, cast/character-profile
+  architecture, free-trial redesign, Subscribe/countries/Control-Center
+  groundwork** ✅ (24 Aug 2026, `feature/shopify-storefront-nav-link`,
+  following iPad visual QA of WP13's preview) About moved off
+  `lib/editorialPage.tsx`'s 404-on-missing-doc rule (same treatment
+  Publishing/Audiobooks/Animation got in WP13) onto real hand-authored
+  positioning copy — Founder/Mission are deliberately untouched, still
+  404 (no honest non-fabricated fallback exists for either). Found and
+  fixed a **third** independently-drifting circular-cast-avatar
+  implementation (`CampaignLanding.tsx`'s generic Story-World roster
+  section, alongside Home's and the Story World detail page's own from
+  WP13) — all three, plus a brand-new one, now render through one new
+  shared `components/patterns/CastPortraitGrid`. `lib/characters.ts`
+  gained `CANONICAL_CAST_ORDER`/`getCharactersInCanonicalOrder()` (Zulu,
+  Nara, Mango, Zala, Sid, Rocky, Lulu, Kofi — note Lulu/Kofi swapped
+  versus WP13's order, owner sign-off) as the one source every cast
+  section reads instead of re-declaring its own array. Every cast
+  portrait is now a real link: `CharacterRosterEntry` gained a routing
+  `slug` field (Studio schema + `lib/sanity/types.ts`; no GROQ change
+  needed — `characterRoster` is a bare-field projection, so it already
+  returns whatever the schema has) feeding a new reusable profile route,
+  `app/story-worlds/[slug]/cast/[character]`, generic across any Story
+  World's roster rather than eight hard-coded Savannah Seven pages. No
+  character has real biography canon yet, so every narrative section
+  (species, personality, role, strengths, likes, friendships, backstory,
+  associated stories, merch) renders the same honest "Character profile
+  coming soon" placeholder — the structure is real, the content isn't
+  invented; extending `CharacterRosterEntry` with real narrative fields
+  is real future work once real copy exists, not speculative schema
+  added here for nothing. Mango's hero-cluster pose swapped from
+  "three-quarter-wave" (a solid black backdrop — poor contrast against
+  his own dark fur, unlike every other character using that pose) to
+  "front-portrait" (the same plain light-grey studio background every
+  other card uses) — a source-asset swap, not a CSS fix over the actual
+  image; the composite-artwork-level scale issue documented in WP13
+  remains unfixed by design (still no safe code-level fix, still flagged
+  for an owner-approved artwork pass, not touched again here).
+  `CampaignLanding.module.css`'s hero-flanking breakpoint dropped from
+  64rem to 56rem with narrower image columns and a smaller gap (the iPad-
+  landscape "too crowded" finding — 64rem/1024px sat exactly at real
+  iPad-landscape widths, so any variance tipped the layout into the
+  taller mobile treatment with both character clusters stacked _above_
+  the form instead of flanking it) — the anchor portrait's further
+  64rem+ size bump was also removed outright ("reduce excessive artwork
+  scale... the form should be the dominant visual element" is now
+  actually true at every breakpoint, not just below 56rem).
+  `submitFreeTrialSignup` (the actual `/free30` action) had **no test
+  file at all** before this sprint (only its `/start/...` sibling did) —
+  added one covering invalid email, required fields, consent-checkbox
+  validation, marketing-consent independence, successful submission, and
+  campaign/source attribution. New `/subscribe` page (not Sanity-backed,
+  like `/free30`) gives "Subscribe" a real subscription-intent
+  destination instead of routing straight into the generic Contact form
+  — no payment/Stripe integration, `/free30`'s real trial as the one
+  working CTA, `ContactForm` reused verbatim as the waitlist capture
+  (same validation/honeypot/rate-limit contract, not a second parallel
+  mechanism) rather than fabricating billing that doesn't exist.
+  Audiobooks gained a third, genuinely distinct CTA ("Sample a story",
+  anchor-linking to the page's own honest "no audio produced yet" note —
+  not a fake player) alongside the trial and the new `/subscribe` link.
+  `lib/countries.ts` restructured around a `CountryRecord.enabled` flag
+  and one `getEnabledCountries()` accessor (`SignupForm.tsx`'s only
+  consumer, previously reading the list directly) — same ~22-market
+  dataset as before, all enabled (no launch-country decision exists to
+  restrict against), designed so a future MTM Control Center swapping
+  the static array for a real database/Sanity singleton only changes
+  this one file's internals. `PropositionShell` gained an optional
+  upper-right `heroVisual` placeholder slot (Publishing: book stack,
+  Audiobooks: sample player, Animation: short-clip preview) — clearly-
+  labelled dashed-border placeholders, no fabricated finished assets, an
+  easy swap-in point once real artwork/video exists. News' empty state
+  and the Contact fallback both gained tasteful decorative imagery (the
+  approved Moral Tree mark; Zulu's wave pose on Contact) — Contact's only
+  on the no-real-`page`-doc fallback, hidden below 64rem so it can never
+  crowd the form on tablet/mobile. Added a documentation-only "Future:
+  MTM Control Center" section (see below) — no code, per the sprint
+  brief. Shopify, the QR/short-code system, campaign attribution, and
+  the adult-registration consent contract are all unmodified.
+- **WP15 — Visual QA fixes: portrait consistency, duplicate free-trial
+  form, context-aware Contact, brand-mark standardisation** ✅ (24 Aug
+  2026, `feature/shopify-storefront-nav-link`, following iPad visual QA
+  of WP14's preview) `CastPortraitGrid`'s `object-fit` switched from
+  `contain` to `cover` — pixel-analysed root cause: 5 of 8 character
+  portraits are exactly 832x1248 (2:3, matching the card exactly, so
+  `cover`/`contain` are identical for them), but Zulu (912x1136), Zala
+  (864x1200), and Lulu (928x1120) are natively wider, which made
+  `contain` letterbox them with visible empty space — the literal "Zulu
+  has excess white space", "Zala/Lulu framed differently" bug reported.
+  Verified safe (not assumed) by simulating the exact `cover` crop
+  dimensions for all three and inspecting the result before committing
+  to the CSS change — full ears/heads intact, only outer background
+  margin (and a sliver of tail/paw) trimmed; the same fix applied to the
+  character-profile page's own larger portrait. The Savannah Seven
+  detail page's gallery cards had an even more severe version of the same
+  bug — a `4:3` (landscape) box forced onto genuinely portrait source
+  photos (0.803 ratio) was cropping close to 40% off the top+bottom
+  combined; corrected to `4:5`, a near-exact match, so `cover` now trims
+  almost nothing. Removed a real duplicate: `CampaignLanding.tsx`
+  rendered the _entire_ registration form twice (hero + finalCta) by
+  original design (see the git-blame'd comment this replaced) — the
+  brief explicitly reversed that decision, so finalCta is now a plain
+  "back to the form ↑" nudge (`SignupForm` gained an `id` prop for the
+  anchor target) with no second form anywhere, for every `CampaignLanding`
+  consumer (`/free30` and `/start/...`) at once, being a shared
+  component fix. Fixed the First/Last name row's actual flex bug
+  (`min-width: 0` was missing on the row's flex items, letting intrinsic
+  content width win over `flex: 1` under real width pressure) and made
+  `FormField`'s `.input` width explicit rather than relying on flex-
+  stretch defaults. New `components/patterns/BrandMark` — the one
+  standardised "Moral Tree Media" brand visual for News/Contact: the
+  previous ad hoc treatments (a circular-cropped badge on News, a
+  portrait-ratio box on Contact) both forced the source mark (landscape,
+  1216x848, ratio ~1.43) into a badly-mismatched box, which is why it
+  read as "too small" — not a subjective framing complaint, the same
+  measurable letterboxing bug as the character portraits above.
+  `BrandMark` always pairs the image with an explicit "Moral Tree Media"
+  wordmark (the source PNG has no text baked in) and is never circular.
+  Contact's own repeated Zulu wave pose swapped for Lulu (front-portrait),
+  per the brief's explicit suggestion — part of the wider cast-variety
+  push; Home's Zulu hero and mediums-stamp are untouched (the brief is
+  explicit those should stay). New `lib/enquiryTypes.ts` +
+  `ContactForm`'s optional `enquiryType` prop make Contact context-aware
+  via a validated `?type=` query param (`/contact?type=publishing`,
+  `?type=animation`, wired from Publishing's/Animation's existing "Talk
+  to us about..." CTAs) — one reusable form, not a duplicate per enquiry
+  type; shows a visible badge and labels the internal notification
+  email's subject line, degrading an unrecognised/missing value to no
+  badge at all rather than a fabricated "General enquiry" label. `Badge`
+  gained a `className` prop (small, additive) to support this. Character
+  profile pages gained a subtle per-character accent colour
+  (`CHARACTER_ACCENTS`, a `--character-accent` CSS custom property —
+  the portrait border and each section card's top stripe, not a
+  wholesale re-theme) and a documented (not built) future intro-video
+  slot in the same spot the portrait renders today. Publishing's
+  hero-visual placeholder gained a richer three-book-spine illustration
+  and `PropositionShell`'s placeholder box generally got a soft gradient/
+  shadow treatment instead of a plain dashed border, across all three
+  consumers (Publishing/Audiobooks/Animation). Audiobooks' "Sample a
+  story" and Animation's feature cards were audited for dead/misleading
+  clicks — none found; "Sample a story" already anchor-links to a real,
+  honest "no audio produced yet" explanation, and every card elsewhere
+  is a plain non-interactive `<div>`, never styled or wrapped as if
+  clickable. Shopify, campaign attribution, the QR/short-code system, and
+  the adult-registration consent contract are all unmodified.
+
+  **Artwork requiring future replacement** (documented, not touched —
+  see item 18 of the sprint brief; every entry below has already been
+  worked around at the CSS/layout level everywhere code safely could,
+  and needs a real artwork pass, not more CSS): `public/images/
+characters/full-cast/full-cast-01-group-portrait.png`, `-05-sunset-
+silhouette-warm.png`, `-09-storytime-circle.png`, and `public/images/
+story-worlds/savannah-seven/hero.png` all depict Mango notably larger
+  than the master asset library's own approved canonical scale reference
+  (`~/mtm-assets/.../14-batch2-corrected/savannah-seven-scale-lineup-
+batch2-v1.png` — confirmed against it directly, see WP13); the same
+  images' relative proportions for the other six ensemble characters
+  (reported: Zala reading smaller than her canonical 1.9x scale should
+  suggest) haven't been independently re-verified pixel-by-pixel this
+  sprint, but are the same class of issue — a scale/proportion problem
+  baked into the composite, not fixable by cropping or resizing in CSS.
+  No alternative already-approved composite in the master library's
+  `15-approved/` avoids this (`full-cast-10-parade-formation.png` has the
+  same defect, confirmed in WP13) — a real regeneration or manual
+  correction pass is the only fix.
+
+- **WP16 — Overnight refinement pass: Contact page visual balance** ✅
+  (25 Aug 2026, `feature/shopify-storefront-nav-link`) Small, controlled
+  pass, scoped by the owner's brief to Contact only — no other route
+  touched. Contact's no-real-`page`-doc fallback (`app/contact/page.tsx`,
+  `contact.module.css`) flanks the form with `BrandMark` (left) and
+  Lulu's front-portrait (right); both were reported as too small and
+  unevenly sized (12rem vs 10rem, a visible mismatch). Both now share one
+  `width: clamp(13rem, 6rem + 9vw, 15rem)` expression instead of two
+  different fixed widths — equal footprint at every viewport width
+  instead of a lopsided pair, growing modestly on wide desktops and
+  holding at 13rem down to the 64rem breakpoint itself (unchanged: still
+  hidden entirely below 64rem, the WP15 "never crowd the form on tablet/
+  mobile" rule untouched). `BrandMark`'s own default 14rem `max-width`
+  (correct for its other call site, News) would otherwise have capped
+  Contact's growth short of 15rem regardless of the clamp — overridden
+  locally with a doubled-class selector (`.flankBrand.flankBrand`), the
+  same specificity-safety trick WP13's `CtaPanel` fix established,
+  rather than relying on CSS Module bundle order. `.flank`'s image box
+  switched from a fixed 10rem×14rem to `width` + `aspect-ratio: 5/7`
+  (exactly the old ratio) so it scales with the same clamp instead of
+  staying a fixed size while only its sibling grew. Verified by
+  inspecting the actual compiled production CSS chunk (not just source)
+  to confirm both rules and the specificity override landed as written,
+  plus a layout-budget calculation across iPad-landscape (1024px, the
+  tightest width the flanked layout ever renders at — the same 64rem-
+  sits-exactly-at-iPad-landscape concern WP14 flagged for CampaignLanding
+  — confirmed the row still leaves ~480px of comfortable, unshrunk form
+  content), mobile portrait (unaffected — the flanked layout doesn't
+  render below 64rem at all, byte-for-byte the pre-existing verified
+  behaviour), and desktop; no real browser was available in this session
+  to screenshot instead, so tomorrow's visual QA is the first actual
+  on-screen look. Context-aware `?type=publishing`/`?type=animation`
+  enquiry badges (WP15) were re-verified working (200, badge logic
+  untouched), not changed. **No full "Moral Tree Media" logo asset
+  exists** — re-confirmed against `public/images/brand/README.md`
+  (Section 8's composed lockup remains un-generated); nothing was
+  invented, the existing tree-only mark + code-composed wordmark
+  (`BrandMark`) is unchanged and remains the correct honest treatment —
+  see that README's own updated note. About's tree scale, Story Worlds,
+  the Savannah Seven hero, cast portrait cropping, character profile
+  pages/routes/canonical order, Publishing/Audiobooks/Animation/News
+  layouts, `/free30`, and all responsive behaviour elsewhere are
+  unmodified. All 143 tests, lint, typecheck, format, and a
+  `USE_MOCK_CONTENT=false` production build all pass.
 
 ## Repository structure
 
@@ -323,7 +788,11 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   shared editorial content, so all three are `noindex` and none of them
   404 (an empty cart, an unrecognised/missing `session_id`, and a plain
   "you weren't charged" message are all just rendered directly rather than
-  mapped onto rule 1/2/3).
+  mapped onto rule 1/2/3). `/free30` (WP8) sits outside it for a different
+  reason — it's not Sanity-backed content at all, editorial or otherwise;
+  it's a hand-authored, always-on campaign landing page, `noindex` by
+  default (a judgement call, not a rule) since it's built for QR/
+  direct-link traffic rather than organic search.
 
 - `page` documents use a fixed `pageId` (see the option list in
   `apps/studio/schemaTypes/documents/page.ts` and `PAGE_IDS` in
@@ -380,10 +849,62 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   set) Sanity's Orders list are the two places to actually check order
   history — this webhook is not itself a system of record.
 
+## Future: MTM Control Center (not built — documentation only)
+
+A separate, future project — **not this website**, not started, not
+scaffolded, no code exists anywhere in this repo for it (24 Aug 2026
+refinement sprint: added here strictly as an architecture note per the
+sprint brief, deliberately deferred "until the public website is
+finished"). Recorded now because several places in this codebase already
+describe the hand-off they're designed for (`lib/countries.ts`'s
+`enabled` flag, `CharacterRosterEntry.slug`, the honest "coming soon"
+placeholders on Publishing/Audiobooks/Animation/Subscribe) — this section
+is the one place that ties those together instead of each doc comment
+re-explaining the whole picture.
+
+**Purpose**: secure private administration for Moral Tree Media staff —
+role-based access, subscriber management, sales analytics, listening
+analytics, country enable/disable controls, country-specific subscription
+pricing, story publishing, audiobook upload/publishing, Story World
+management, campaign management, QR campaigns, rewards, and future
+animation/media management.
+
+**Relationship to this repo**: a separate application/service, not a new
+route inside `apps/web`. This website's job is to keep read paths ready
+for it — `lib/countries.ts#getEnabledCountries()`, the `CharacterRosterEntry`
+schema's `slug`/`portrait`/`relativeScale` fields, and the general "Sanity
+document wins the instant one exists" pattern every null-state page here
+already follows — so that once the Control Center exists and starts
+writing real data (to Sanity, or its own store), this site's read side
+needs little to no rework. None of that data flow exists yet; every
+"future Control Center" mention elsewhere in this codebase is aspirational
+until this section says otherwise.
+
+**Target deployment portability** (not yet built, so not yet verified):
+local Mac Studio development, Docker-based development, VPS/cloud
+environments, and scalable commercial production infrastructure — the
+same kind of environment-portable design this repo's own `.env.example`-
+driven configuration already follows, extended to a second application.
+
 ## Guidance for future sessions
 
 - Keep this file's work-package checklist current as WPs land.
 - Do not touch `backend/` — see above.
+- **`/free30`'s signup does not grant an actual free trial** (see WP8) —
+  it notifies a human by email, nothing more. Making "free for 30 nights"
+  real needs a genuine decision + build: some kind of customer
+  account/access-grant system and a way to actually deliver audiobook
+  content (a member area? emailed links? a third-party platform?). That's
+  a real product/architecture decision for the owner, not something to
+  infer and build unprompted. Don't add fake "trial activated" UI states
+  before that system exists.
+- Adding a new campaign/QR landing route (`/blackpool`, `/pampers`,
+  `/chester-zoo` are the named examples) means: a thin
+  `app/<slug>/page.tsx` rendering `<CampaignLanding campaign="<slug>" />`
+  (see WP8), **and** adding `<slug>` to `lib/campaignRoutes.ts`'s
+  `CAMPAIGN_ROUTE_SLUGS` — skipping the second step leaves the full
+  corporate nav showing on what's supposed to be a stripped-down
+  conversion page.
 - **Hosting is now a firm decision, not a placeholder**: Vercel, canonical
   domain `moraltree.media` — see `DEPLOYMENT.md` for exactly what's done
   in code versus what still needs Vercel account access/DNS. Don't
@@ -419,3 +940,19 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   in-memory/single-instance caveat as the contact form's — same fix
   (shared store) applies to both if/when it becomes a real problem, not
   two separate efforts.
+- **Shopify is now the merch commerce backend (WP9)** — don't restore or
+  extend the WP7 Stripe checkout flow, and don't build a new bespoke
+  product database/cart/checkout. Set `NEXT_PUBLIC_SHOP_URL`
+  (`apps/web/.env.example`) to make "Shop" reappear in nav, pointed at
+  Shopify. Do not touch `campaign.offer.stripePriceId` or any Stripe
+  usage under the campaign/attribution architecture when working on this
+  — that's a separate, unrelated content-subscription/trial-entitlement
+  feature (owned by the shared platform backend), not the merch shop.
+  Next steps (not started, wait for explicit approval): Phase 2 is a
+  branded storefront domain (`shop.moraltree.media`, just a
+  `NEXT_PUBLIC_SHOP_URL` value + DNS, no code change); Phase 3 is headless
+  (Shopify Storefront API rendered through the existing `Card`/
+  `CardGrid` components, replacing this nav-link-only integration) —
+  only once the Phase 1 link has been proven in production and the owner
+  asks for it; formal removal of the dormant WP7 code is its own later,
+  deliberate cleanup, not bundled into either phase above.

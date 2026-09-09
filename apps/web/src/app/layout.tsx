@@ -6,6 +6,7 @@ import { Header } from "@/components/patterns/Header";
 import { Footer } from "@/components/patterns/Footer";
 import { ConsentBanner } from "@/components/patterns/ConsentBanner";
 import { PreviewBanner } from "@/components/patterns/PreviewBanner";
+import { CorporateChromeGate } from "@/components/patterns/CorporateChromeGate";
 import { getSiteSettings } from "@/lib/sanity/queries";
 import { resolveLink, resolveLinks } from "@/lib/links";
 import { useMockContent } from "@/lib/sanity/env";
@@ -68,14 +69,22 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         {useMockContent && <PreviewBanner />}
         <SkipLink />
-        <Header siteTitle={siteTitle} nav={primaryNav} />
+        {/* Suppressed on campaign/QR landing routes (CorporateChromeGate,
+            lib/campaignRoutes.ts) — those pages are deliberately outside
+            the corporate site's chrome. `<main>` itself is unconditional
+            so SkipLink's target landmark always exists. */}
+        <CorporateChromeGate>
+          <Header siteTitle={siteTitle} nav={primaryNav} />
+        </CorporateChromeGate>
         <main id="main-content">{children}</main>
-        <Footer
-          siteTitle={siteTitle}
-          nav={footerNav}
-          socialLinks={socialLinks}
-          note={footerNote}
-        />
+        <CorporateChromeGate>
+          <Footer
+            siteTitle={siteTitle}
+            nav={footerNav}
+            socialLinks={socialLinks}
+            note={footerNote}
+          />
+        </CorporateChromeGate>
         {consentEnabled && (
           <ConsentBanner
             message={siteSettings?.consentBanner?.message}

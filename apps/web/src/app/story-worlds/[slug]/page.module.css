@@ -39,9 +39,17 @@
   padding-bottom: var(--space-7);
 }
 
+/* 4:5 (0.8), not the previous 4:3 (1.333, landscape) — 24 Aug 2026
+   refinement sprint: the actual gallery source images (full-cast-01/-09,
+   lib/characterGroups.ts) are portrait-oriented, 912x1136 (0.803 ratio),
+   nowhere close to 4:3. Forcing a landscape box onto a portrait photo
+   with `object-fit: cover` cropped roughly 40% off the top+bottom
+   combined — heads/ears in the photo's top row were being cut off. 4:5
+   is a near-exact match to the real 0.803 ratio, so `cover` now crops
+   almost nothing. */
 .galleryItem {
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 4 / 5;
   border-radius: var(--radius-md);
   overflow: hidden;
 }
@@ -55,3 +63,15 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+.characters {
+  padding-bottom: var(--space-7);
+}
+
+.charactersHeading {
+  margin-bottom: var(--space-4);
+}
+
+/* Cast presentation itself now lives in the shared
+   components/patterns/CastPortraitGrid (24 Aug 2026 refinement sprint —
+   see its own doc comment); nothing page-local left to style here. */

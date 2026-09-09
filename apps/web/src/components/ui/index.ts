@@ -5,6 +5,7 @@ export { Button } from "./Button";
 export type { ButtonProps } from "./Button";
 export { Card } from "./Card";
 export type { CardProps } from "./Card";
-export { TextField, TextArea } from "./FormField";
+export { TextField, TextArea, SelectField } from "./FormField";
 export { Badge } from "./Badge";
 export type { BadgeProps } from "./Badge";
+export { Checkbox } from "./Checkbox";
