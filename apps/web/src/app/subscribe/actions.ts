@@ -18,8 +18,6 @@ import {
   LATEST_TOUCH_COOKIE_NAME,
   parseAttributionCookie,
 } from "@/lib/attribution/cookie";
-import { resolveTrialDaysFromConfig } from "@/lib/trialConfig";
-import { checkTrialEligibility } from "@/lib/trialEligibility";
 import type { SubscribeCheckoutState } from "./state";
 
 // Best-effort, single-instance rate limiting — same caveat as
@@ -40,31 +38,29 @@ function isRateLimited(ip: string): boolean {
 }
 
 /**
- * Creates a Stripe Checkout Session for a subscription, sets the
+ * Creates a Stripe Checkout Session for a paid subscription, sets the
  * correlation cookie, and redirects to the Stripe-hosted Checkout URL.
+ *
+ * PAID SUBSCRIPTION ONLY — no free trial period.
+ * The free trial is a separate platform-managed offering registered at
+ * /free30. This checkout always charges immediately on Stripe — no
+ * trial_period_days, no deferred billing, no card-free path.
+ *
+ * A customer upgrading from a free trial goes through this same checkout.
+ * Stripe charges immediately. The paid subscription start date becomes the
+ * billing/renewal anchor. No unused trial days are credited or carried
+ * forward — the policy is explicit: upgrade ends the trial on the spot.
  *
  * SECURITY INVARIANTS
  * - The browser submits only an internal plan identifier ("MONTHLY"/"ANNUAL").
  *   The server maps it to the configured Stripe Price ID — never trusts a
  *   client-supplied Price ID.
- * - The trial duration is resolved entirely server-side from trusted
- *   campaign/acquisition configuration. The browser cannot submit or influence
- *   the number of free-trial days.
- * - Trial eligibility is checked against Sanity subscription records to prevent
- *   repeat-trial abuse within the same email address.
+ * - No trial duration is accepted from the browser under any circumstances.
+ * - Attribution reads attribution cookies and forwards them as Stripe metadata
+ *   so paid conversions remain attributable through to the webhook-confirmed
+ *   subscription record.
  *
- * TRIAL MODEL
- * Uses Stripe-managed free trials (trial_period_days in subscription_data).
- * Duration resolved by resolveTrialDaysFromConfig(), capped at 30 days.
- * Eligibility checked by checkTrialEligibility() — ineligible accounts get
- * trialDays=0 (immediate payment at Stripe Checkout).
- *
- * A trial START is not a paid conversion. Paid conversion is confirmed only
- * by the invoice.paid webhook event.
- *
- * Attribution: reads attribution cookies and forwards them as Stripe metadata
- * so paid conversions remain attributable through to the webhook-confirmed
- * subscription record.
+ * A paid conversion is confirmed only by the invoice.paid webhook event.
  */
 export async function createSubscriptionCheckout(
   _prevState: SubscribeCheckoutState,
@@ -138,30 +134,6 @@ export async function createSubscriptionCheckout(
   const campaignId = latestAttribution?.campaignId ?? undefined;
   const acquisitionSource = latestAttribution?.acquisitionSource ?? undefined;
 
-  // ── Trial resolution ────────────────────────────────────────────────
-  // The browser never supplies a trial duration. The server resolves
-  // the approved duration from campaign/source config, then gates it
-  // against the email's trial eligibility history.
-  const configuredTrialDays = resolveTrialDaysFromConfig(
-    campaignId,
-    acquisitionSource,
-  );
-
-  let trialDays = 0;
-  let trialEligible = false;
-
-  if (configuredTrialDays > 0) {
-    const eligibility = await checkTrialEligibility(email);
-    if (eligibility.eligible) {
-      trialDays = configuredTrialDays;
-      trialEligible = true;
-    }
-    // If ineligible: trialDays stays 0 — subscriber goes straight to payment.
-    // We don't surface an "ineligible" error to the user; the checkout just
-    // proceeds without a trial. This avoids confusing someone who simply
-    // closed a previous checkout without completing it.
-  }
-
   // Stable correlation reference — generated server-side, set as a cookie,
   // and passed as client_reference_id to Stripe. The webhook uses this to
   // write the subscription record without trusting any client input.
@@ -180,19 +152,15 @@ export async function createSubscriptionCheckout(
       // Stable internal correlation — the webhook reads this back and
       // stores it in the subscription document. Never a Stripe ID.
       client_reference_id: correlationRef,
-      // Attribution + trial + plan metadata forwarded to the subscription
-      // itself so lifecycle events (renewal, cancellation) remain
-      // attributable without a second Sanity lookup. Trial duration is
-      // stored here for audit — the webhook reads it to record in Sanity.
+      // Attribution metadata forwarded to the subscription itself so
+      // lifecycle events (renewal, cancellation) remain attributable
+      // without a second Sanity lookup.
       metadata: {
         checkoutType: "subscription",
         plan,
         correlationRef,
         firstName,
         lastName,
-        // Trial metadata — stored as strings (Stripe metadata values are always strings)
-        trialDays: String(trialDays),
-        trialEligible: String(trialEligible),
         ...(campaignId && { campaignId }),
         ...(acquisitionSource && { acquisitionSource }),
         ...(latestAttribution?.partnerId && {
@@ -203,12 +171,14 @@ export async function createSubscriptionCheckout(
         }),
       },
       subscription_data: {
+        // No trial_period_days — this checkout always charges immediately.
+        // The free trial is a separate platform-managed offering at /free30.
+        // Customers upgrading from a trial pay immediately; no unused trial
+        // days are carried forward.
         metadata: {
           checkoutType: "subscription",
           plan,
           correlationRef,
-          trialDays: String(trialDays),
-          trialEligible: String(trialEligible),
           ...(campaignId && { campaignId }),
           ...(acquisitionSource && { acquisitionSource }),
           ...(latestAttribution?.partnerId && {
@@ -221,15 +191,6 @@ export async function createSubscriptionCheckout(
             firstTouchRef: firstAttribution.attributionRef,
           }),
         },
-        // CARD / PAYMENT METHOD DECISION — FOUNDER DECISION REQUIRED:
-        // With trial_period_days set, Stripe Checkout collects a payment
-        // method at trial start but does NOT charge it until the trial ends.
-        // If you want a trial without requiring a card upfront, use Stripe's
-        // "free trial without payment method" flow, which requires a different
-        // subscription setup. For now: card is required at trial start (Stripe
-        // default for trial_period_days). Stripe enforces one trial per payment
-        // method, providing an additional anti-abuse layer.
-        ...(trialDays > 0 && { trial_period_days: trialDays }),
       },
       success_url: `${siteUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/subscription/cancelled`,

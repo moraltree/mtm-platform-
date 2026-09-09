@@ -7,16 +7,15 @@ import {
 } from "./subscriptionEntitlement";
 
 /**
- * Entitlement logic tests — covers which subscription statuses grant access
- * and which are correctly denied.
+ * Entitlement logic tests.
  *
  * Key invariants:
- * - hasPaidAccess: active OR trialing = true; everything else = false
- * - hasPaidSubscriptionAccess: active only = true (trialing = false)
- * - hasTrialAccess: trialing only = true (active = false)
+ * - hasPaidAccess: active OR trialing = true (any form of access)
+ * - hasPaidSubscriptionAccess: active only = true (paid subscriber)
+ * - hasTrialAccess: trialing only = true (and not expired)
  *
- * The distinction between hasPaidSubscriptionAccess and hasTrialAccess
- * exists to ensure trial starts never trigger paid-conversion rewards.
+ * Trial access and paid access are DISTINCT entitlement tiers.
+ * A trial subscriber never satisfies hasPaidSubscriptionAccess().
  */
 
 describe("hasPaidAccess", () => {
@@ -40,7 +39,7 @@ describe("hasPaidAccess", () => {
     });
   }
 
-  it("never treats past_due as active — failed/unpaid subscriptions cannot grant access", () => {
+  it("never treats past_due as active — failed payments cannot grant access", () => {
     expect(hasPaidAccess("past_due")).toBe(false);
   });
 
@@ -79,15 +78,21 @@ describe("hasPaidSubscriptionAccess", () => {
   }
 
   it("trial start does NOT constitute a paid conversion (hasPaidSubscriptionAccess=false while trialing)", () => {
-    // This invariant protects against paid-conversion rewards being triggered
-    // at the moment a free trial starts.
     expect(hasPaidSubscriptionAccess("trialing")).toBe(false);
   });
 });
 
-describe("hasTrialAccess", () => {
-  it("returns true for trialing — free trial grants content access", () => {
+describe("hasTrialAccess — status-only check (no expiry)", () => {
+  it("returns true for trialing with no trialEnd (no expiry specified)", () => {
     expect(hasTrialAccess("trialing")).toBe(true);
+  });
+
+  it("returns true for trialing with undefined trialEnd", () => {
+    expect(hasTrialAccess("trialing", undefined)).toBe(true);
+  });
+
+  it("returns true for trialing with null trialEnd", () => {
+    expect(hasTrialAccess("trialing", null)).toBe(true);
   });
 
   it("returns false for active — active subscriber is not on a trial", () => {
@@ -107,18 +112,46 @@ describe("hasTrialAccess", () => {
   }
 });
 
+describe("hasTrialAccess — expiry-aware check", () => {
+  const FUTURE_DATE = new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString();
+  const PAST_DATE = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
+
+  it("returns true when trialing and trialEnd is in the future (Day 1)", () => {
+    expect(hasTrialAccess("trialing", FUTURE_DATE)).toBe(true);
+  });
+
+  it("returns true when trialing and trialEnd is in the future (Day 29)", () => {
+    const twentyNineDays = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString();
+    expect(hasTrialAccess("trialing", twentyNineDays)).toBe(true);
+  });
+
+  it("returns false when trialing and trialEnd is in the past (trial expired)", () => {
+    expect(hasTrialAccess("trialing", PAST_DATE)).toBe(false);
+  });
+
+  it("30-day trial expiry: returns false after trialEnd has passed", () => {
+    const thirtyOneDaysAgo = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000).toISOString();
+    expect(hasTrialAccess("trialing", thirtyOneDaysAgo)).toBe(false);
+  });
+
+  it("returns false for non-trialing status regardless of trialEnd", () => {
+    expect(hasTrialAccess("active", FUTURE_DATE)).toBe(false);
+    expect(hasTrialAccess("cancelled", FUTURE_DATE)).toBe(false);
+  });
+});
+
 describe("entitlement distinction: trial vs paid", () => {
-  it("hasPaidAccess covers both active and trialing (content always accessible)", () => {
+  it("hasPaidAccess covers both active and trialing (any form of access)", () => {
     expect(hasPaidAccess("active")).toBe(true);
     expect(hasPaidAccess("trialing")).toBe(true);
   });
 
-  it("only hasPaidSubscriptionAccess distinguishes a paying customer from a trialist", () => {
+  it("hasPaidSubscriptionAccess distinguishes a paying customer from a trialist", () => {
     expect(hasPaidSubscriptionAccess("active")).toBe(true);
     expect(hasPaidSubscriptionAccess("trialing")).toBe(false);
   });
 
-  it("only hasTrialAccess identifies a trialist specifically", () => {
+  it("hasTrialAccess identifies a trialist specifically", () => {
     expect(hasTrialAccess("trialing")).toBe(true);
     expect(hasTrialAccess("active")).toBe(false);
   });
@@ -126,5 +159,11 @@ describe("entitlement distinction: trial vs paid", () => {
   it("a trialist never simultaneously satisfies hasPaidSubscriptionAccess", () => {
     expect(hasPaidSubscriptionAccess("trialing")).toBe(false);
     expect(hasTrialAccess("trialing")).toBe(true);
+  });
+
+  it("an expired trial satisfies neither hasPaidSubscriptionAccess nor hasTrialAccess", () => {
+    const pastDate = new Date(Date.now() - 1000).toISOString();
+    expect(hasPaidSubscriptionAccess("trialing")).toBe(false);
+    expect(hasTrialAccess("trialing", pastDate)).toBe(false);
   });
 });

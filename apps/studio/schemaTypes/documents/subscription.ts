@@ -32,7 +32,8 @@ export default defineType({
       name: "stripeCheckoutSessionId",
       title: "Stripe Checkout Session ID",
       type: "string",
-      validation: (rule) => rule.required(),
+      description:
+        "Absent for platform-managed free trials, which never go through Stripe Checkout.",
     }),
     defineField({
       name: "stripeCustomerId",
@@ -130,10 +131,11 @@ export default defineType({
     }),
     defineField({
       name: "trialEnd",
-      title: "Trial end (Stripe)",
+      title: "Trial end / expiry",
       type: "datetime",
       description:
-        "The Stripe-reported trial end date, populated from customer.subscription.created/updated events.",
+        "For platform trials: the hard expiry date (trialStartedAt + 30 days), set at registration. " +
+        "For Stripe subscription trials (legacy): the Stripe-reported trial end date.",
     }),
     defineField({
       name: "customerEmail",

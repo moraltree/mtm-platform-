@@ -152,12 +152,9 @@ async function handleSubscriptionCheckoutCompleted(
       ? session.subscription
       : undefined;
 
-  // Parse trial metadata stored by the checkout action.
-  // These come back as strings (Stripe metadata is always string-typed).
-  const trialDays = parseInt(session.metadata?.trialDays ?? "0", 10) || 0;
-  const trialEligible = session.metadata?.trialEligible === "true";
-
+  const customerEmail = session.customer_details?.email ?? undefined;
   const now = new Date().toISOString();
+
   const subscriptionDoc = {
     _type: "subscription",
     correlationRef,
@@ -165,12 +162,8 @@ async function handleSubscriptionCheckoutCompleted(
     stripeCustomerId,
     stripeSubscriptionId,
     plan: session.metadata?.plan ?? undefined,
-    status: "incomplete" as const, // upgraded to "active" or "trialing" by subscription.created/invoice.paid
-    customerEmail: session.customer_details?.email ?? undefined,
-    // Trial fields — server-approved at checkout time
-    trialDays,
-    trialEligible,
-    ...(trialDays > 0 && { trialStartedAt: now }),
+    status: "incomplete" as const, // upgraded to "active" by invoice.paid
+    customerEmail,
     campaignId: session.metadata?.campaignId ?? undefined,
     acquisitionSource: session.metadata?.acquisitionSource ?? undefined,
     partnerId: session.metadata?.partnerId ?? undefined,
@@ -210,6 +203,56 @@ async function handleSubscriptionCheckoutCompleted(
       .commit();
   } else {
     await sanityWriteClient.create(subscriptionDoc);
+  }
+
+  // Terminate any active platform trial for this email.
+  // When a customer with an active free trial subscribes to a paid plan,
+  // the trial ends immediately — no unused days carried forward.
+  if (customerEmail) {
+    await terminatePlatformTrialForEmail(customerEmail);
+  }
+}
+
+/**
+ * Marks any active platform trial (status="trialing", no Stripe subscription)
+ * for the given email as cancelled. Called when a customer completes a paid
+ * subscription checkout — the trial ends at that moment, regardless of how
+ * many trial days remain.
+ */
+async function terminatePlatformTrialForEmail(email: string): Promise<void> {
+  if (!sanityWriteClient) return;
+
+  const normalisedEmail = email.toLowerCase().trim();
+  try {
+    const trialDoc = await sanityWriteClient.fetch<{ _id: string } | null>(
+      `*[
+        _type == "subscription" &&
+        customerEmail == $email &&
+        status == "trialing" &&
+        !defined(stripeSubscriptionId)
+      ][0] { _id }`,
+      { email: normalisedEmail },
+    );
+
+    if (!trialDoc) return;
+
+    await sanityWriteClient
+      .patch(trialDoc._id)
+      .set({
+        status: "cancelled",
+        cancelledAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
+      .commit();
+  } catch (err) {
+    // Log and continue — failing to terminate the trial record must not
+    // block the subscription record from being written. The trial cookie
+    // will be replaced by the new paid subscription cookie, so the user
+    // gets the correct entitlement regardless.
+    console.error(
+      "Stripe webhook: failed to terminate platform trial on upgrade:",
+      err,
+    );
   }
 }
 

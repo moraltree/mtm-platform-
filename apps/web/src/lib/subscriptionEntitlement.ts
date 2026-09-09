@@ -4,16 +4,21 @@ import type { SubscriptionPlan } from "./subscriptionPlans";
 
 /**
  * The trusted server-side entitlement check for Moral Tree Media paid
- * subscriptions. Always runs server-side — never trusts localStorage,
- * URL parameters, or success redirects alone.
+ * subscriptions and free trials. Always runs server-side — never trusts
+ * localStorage, URL parameters, or success redirects alone.
  *
  * Status semantics:
- *   active    — subscription is paid and current (or trialing with card on file)
- *   trialing  — in a Stripe-managed free trial
+ *   active    — paid subscription is current (full library access)
+ *   trialing  — platform-managed free trial (Starter Collection access only)
  *   past_due  — payment failed; grace period may still grant access (Stripe policy)
  *   incomplete — checkout session completed but subscription not yet confirmed
- *   cancelled  — subscription was cancelled or never successfully paid
+ *   cancelled  — subscription or trial was cancelled or converted to paid
  *   unknown    — no record found (new visitor, or Sanity/Stripe not configured)
+ *
+ * Trial access is SEPARATE from paid access. A trialing subscriber never
+ * satisfies hasPaidSubscriptionAccess(). Use hasTrialAccess() for trial
+ * entitlement and hasStarterCollectionAccess() (starterCollection.ts) for
+ * the combined "trial or paid" content gate.
  */
 export type SubscriptionStatus =
   | "active"
@@ -192,9 +197,22 @@ export function hasPaidSubscriptionAccess(status: SubscriptionStatus): boolean {
 }
 
 /**
- * Returns true only for an ACTIVE FREE TRIAL.
- * A trial start is NOT a paid conversion — use hasPaidSubscriptionAccess for that.
+ * Returns true only for an active, non-expired free trial.
+ *
+ * Pass `trialEnd` (the ISO 8601 expiry date stored in the subscription
+ * record) to enforce the 30-day limit. Without it, only the status is
+ * checked (useful in contexts where the expiry is checked separately).
+ *
+ * A trial start is NOT a paid conversion — use hasPaidSubscriptionAccess
+ * for paid-subscriber-only decisions (analytics, rewards, full-library access).
  */
-export function hasTrialAccess(status: SubscriptionStatus): boolean {
-  return status === "trialing";
+export function hasTrialAccess(
+  status: SubscriptionStatus,
+  trialEnd?: string | null,
+): boolean {
+  if (status !== "trialing") return false;
+  if (trialEnd) {
+    return new Date(trialEnd) > new Date();
+  }
+  return true;
 }
