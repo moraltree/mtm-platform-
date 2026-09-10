@@ -5,7 +5,12 @@ import type { ResolvedPrice } from "./sanity/types";
 
 export { formatPrice } from "./format";
 
-const secretKey = process.env.STRIPE_SECRET_KEY;
+const configuredKey = process.env.STRIPE_SECRET_KEY;
+// This branch is TEST MODE only, including the dormant shop.
+const secretKey =
+  configuredKey && /^(sk|rk)_test_/.test(configuredKey)
+    ? configuredKey
+    : undefined;
 
 export const isStripeConfigured = Boolean(secretKey);
 

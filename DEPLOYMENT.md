@@ -104,3 +104,11 @@ canonical host and local dev are unaffected.
 - [ ] HSTS preload submission (hstspreload.org) — hold until the legacy
       domains above are live too, so the whole preload set resolves
       correctly first.
+
+## Subscription v1 feature branch — not deployed
+
+See [STRIPE_SUBSCRIPTIONS_V1.md](./STRIPE_SUBSCRIPTIONS_V1.md) for dedicated test
+configuration. New content billing uses `/api/subscriptions/webhook` and
+PostgreSQL, not the dormant Sanity order webhook described above. Activation
+requires `SUBSCRIPTIONS_ENABLED=true`. No production deployment, merge,
+service restart, or original-backend migration is part of this task.

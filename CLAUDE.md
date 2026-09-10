@@ -3,6 +3,18 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with
 code in this repository.
 
+## Stripe Subscriptions v1 (feature branch, test only)
+
+The September 2026 subscription task explicitly authorizes the account, billing,
+trial and entitlement implementation previously deferred below. See
+[STRIPE_SUBSCRIPTIONS_V1.md](./STRIPE_SUBSCRIPTIONS_V1.md) for the audited
+architecture, PostgreSQL migration, activation gate, single trial deadline,
+verification/session model, protected library adapter and remaining test
+provider configuration. `SUBSCRIPTIONS_ENABLED=false` preserves the historical
+email stand-in. The original legacy backend and deployment remain unchanged.
+Historical statements below that no account/billing implementation exists now
+apply to the disabled fallback, not the feature-gated subscription module.
+
 ## Project status
 
 This is the Moral Tree Media (MTM) website, being built to an approved Phase

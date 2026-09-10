@@ -6,6 +6,8 @@ import { buildRegistrationConsentState } from "@/lib/registrationConsent";
 import { parseAndValidateRegistration } from "@/lib/registration/validate";
 import { asAcquisitionSourceCode, asCampaignId } from "@/lib/platform/ids";
 import { emailStandInPlatformClient } from "@/lib/platform/contract";
+import { subscriptionRegistration } from "@/lib/subscriptions/auth";
+import { enabled } from "@/lib/subscriptions/config";
 import { isRegistrationRateLimited } from "@/lib/registration/rateLimit";
 // A "use server" file may only export async functions — the shared type
 // and idle initial state (`initialFreeTrialSignupState`) live in
@@ -51,7 +53,7 @@ export async function submitFreeTrialSignup(
     };
   }
 
-  const campaign = String(formData.get("campaign") || "").trim() || "unknown";
+  const campaign = "free30";
   const source = String(formData.get("source") || "").trim();
 
   const { values, consentInput, fieldErrors, consentErrors, isValid } =
@@ -81,7 +83,9 @@ export async function submitFreeTrialSignup(
   const attribution = { first: fallback, latest: fallback };
   const consent = buildRegistrationConsentState(consentInput);
 
-  const result = await emailStandInPlatformClient.startTrial({
+  const result = await (
+    enabled() ? subscriptionRegistration : emailStandInPlatformClient.startTrial
+  )({
     adult: {
       firstName: values.firstName,
       lastName: values.lastName,

@@ -1,7 +1,10 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { PropositionShell } from "@/components/patterns/PropositionShell";
 import { ContactForm } from "@/components/patterns/ContactForm";
 import { buildMetadata } from "@/lib/metadata";
+import { enabled } from "@/lib/subscriptions/config";
+import { SubscriptionPanel } from "./SubscriptionPanel";
 import { StarIcon } from "./subscribe-icons";
 
 /**
@@ -23,11 +26,32 @@ import { StarIcon } from "./subscribe-icons";
  */
 
 export const metadata: Metadata = buildMetadata("Subscribe", {
-  metaDescription:
-    "Subscriptions to Moral Tree Media's full audiobook library are coming — start a free trial today or join the waitlist.",
+  metaDescription: enabled()
+    ? "Monthly or annual access to the Moral Tree Media audiobook library. Up to 30 calendar days of curated free access."
+    : "Subscriptions to Moral Tree Media's full audiobook library are coming — start a free trial today or join the waitlist.",
 });
 
-export default function SubscribePage() {
+export default async function SubscribePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string }>;
+}) {
+  if (enabled()) {
+    const { notice } = await searchParams;
+    return (
+      <>
+        <PropositionShell
+          icon={<StarIcon />}
+          eyebrow="Subscribe"
+          heading="Stories for every day"
+          intro="Choose monthly or annual access to every available story. Subscribe whenever you are ready, including during free access."
+          features={[]}
+          ctas={[]}
+        />
+        <SubscriptionPanel notice={notice} />
+      </>
+    );
+  }
   return (
     <>
       <PropositionShell

@@ -21,6 +21,8 @@ import {
   asStoryWorldId,
 } from "@/lib/platform/ids";
 import { emailStandInPlatformClient } from "@/lib/platform/contract";
+import { subscriptionRegistration } from "@/lib/subscriptions/auth";
+import { enabled } from "@/lib/subscriptions/config";
 import type { OfferIdentity } from "@/lib/platform/contract";
 import type { RewardEligibilityMetadata } from "@/lib/rewards/types";
 import { isRegistrationRateLimited } from "@/lib/registration/rateLimit";
@@ -172,6 +174,13 @@ export async function submitCampaignSignup(
       ? lookedUpCampaign
       : null;
 
+  if (enabled() && !campaignDoc)
+    return {
+      status: "error",
+      message:
+        "This campaign is unavailable. Please reopen your campaign link.",
+    };
+
   const offer: OfferIdentity = {
     offerType: campaignDoc?.offer?.offerType,
     trialLengthDays: campaignDoc?.offer?.trialLengthDays,
@@ -196,7 +205,9 @@ export async function submitCampaignSignup(
 
   const consent = buildRegistrationConsentState(consentInput);
 
-  const result = await emailStandInPlatformClient.startTrial({
+  const result = await (
+    enabled() ? subscriptionRegistration : emailStandInPlatformClient.startTrial
+  )({
     adult: {
       firstName: values.firstName,
       lastName: values.lastName,

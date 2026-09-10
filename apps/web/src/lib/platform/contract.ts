@@ -13,6 +13,10 @@ import type {
 } from "./ids";
 
 /**
+ * Historical email fallback contract. The test-only subscription implementation
+ * now lives in lib/subscriptions and registration selects it when explicitly
+ * enabled. The descriptions below explain this fallback's original scope.
+ *
  * The typed contract this repository should call for everything the
  * architecture proposal assigns to the shared platform backend or the
  * external audiobook platform — accounts, auth, entitlements, real
@@ -123,7 +127,7 @@ export interface StartTrialRequest {
 }
 
 export interface StartTrialResult {
-  status: "pending-manual-follow-up" | "error";
+  status: "pending-manual-follow-up" | "pending-email-verification" | "error";
   /** User-facing copy for whatever the platform route renders next —
    * today always a "we'll be in touch" message; once the real backend
    * exists this may instead carry a redirect target (e.g. into the

@@ -8,6 +8,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: mtm_test
+          POSTGRES_PASSWORD: ci-test-only
+          POSTGRES_DB: mtm_subscription_test
+        ports:
+          - 55439:5432
+        options: >-
+          --health-cmd "pg_isready -U mtm_test -d mtm_subscription_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
@@ -18,6 +30,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Tests (including isolated PostgreSQL subscription tests)
+        run: npm test
+        env:
+          MTM_TEST_DATABASE_URL: postgresql://mtm_test:ci-test-only@127.0.0.1:55439/mtm_subscription_test
 
       - name: Lint
         run: npm run lint
