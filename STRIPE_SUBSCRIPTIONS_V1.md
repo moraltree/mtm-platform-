@@ -85,8 +85,21 @@ It never prints keys, database URLs, provider error bodies, or payment data.
    and `charge.dispute.closed`.
 5. Exercise test card success, declined card, authentication challenge,
    renewal, cancellation and duplicate event redelivery in the Dashboard.
-   The SDK/API version is pinned to `2026-07-29.dahlia`; configure the webhook
-   endpoint with the same event schema version.
+   Outbound SDK/API requests are pinned to `2026-07-29.dahlia`. Prefer that
+   schema for a separately configured Dashboard endpoint. CLI 1.50.11 uses the
+   account-default event version (currently `2026-08-26.dahlia`) and offers only
+   `--latest`, not an arbitrary event-version pin. Do not change the account
+   default or an existing endpoint to run local acceptance.
+
+   Signed TEST events from both `2026-07-29.dahlia` and `2026-08-26.dahlia`
+   are supported: Stripe monthly versions within the same named release are
+   [backward-compatible](https://docs.stripe.com/sdks/versioning). The outbound
+   request pin does not select the schema of incoming webhook events. The
+   handler preserves the signed payload, retains signature and TEST-mode
+   validation, and retrieves current billing objects using the pinned client.
+   Regression tests cover both event versions; a new named release requires
+   separate compatibility review. No SDK upgrade or validation bypass is
+   required for this local listener.
 
 Reference: [Stripe subscription webhooks](https://docs.stripe.com/billing/subscriptions/webhooks),
 [Stripe billing testing](https://docs.stripe.com/billing/testing),
