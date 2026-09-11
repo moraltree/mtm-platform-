@@ -86,11 +86,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           />
         </CorporateChromeGate>
         {consentEnabled && (
-          <ConsentBanner
-            message={siteSettings?.consentBanner?.message}
-            policyHref={consentPolicyLink?.href}
-            policyLabel={consentPolicyLink?.label}
-          />
+          <CorporateChromeGate adminOnly>
+            <ConsentBanner
+              message={siteSettings?.consentBanner?.message}
+              policyHref={consentPolicyLink?.href}
+              policyLabel={consentPolicyLink?.label}
+            />
+          </CorporateChromeGate>
         )}
       </body>
     </html>

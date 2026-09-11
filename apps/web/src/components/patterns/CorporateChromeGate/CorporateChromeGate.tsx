@@ -6,6 +6,7 @@ import { isCampaignRoute } from "@/lib/campaignRoutes";
 
 export interface CorporateChromeGateProps {
   children: ReactNode;
+  adminOnly?: boolean;
 }
 
 /**
@@ -24,8 +25,13 @@ export interface CorporateChromeGateProps {
  * component existed. `Header`/`Footer` themselves aren't touched — this
  * only decides whether they're rendered at all for the current route.
  */
-export function CorporateChromeGate({ children }: CorporateChromeGateProps) {
+export function CorporateChromeGate({
+  children,
+  adminOnly = false,
+}: CorporateChromeGateProps) {
   const pathname = usePathname();
-  if (isCampaignRoute(pathname)) return null;
+  // Presentation only; admin data authorization is server-side.
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) return null;
+  if (!adminOnly && isCampaignRoute(pathname)) return null;
   return <>{children}</>;
 }
