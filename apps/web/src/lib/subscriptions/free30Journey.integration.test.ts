@@ -17,7 +17,6 @@ import {
   it,
   vi,
 } from "vitest";
-import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { renderToStaticMarkup } from "react-dom/server";
 
