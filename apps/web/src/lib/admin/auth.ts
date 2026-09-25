@@ -22,7 +22,9 @@ export async function authorizeAdminActor() {
     .update(`mtm-admin-audit:${account.id}`)
     .digest("hex")
     .slice(0, 16);
-  return { role, actor };
+  // accountId is for the append-only export audit row only: never logged,
+  // never returned to a browser.
+  return { role, actor, accountId: account.id };
 }
 
 /** Every page/API reads this gate before any analytics query. No client grants. */

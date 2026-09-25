@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { parsePlan, testSecret, type Plan } from "./policy";
+import { assertStripeConfig } from "./stripeConfig.mjs";
 
 export const enabled = () => process.env.SUBSCRIPTIONS_ENABLED === "true";
 
@@ -22,6 +23,9 @@ export function origin() {
 export function billingStripe() {
   if (!enabled() || !testSecret(process.env.STRIPE_SECRET_KEY))
     throw new Error("Stripe test billing is not configured");
+  // Fails closed on any inconsistency (legacy names, missing account ID,
+  // malformed secrets, duplicate Prices) rather than guessing.
+  assertStripeConfig(process.env);
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2026-07-29.dahlia",
     maxNetworkRetries: 2,

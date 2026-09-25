@@ -1,23 +1,30 @@
+import { errorSummary } from "@/lib/safeLog";
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { isStripeConfigured, stripe } from "@/lib/stripe";
 import { sanityWriteClient } from "@/lib/sanity/writeClient";
 import { getProductByStripePriceId } from "@/lib/sanity/queries";
 import { sendEmail } from "@/lib/email";
+import { isContentSubscriptionObject } from "@/lib/stripeEvents";
 
 /**
  * Stripe webhook endpoint — the one place this codebase reacts to events
- * Stripe itself considers authoritative (payment success, subscription
- * cancellation, refunds). Writes `order` documents via the
+ * Stripe itself considers authoritative for the dormant merchandise shop
+ * (payment success, refunds). Content subscriptions are never handled here. Writes `order` documents via the
  * write-authenticated Sanity client (lib/sanity/writeClient.ts) and sends
  * a best-effort confirmation email (lib/email.ts). Inert (503) unless
- * both STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET are set — see
+ * both STRIPE_SECRET_KEY and STRIPE_SHOP_WEBHOOK_SECRET are set — see
  * .env.example. Order-writing additionally degrades to a console warning
  * (event still acknowledged) if SANITY_API_WRITE_TOKEN isn't set, so a
  * partially-configured deployment doesn't cause Stripe to retry forever.
  */
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+// Phase 5 reconciliation: this dormant merchandise endpoint has its OWN
+// signing-secret variable. STRIPE_WEBHOOK_SECRET belongs exclusively to the
+// content-subscription endpoint (/api/subscriptions/webhook); one secret can
+// only verify one Stripe endpoint, and sharing it let this route receive and
+// act on subscription events. Unset (the default everywhere) = inert 503.
+const webhookSecret = process.env.STRIPE_SHOP_WEBHOOK_SECRET;
 
 export async function POST(request: Request) {
   if (!isStripeConfigured || !stripe || !webhookSecret) {
@@ -45,17 +52,25 @@ export async function POST(request: Request) {
       webhookSecret,
     );
   } catch (error) {
-    console.error("Stripe webhook signature verification failed:", error);
+    console.error(
+      "Stripe webhook signature verification failed:",
+      errorSummary(error),
+    );
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  }
+
+  if (
+    event.type.startsWith("customer.subscription.") ||
+    isContentSubscriptionObject(event.data.object)
+  ) {
+    // Acknowledge without acting: subscriptions are not merchandise orders.
+    return NextResponse.json({ received: true, ignored: true });
   }
 
   try {
     switch (event.type) {
       case "checkout.session.completed":
         await handleCheckoutCompleted(event.data.object);
-        break;
-      case "customer.subscription.deleted":
-        await handleSubscriptionDeleted(event.data.object);
         break;
       case "charge.refunded":
         await handleChargeRefunded(event.data.object);
@@ -71,7 +86,10 @@ export async function POST(request: Request) {
     // event is acknowledged either way; follow-up happens from the logs
     // (and, once configured, Sanity's Orders list / Stripe's own
     // Dashboard remain the authoritative records regardless).
-    console.error(`Stripe webhook handler failed for ${event.type}:`, error);
+    console.error(
+      `Stripe webhook handler failed for ${event.type}:`,
+      errorSummary(error),
+    );
   }
 
   return NextResponse.json({ received: true });
@@ -150,28 +168,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         "RESEND_API_KEY not fully configured. See .env.example.",
     );
   }
-}
-
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  if (!sanityWriteClient) {
-    console.warn(
-      "Stripe webhook: customer.subscription.deleted received but SANITY_API_WRITE_TOKEN " +
-        "isn't set — order status not updated.",
-      { subscriptionId: subscription.id },
-    );
-    return;
-  }
-
-  const order = await sanityWriteClient.fetch<{ _id: string } | null>(
-    `*[_type == "order" && stripeSubscriptionId == $id][0] { _id }`,
-    { id: subscription.id },
-  );
-  if (!order) return;
-
-  await sanityWriteClient
-    .patch(order._id)
-    .set({ status: "cancelled" })
-    .commit();
 }
 
 async function handleChargeRefunded(charge: Stripe.Charge) {

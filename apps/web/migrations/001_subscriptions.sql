@@ -1,5 +1,14 @@
--- Apply only to a dedicated TEST database. Never to the live legacy service.
-BEGIN;
+-- MTM migration 001 subscriptions core (accounts, sessions, trials, subscriptions, library).
+-- Environments: every subscription database (loopback test, preview and
+-- production) — applied ONLY by `node scripts/migrate.mjs`, which runs it in
+-- one transaction and records its checksum in mtm_schema_migrations. Never
+-- apply it to the legacy backend/ service (which has no database).
+-- The guard below refuses direct psql execution, which would not be atomic.
+DO $guard$ BEGIN
+  IF current_setting('mtm.migration_runner', true) IS DISTINCT FROM 'on' THEN
+    RAISE EXCEPTION 'MTM migrations must be applied with scripts/migrate.mjs';
+  END IF;
+END $guard$;
 CREATE TABLE IF NOT EXISTS mtm_accounts (
   id uuid PRIMARY KEY,
   email text NOT NULL UNIQUE,
@@ -70,4 +79,3 @@ CREATE TABLE IF NOT EXISTS mtm_library (
   published boolean NOT NULL DEFAULT false,
   free_selection boolean NOT NULL DEFAULT false
 );
-COMMIT;

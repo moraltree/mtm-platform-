@@ -229,7 +229,7 @@ describe("aggregate CSV exports", () => {
     ] as const)
       expect(buildExport(r, empty, now.toISOString())).toBeNull();
   });
-  it("exports suppressed campaign rows and neutralised labels only", () => {
+  it("exports campaign rows only above the external minimum of 10", () => {
     const csv = buildExport(
       "campaigns",
       {
@@ -284,8 +284,14 @@ describe("aggregate CSV exports", () => {
       },
       now.toISOString(),
     )!;
-    expect(csv).toContain('"free30",6,5,2,3,2,"GBP 29.97"');
-    expect(csv).toContain("Smaller campaigns");
+    // Phase 5: the external minimum is 10. A 6-registration campaign is no
+    // longer exported on its own; with only 9 registrations in total, every
+    // count is masked and the revenue withheld.
+    expect(csv).not.toContain("free30");
+    expect(csv).not.toContain("29.97");
+    expect(csv).toContain(
+      '"Smaller campaigns (fewer than 10 registrations each)","<10","<10","<10","<10","<10","withheld (<10)"',
+    );
     expect(csv).toContain("no personal data");
   });
 });

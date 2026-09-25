@@ -10,6 +10,7 @@ import {
 import { Pool, type PoolClient } from "pg";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
+import { runMigrationSql } from "../../../../scripts/lib/migrations.mjs";
 vi.mock("server-only", () => ({}));
 import {
   coverageStarts,
@@ -22,6 +23,7 @@ import {
   loadSubscribers,
 } from "./load";
 import { recordListeningEvents } from "@/lib/listening/events";
+import { testSchemaName } from "../../../../scripts/lib/testSchemas.mjs";
 
 const url = process.env.MTM_ADMIN_TEST_DATABASE_URL;
 const migration = (name: string) =>
@@ -36,7 +38,7 @@ describe.skipIf(!url)(
   "Phase 4 intelligence loaders against isolated PostgreSQL tables",
   () => {
     let pool: Pool;
-    const schema = `mtm_intel_test_${randomUUID().replaceAll("-", "")}`;
+    const schema = testSchemaName("mtm_intel_test_");
     const now = new Date("2026-09-11T12:00:00Z");
     const snap = async <T>(work: (db: PoolClient) => Promise<T>) => {
       const db = await pool.connect();
@@ -63,7 +65,8 @@ describe.skipIf(!url)(
         options: `-c search_path=${schema}`,
       });
       await pool.query(`CREATE SCHEMA ${schema}`);
-      for (const m of MIGRATIONS) await pool.query(await migration(m));
+      for (const m of MIGRATIONS)
+        await runMigrationSql(pool, await migration(m));
     });
     beforeEach(async () => {
       await pool.query(
@@ -182,7 +185,8 @@ describe.skipIf(!url)(
       );
 
     it("applies migration 003 repeatably without starting listening coverage", async () => {
-      for (const m of MIGRATIONS) await pool.query(await migration(m));
+      for (const m of MIGRATIONS)
+        await runMigrationSql(pool, await migration(m));
       const rows = (
         await pool.query(
           "SELECT dataset FROM mtm_analytics_coverage ORDER BY 1",
@@ -603,6 +607,11 @@ describe.skipIf(!url)(
         },
       ];
       const db = await pool.connect();
+      // The recorder refuses to write unless telemetry is explicitly enabled.
+      await expect(
+        recordListeningEvents(db, { id: u, listenerClass: "trial" }, events),
+      ).rejects.toThrow(/not enabled/);
+      vi.stubEnv("LISTENING_TELEMETRY_ENABLED", "true");
       try {
         expect(
           await recordListeningEvents(
@@ -633,6 +642,7 @@ describe.skipIf(!url)(
         );
       } finally {
         db.release();
+        vi.unstubAllEnvs();
       }
       await pool.query(
         "INSERT INTO mtm_analytics_coverage(dataset,coverage_start,method) VALUES('listening','2026-09-10T00:00:00Z','webhook')",

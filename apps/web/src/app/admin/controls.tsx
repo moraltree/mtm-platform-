@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { exportsEnabled } from "@/lib/admin/flags";
 import { PERIODS, type PeriodId } from "@/lib/admin/intel/periods";
 import type { Comparison } from "@/lib/admin/insights";
 import type { ViewId } from "./views";
@@ -51,6 +52,8 @@ export function ExportLink({
   report: ExportReport;
   period?: PeriodId;
 }) {
+  // Hidden unless ADMIN_EXPORTS_ENABLED; the route independently refuses too.
+  if (!exportsEnabled()) return null;
   const qs = new URLSearchParams({ report });
   if (period) qs.set("period", period);
   return (

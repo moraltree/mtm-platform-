@@ -1,3 +1,4 @@
+import { errorSummary } from "./safeLog";
 import Stripe from "stripe";
 import { useMockContent } from "./sanity/env";
 import { mockProductPrices } from "./mockContent";
@@ -64,7 +65,10 @@ export async function getProductPrice(
         ?.interval as ResolvedPrice["recurringInterval"],
     };
   } catch (error) {
-    console.error(`Failed to retrieve Stripe price ${stripePriceId}:`, error);
+    console.error(
+      `Failed to retrieve Stripe price ${stripePriceId}:`,
+      errorSummary(error),
+    );
     return null;
   }
 }

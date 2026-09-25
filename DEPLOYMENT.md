@@ -78,10 +78,18 @@ canonical host and local dev are unaffected.
       Stripe account exists (**test mode** unless explicitly told to go
       live): set `STRIPE_SECRET_KEY` in Vercel (Production environment);
       add a webhook endpoint in the Stripe Dashboard pointing at
-      `https://moraltree.media/api/stripe/webhook`, subscribed to at
-      least `checkout.session.completed`, `customer.subscription.deleted`,
-      and `charge.refunded`, then set the signing secret it gives you as
-      `STRIPE_WEBHOOK_SECRET`; set `SANITY_API_WRITE_TOKEN` (a Sanity API
+      `https://moraltree.media/api/stripe/webhook`, subscribed to
+      `checkout.session.completed` and `charge.refunded` (merchandise
+      only), then set the signing secret it gives you as
+      **`STRIPE_SHOP_WEBHOOK_SECRET`**. **Never** put the shop endpoint's
+      secret in `STRIPE_WEBHOOK_SECRET`: since Phase 5 that variable
+      belongs exclusively to the content-subscription endpoint
+      (`/api/subscriptions/webhook`, see ADMIN_ANALYTICS_V5.md), and one
+      signing secret verifies only one Stripe endpoint. The shop webhook
+      ignores every `customer.subscription.*` event and any content-
+      subscription object, and is inert (503) while
+      `STRIPE_SHOP_WEBHOOK_SECRET` is unset. Merchandise now runs on
+      Shopify (WP9), so leave this dormant unless explicitly asked; set `SANITY_API_WRITE_TOKEN` (a Sanity API
       token with Editor access — needs a real Sanity project first, see
       above) so the webhook can actually record `order` documents —
       without it the webhook still verifies/processes events but only
@@ -112,3 +120,10 @@ configuration. New content billing uses `/api/subscriptions/webhook` and
 PostgreSQL, not the dormant Sanity order webhook described above. Activation
 requires `SUBSCRIPTIONS_ENABLED=true`. No production deployment, merge,
 service restart, or original-backend migration is part of this task.
+
+**Phase 5 (`admin-analytics-v5`, not deployed):** the reconciled subscription
+architecture, migration runner, managed-PostgreSQL specification, preview and
+production procedures, rollback and secret-rotation runbook are in
+[ADMIN_ANALYTICS_V5.md](./ADMIN_ANALYTICS_V5.md). Production currently runs
+commit `6746516` (a superseded Sanity-subscription design whose `/free30`
+trial signup cannot succeed without Sanity); promoting Phase 5 supersedes it.

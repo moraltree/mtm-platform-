@@ -1,3 +1,4 @@
+import { errorSummary } from "@/lib/safeLog";
 import { sendEmail } from "../email";
 import type { AttributionState } from "../attribution/types";
 import type { RegistrationConsentState } from "../registrationConsent";
@@ -209,7 +210,7 @@ export const emailStandInPlatformClient: PlatformClient = {
       console.warn(
         "startTrial (email stand-in) called but FREE_TRIAL_TO_EMAIL/" +
           "CONTACT_FORM_FROM_EMAIL aren't set — see .env.example. Lead " +
-          `was NOT recorded anywhere: ${adult.email} (campaign=${campaignId}).`,
+          `was NOT recorded anywhere (campaign=${campaignId}; email withheld from logs).`,
       );
       return {
         status: "error",
@@ -307,7 +308,7 @@ export const emailStandInPlatformClient: PlatformClient = {
     if (!result.ok) {
       console.error(
         "startTrial (email stand-in) notification failed:",
-        result.error,
+        errorSummary(result.error),
       );
       return {
         status: "error",

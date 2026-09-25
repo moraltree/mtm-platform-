@@ -5,15 +5,20 @@ vi.mock("@/lib/subscriptions/webhook", () => ({
   processSubscriptionEvent: processEvent,
 }));
 import { POST } from "./route";
-const secret = "whsec_fixture_only";
-const stripe = new Stripe("sk_test_fixture_only");
+// Obviously-fake fixture values, shaped like a complete TEST configuration.
+const secret = "whsec_FIXTUREONLYFIXTUREONLY";
+const stripe = new Stripe("sk_test_FIXTUREONLY0000");
 describe.each(["2026-07-29.dahlia", "2026-08-26.dahlia"])(
   "subscription webhook signature boundary (%s)",
   (apiVersion) => {
     beforeEach(() => {
       process.env.SUBSCRIPTIONS_ENABLED = "true";
-      process.env.STRIPE_SECRET_KEY = "sk_test_fixture_only";
+      process.env.STRIPE_SECRET_KEY = "sk_test_FIXTUREONLY0000";
       process.env.STRIPE_WEBHOOK_SECRET = secret;
+      process.env.STRIPE_ACCOUNT_ID = "acct_FIXTURE0001";
+      process.env.STRIPE_PRICE_MONTHLY = "price_FIXTUREMONTHLY";
+      process.env.STRIPE_PRICE_ANNUAL = "price_FIXTUREANNUAL";
+      delete process.env.STRIPE_MONTHLY_PRICE_ID;
       processEvent.mockReset().mockResolvedValue(undefined);
     });
     const request = (live = false, signed = true) => {
@@ -61,6 +66,16 @@ describe.each(["2026-07-29.dahlia", "2026-08-26.dahlia"])(
     it("refuses live credentials without sending a request", async () => {
       process.env.STRIPE_SECRET_KEY = "sk_live_fixture_only";
       expect((await POST(request())).status).toBe(503);
+    });
+    it("fails closed while a legacy misnamed Price variable is present", async () => {
+      process.env.STRIPE_MONTHLY_PRICE_ID = "price_FIXTURELEGACY";
+      expect((await POST(request())).status).toBe(503);
+      expect(processEvent).not.toHaveBeenCalled();
+    });
+    it("fails closed without the intended Stripe account", async () => {
+      delete process.env.STRIPE_ACCOUNT_ID;
+      expect((await POST(request())).status).toBe(503);
+      expect(processEvent).not.toHaveBeenCalled();
     });
   },
 );

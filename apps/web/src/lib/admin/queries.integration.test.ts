@@ -10,6 +10,7 @@ import {
 import { Pool } from "pg";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
+import { runMigrationSql } from "../../../scripts/lib/migrations.mjs";
 import {
   countsSql,
   statusSql,
@@ -18,13 +19,14 @@ import {
   healthSql,
 } from "./queries";
 import { utcWindows } from "./policy";
+import { testSchemaName } from "../../../scripts/lib/testSchemas.mjs";
 vi.mock("server-only", () => ({}));
 const url = process.env.MTM_ADMIN_TEST_DATABASE_URL;
 describe.skipIf(!url)(
   "admin aggregates against isolated PostgreSQL tables",
   () => {
     let pool: Pool;
-    const schema = `mtm_admin_test_${randomUUID().replaceAll("-", "")}`;
+    const schema = testSchemaName("mtm_admin_test_");
     const now = new Date("2026-09-11T12:00:00Z");
     beforeAll(async () => {
       const parsed = new URL(url!);
@@ -39,7 +41,8 @@ describe.skipIf(!url)(
         options: `-c search_path=${schema}`,
       });
       await pool.query(`CREATE SCHEMA ${schema}`);
-      await pool.query(
+      await runMigrationSql(
+        pool,
         await readFile(
           new URL("../../../migrations/001_subscriptions.sql", import.meta.url),
           "utf8",

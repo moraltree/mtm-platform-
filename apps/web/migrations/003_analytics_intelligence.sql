@@ -1,8 +1,16 @@
--- Apply only to a dedicated TEST database. Never to the live legacy service.
--- Requires 001 and 002. Transactional and repeatable. Adds no production
--- instrumentation: the listening table is created empty and nothing writes
+-- MTM migration 003 analytics intelligence (billing reason, failures, listening schema). Requires 002.
+-- Environments: every subscription database (loopback test, preview and
+-- production) — applied ONLY by `node scripts/migrate.mjs`, which runs it in
+-- one transaction and records its checksum in mtm_schema_migrations. Never
+-- apply it to the legacy backend/ service (which has no database).
+-- The guard below refuses direct psql execution, which would not be atomic.
+-- Repeatable. Adds no production instrumentation: the listening table is created empty and nothing writes
 -- to it until telemetry is separately approved and wired in.
-BEGIN;
+DO $guard$ BEGIN
+  IF current_setting('mtm.migration_runner', true) IS DISTINCT FROM 'on' THEN
+    RAISE EXCEPTION 'MTM migrations must be applied with scripts/migrate.mjs';
+  END IF;
+END $guard$;
 
 -- Coverage datasets gain the Phase 4 sources. 'listening' is deliberately
 -- NOT inserted: its coverage starts only when approved telemetry goes live.
@@ -73,4 +81,3 @@ INSERT INTO mtm_analytics_coverage(dataset,coverage_start,method,note) VALUES
   ('billing_reason',now(),'webhook','New vs renewal classification recorded on ledger payments from this instant. Earlier payments are unclassified.'),
   ('payment_failures',now(),'webhook','Failed invoice amounts recorded from this instant. Earlier failures have counts only.')
 ON CONFLICT (dataset) DO NOTHING;
-COMMIT;

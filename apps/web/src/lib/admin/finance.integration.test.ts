@@ -10,9 +10,11 @@ import {
 import { Pool } from "pg";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
+import { runMigrationSql } from "../../../scripts/lib/migrations.mjs";
 import { utcWindows } from "./policy";
 vi.mock("server-only", () => ({}));
 import { readFinance, type Finance } from "./financeSnapshot";
+import { testSchemaName } from "../../../scripts/lib/testSchemas.mjs";
 
 const url = process.env.MTM_ADMIN_TEST_DATABASE_URL;
 const migration = (name: string) =>
@@ -25,14 +27,14 @@ describe.skipIf(!url)(
     const schemas: string[] = [];
     const now = new Date("2026-09-11T12:00:00Z");
     const schemaPool = async (migrations: string[]) => {
-      const schema = `mtm_finance_test_${randomUUID().replaceAll("-", "")}`;
+      const schema = testSchemaName("mtm_finance_test_");
       schemas.push(schema);
       const p = new Pool({
         connectionString: url,
         options: `-c search_path=${schema}`,
       });
       await p.query(`CREATE SCHEMA ${schema}`);
-      for (const m of migrations) await p.query(await migration(m));
+      for (const m of migrations) await runMigrationSql(p, await migration(m));
       return p;
     };
     const snapshot = async (at = now, p = pool): Promise<Finance | null> => {
@@ -520,12 +522,12 @@ describe.skipIf(!url)(
           "INSERT INTO mtm_subscriptions(stripe_id,user_id,customer_id,plan,status,paid_until) VALUES('sub_existing',$1,'cus_x','monthly','active','2026-10-01')",
           [id],
         );
-        await p.query(await migration("002_analytics_ledger.sql"));
+        await runMigrationSql(p, await migration("002_analytics_ledger.sql"));
         const first = (
           await p.query("SELECT * FROM mtm_analytics_coverage ORDER BY 1")
         ).rows;
-        await p.query(await migration("002_analytics_ledger.sql"));
-        await p.query(await migration("001_subscriptions.sql"));
+        await runMigrationSql(p, await migration("002_analytics_ledger.sql"));
+        await runMigrationSql(p, await migration("001_subscriptions.sql"));
         expect(
           (await p.query("SELECT * FROM mtm_analytics_coverage ORDER BY 1"))
             .rows,

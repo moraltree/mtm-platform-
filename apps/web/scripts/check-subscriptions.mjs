@@ -2,12 +2,18 @@ import nextEnv from "@next/env";
 import { fileURLToPath } from "node:url";
 import Stripe from "stripe";
 import pg from "pg";
+import { databaseConfig } from "../src/lib/database/policy.mjs";
+import { stripeConfigIssues } from "../src/lib/subscriptions/stripeConfig.mjs";
+import { loadMigrations } from "./lib/migrations.mjs";
+import { checkDatabase } from "./lib/readiness.mjs";
 
-// Values and provider error bodies are never printed. Safe for local readiness checks.
+// Read-only readiness check. Values, connection strings and provider error
+// bodies are never printed. Stripe calls are GET requests only.
 nextEnv.loadEnvConfig(fileURLToPath(new URL("..", import.meta.url)));
 const names = [
   "STRIPE_SECRET_KEY",
   "STRIPE_WEBHOOK_SECRET",
+  "STRIPE_ACCOUNT_ID",
   "STRIPE_PRICE_MONTHLY",
   "STRIPE_PRICE_ANNUAL",
   "SUBSCRIPTIONS_DATABASE_URL",
@@ -18,6 +24,10 @@ const names = [
 ];
 for (const name of names)
   console.log(`${name}: ${process.env[name] ? "configured" : "missing"}`);
+const issues = stripeConfigIssues(process.env);
+for (const issue of issues) console.log(`Stripe configuration: ${issue}`);
+if (issues.length) process.exitCode = 1;
+
 const key = process.env.STRIPE_SECRET_KEY;
 if (!key) console.log("Stripe test authentication: NOT RUN (key missing)");
 else if (!/^(sk|rk)_test_/.test(key)) {
@@ -33,6 +43,22 @@ else if (!/^(sk|rk)_test_/.test(key)) {
     const balance = await stripe.balance.retrieve();
     if (balance.livemode) throw new Error("Live response");
     console.log("Stripe test authentication: SUCCESS");
+    // Proves the key belongs to the intended account (two local TEST
+    // configurations were found pointing at different accounts).
+    try {
+      const account = await stripe.accounts.retrieve();
+      const match = account.id === process.env.STRIPE_ACCOUNT_ID;
+      console.log(
+        `Stripe account: ${match ? "matches STRIPE_ACCOUNT_ID" : "MISMATCH with STRIPE_ACCOUNT_ID"}`,
+      );
+      if (!match) process.exitCode = 1;
+    } catch {
+      console.log(
+        "Stripe account: UNVERIFIED (key cannot read its account; grant Account read or use the secret key for this check)",
+      );
+      process.exitCode = 1;
+    }
+    const currencies = new Set();
     for (const [name, interval] of [
       ["STRIPE_PRICE_MONTHLY", "month"],
       ["STRIPE_PRICE_ANNUAL", "year"],
@@ -50,11 +76,20 @@ else if (!/^(sk|rk)_test_/.test(key)) {
           price.recurring.usage_type !== "licensed"
         )
           throw new Error("Invalid price");
+        currencies.add(price.currency);
         console.log(`${name}: valid active test recurring price`);
       } catch {
-        console.log(`${name}: validation FAILED`);
+        console.log(
+          `${name}: validation FAILED (missing, inactive, wrong interval or another account)`,
+        );
         process.exitCode = 1;
       }
+    }
+    if (currencies.size > 1) {
+      console.log(
+        "Stripe Prices: FAILED (monthly and annual currencies differ)",
+      );
+      process.exitCode = 1;
     }
   } catch {
     console.log(
@@ -63,31 +98,41 @@ else if (!/^(sk|rk)_test_/.test(key)) {
     process.exitCode = 1;
   }
 }
+
 if (process.env.SUBSCRIPTIONS_DATABASE_URL) {
-  const pool = new pg.Pool({
-    connectionString: process.env.SUBSCRIPTIONS_DATABASE_URL,
-    connectionTimeoutMillis: 5000,
-  });
+  let pool;
   try {
-    const result = await pool.query(
-      "SELECT count(*)::int AS count FROM mtm_library WHERE published=true AND free_selection=true",
-    );
-    console.log(`Free story selection: ${result.rows[0].count}/30 minimum`);
-    if (result.rows[0].count < 30) process.exitCode = 1;
-    // The webhook writes the payment ledger/history; apply 002 before deploying it.
-    const ledger = await pool.query(
-      "SELECT to_regclass('mtm_ledger_entries') IS NOT NULL AND to_regclass('mtm_subscription_history') IS NOT NULL AND to_regclass('mtm_payment_failures') IS NOT NULL AS ready",
-    );
+    // No startup parameters (this URL is the pooled endpoint); read-only is
+    // enforced per transaction instead (scripts/lib/readiness.mjs).
+    pool = new pg.Pool(databaseConfig(process.env.SUBSCRIPTIONS_DATABASE_URL));
+    pool.on("error", () => {});
+    const client = await pool.connect();
+    try {
+      const { state, freeSelection } = await checkDatabase(
+        client,
+        await loadMigrations(),
+      );
+      const latest = state.applied.at(-1)?.version ?? "none";
+      console.log(
+        `Migrations: latest applied ${latest}; pending ${state.pending.map((m) => m.version).join(", ") || "none"}`,
+      );
+      for (const p of state.problems) console.log(`Migrations: PROBLEM ${p}`);
+      if (state.pending.length || state.problems.length) process.exitCode = 1;
+      if (freeSelection !== null) {
+        console.log(`Free story selection: ${freeSelection}/30 minimum`);
+        if (freeSelection < 30) process.exitCode = 1;
+      }
+    } finally {
+      client.release();
+    }
+  } catch (error) {
     console.log(
-      `Analytics migrations (002, 003): ${ledger.rows[0].ready ? "applied" : "MISSING"}`,
-    );
-    if (!ledger.rows[0].ready) process.exitCode = 1;
-  } catch {
-    console.log(
-      "Subscription database/readiness: FAILED (connection or migration missing)",
+      error?.name === "DatabaseConfigError"
+        ? `Subscription database: REFUSED (${error.message})`
+        : "Subscription database/readiness: FAILED (connection or permissions)",
     );
     process.exitCode = 1;
   } finally {
-    await pool.end();
+    await pool?.end();
   }
 }

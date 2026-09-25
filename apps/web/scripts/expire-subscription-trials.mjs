@@ -1,15 +1,17 @@
 import nextEnv from "@next/env";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
+import { databaseConfig } from "../src/lib/database/policy.mjs";
 nextEnv.loadEnvConfig(fileURLToPath(new URL("..", import.meta.url)));
 if (
   process.env.SUBSCRIPTIONS_ENABLED !== "true" ||
   !process.env.SUBSCRIPTIONS_DATABASE_URL
 )
   throw new Error("Subscriptions are not configured");
-const pool = new pg.Pool({
-  connectionString: process.env.SUBSCRIPTIONS_DATABASE_URL,
-});
+// Same TLS policy as the application: verified TLS for every non-loopback host.
+const pool = new pg.Pool(
+  databaseConfig(process.env.SUBSCRIPTIONS_DATABASE_URL),
+);
 const db = await pool.connect();
 try {
   await db.query("BEGIN");

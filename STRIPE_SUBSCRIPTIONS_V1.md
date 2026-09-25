@@ -26,9 +26,12 @@ new subscription integration or the existing Stripe client.
 
 ## Configuration and activation
 
-Use a **dedicated test PostgreSQL database**, never the live backend database.
-Apply `apps/web/migrations/001_subscriptions.sql` with a database migration
-client against that explicit test target. Then apply `apps/web/migrations/002_analytics_ledger.sql` and
+Use a dedicated PostgreSQL database for subscriptions, never the legacy
+backend service (which has no database). **Phase 5:** apply every migration only
+with `node scripts/migrate.mjs` (checksummed ledger, one transaction per
+migration, refuses direct `psql`); see `ADMIN_ANALYTICS_V5.md` for the runner,
+the TLS policy (`sslmode=verify-full` for every non-loopback host) and the
+production database specification. Then apply `apps/web/migrations/002_analytics_ledger.sql` and
 `003_analytics_intelligence.sql` (new vs renewal, failed-payment value;
 see `ADMIN_ANALYTICS_V4.md`) in order. For 002: (payment ledger,
 contract snapshots, subscription history — see `ADMIN_ANALYTICS_V2.md`); the

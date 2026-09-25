@@ -17,6 +17,15 @@
  */
 import type { PoolClient } from "pg";
 
+/**
+ * Phase 5 kill switch. Even once something calls the recorder, nothing is
+ * written unless LISTENING_TELEMETRY_ENABLED is exactly "true" — so merely
+ * deploying code can never start collection. Activation is a separate,
+ * explicit decision (privacy notice, retention, coverage row).
+ */
+export const listeningTelemetryEnabled = () =>
+  process.env.LISTENING_TELEMETRY_ENABLED === "true";
+
 export const LISTENING_EVENT_TYPES = [
   "story_started",
   "progress",
@@ -120,6 +129,8 @@ export async function recordListeningEvents(
   listener: { id: string | null; listenerClass: ListenerClass },
   events: ListeningEventInput[],
 ) {
+  if (!listeningTelemetryEnabled())
+    throw new Error("Listening telemetry is not enabled");
   let written = 0;
   for (const e of events) {
     const result = await db.query(

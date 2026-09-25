@@ -10,8 +10,10 @@ import {
 import { Pool } from "pg";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
+import { runMigrationSql } from "../../../scripts/lib/migrations.mjs";
 vi.mock("server-only", () => ({}));
 import { readInsights, type Insights } from "./insightsSnapshot";
+import { testSchemaName } from "../../../scripts/lib/testSchemas.mjs";
 
 const url = process.env.MTM_ADMIN_TEST_DATABASE_URL;
 const migration = (name: string) =>
@@ -25,14 +27,14 @@ describe.skipIf(!url)(
     const now = new Date("2026-09-11T12:00:00Z");
     const ledgerStart = new Date("2026-09-05T10:00:00Z");
     const schemaPool = async (migrations: string[]) => {
-      const schema = `mtm_insights_test_${randomUUID().replaceAll("-", "")}`;
+      const schema = testSchemaName("mtm_insights_test_");
       schemas.push(schema);
       const p = new Pool({
         connectionString: url,
         options: `-c search_path=${schema}`,
       });
       await p.query(`CREATE SCHEMA ${schema}`);
-      for (const m of migrations) await p.query(await migration(m));
+      for (const m of migrations) await runMigrationSql(p, await migration(m));
       return p;
     };
     const read = async (

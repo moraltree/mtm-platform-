@@ -4,8 +4,24 @@
  */
 import { COUNTRIES } from "@/lib/countries";
 
+/**
+ * Approved small-group policy (Phase 4 decision 5):
+ * - inside the authenticated Founder Console, groups under 5 are merged;
+ * - anything exported or shared outside Moral Tree Media needs at least 10.
+ */
+export const INTERNAL_MIN_GROUP = 5;
+export const EXPORT_MIN_GROUP = 10;
 /** Groups smaller than this are merged, so no row describes an individual. */
-export const MIN_GROUP = 5;
+export const MIN_GROUP = INTERNAL_MIN_GROUP;
+
+/** True when a count (or a signed movement) describes 1 to 9 people. */
+export const belowExportMinimum = (value: number | null | undefined) =>
+  value != null && value !== 0 && Math.abs(value) < EXPORT_MIN_GROUP;
+
+/** Export cell for a count: 0 and |n| >= 10 as-is, otherwise "<10". */
+export function exportCount(value: number): number | string {
+  return belowExportMinimum(value) ? `<${EXPORT_MIN_GROUP}` : value;
+}
 
 /** Campaign keys are server-validated at registration; display only well-formed ones. */
 const CAMPAIGN = /^[a-z0-9][a-z0-9_-]{0,63}$/i;

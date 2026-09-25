@@ -326,7 +326,13 @@ describe("Phase 4 console views", () => {
   });
 
   it("shows subscriber movement with fair comparisons, growth and exports", () => {
+    // Phase 5: export links appear only when ADMIN_EXPORTS_ENABLED is set.
+    expect(render("growth")).not.toContain("/api/admin/export");
+    vi.stubEnv("SUBSCRIPTIONS_ENABLED", "true");
+    vi.stubEnv("ADMIN_ANALYTICS_ENABLED", "true");
+    vi.stubEnv("ADMIN_EXPORTS_ENABLED", "true");
     const html = render("growth");
+    vi.unstubAllEnvs();
     for (const t of [
       "Reactivated subscribers",
       "Completed cancellations",
@@ -457,7 +463,12 @@ describe("Phase 4 console views", () => {
   });
 
   it("explains data coverage and the trust summary on the overview", () => {
+    expect(render("coverage")).not.toContain("Download aggregate CSV");
+    vi.stubEnv("SUBSCRIPTIONS_ENABLED", "true");
+    vi.stubEnv("ADMIN_ANALYTICS_ENABLED", "true");
+    vi.stubEnv("ADMIN_EXPORTS_ENABLED", "true");
     const html = render("coverage");
+    vi.unstubAllEnvs();
     for (const t of [
       "Available",
       "Partial",

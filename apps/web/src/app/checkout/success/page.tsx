@@ -1,3 +1,4 @@
+import { errorSummary } from "@/lib/safeLog";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
@@ -47,7 +48,7 @@ export default async function CheckoutSuccessPage(
     } catch (error) {
       console.error(
         "Failed to retrieve Checkout Session for the success page:",
-        error,
+        errorSummary(error),
       );
     }
   }

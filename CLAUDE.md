@@ -23,6 +23,15 @@ read-only multi-view Founder Console UI (`/admin?view=…`) built on both.
 [ADMIN_ANALYTICS_V4.md](./ADMIN_ANALYTICS_V4.md) adds period intelligence,
 cohorts, campaigns, geography, aggregate exports and the (not yet enabled)
 listening telemetry schema; migration 003 must also precede the webhook code.
+[ADMIN_ANALYTICS_V5.md](./ADMIN_ANALYTICS_V5.md) (Phase 5, `admin-analytics-v5`)
+reconciles production commit `6746516`'s Sanity-subscription design away
+(PostgreSQL is the account/trial/entitlement authority; Sanity is editorial
+only), enforces verified TLS for non-loopback databases, adds the
+checksummed migration runner (`scripts/migrate.mjs`; migrations refuse direct
+`psql`), migration 004 (append-only export audit), export threshold 10 behind
+`ADMIN_EXPORTS_ENABLED`, fail-closed Stripe configuration validation, and a
+`LISTENING_TELEMETRY_ENABLED` kill switch. It distinguishes CODE READY from
+INFRASTRUCTURE READY from PRODUCTION ACTIVATED.
 
 ## Project status
 
@@ -116,8 +125,11 @@ Implementation proceeded in work packages:
   amount) after cross-checking every `stripePriceId` against the current
   active product catalogue. `app/api/stripe/webhook/route.ts` records
   `order` documents on `checkout.session.completed`, marks orders
-  "cancelled"/"refunded" on `customer.subscription.deleted`/
-  `charge.refunded`, and sends a best-effort confirmation email. Every
+  "refunded" on `charge.refunded`, and sends a best-effort confirmation
+  email. Since Phase 5 it verifies with its own `STRIPE_SHOP_WEBHOOK_SECRET`
+  (unset = inert 503; `STRIPE_WEBHOOK_SECRET` belongs only to the
+  content-subscription endpoint) and ignores every `customer.subscription.*`
+  event and any content-subscription object. Every
   piece is inert-until-configured (`isStripeConfigured`,
   `isSanityWriteConfigured`) with an honest "not set up yet" message or
   console warning, the same contract `ContactForm` established in WP4 —
@@ -860,15 +872,19 @@ Env vars: `apps/web/.env.example`, `apps/studio/.env.example`. Copy to
   `SANITY_API_WRITE_TOKEN` is set (separate from, and stricter than,
   `isSanityConfigured`). It records an `order` on
   `checkout.session.completed`, and updates an existing order's `status`
-  to `"cancelled"`/`"refunded"` on `customer.subscription.deleted`/
-  `charge.refunded` (the latter looks the Checkout Session back up from
+  to `"refunded"` on `charge.refunded` (it looks the Checkout Session back up from
   Stripe via the charge's `payment_intent`, since orders are keyed on
   session ID — there's no `paymentIntentId` field on the schema, and
   adding one just for this lookup wasn't worth it). A handler failure is
   logged, not rethrown, so a bug doesn't make Stripe retry the same event
   forever; Stripe's own Dashboard and (once `SANITY_API_WRITE_TOKEN` is
   set) Sanity's Orders list are the two places to actually check order
-  history — this webhook is not itself a system of record.
+  history — this webhook is not itself a system of record. Phase 5: it is
+  verified with `STRIPE_SHOP_WEBHOOK_SECRET` only (never
+  `STRIPE_WEBHOOK_SECRET`, which belongs to `/api/subscriptions/webhook`),
+  and it acknowledges but ignores `customer.subscription.*` events and any
+  object tagged as a content subscription — Sanity is never a subscription
+  or entitlement authority.
 
 ## Future: MTM Control Center (not built — documentation only)
 
@@ -946,8 +962,11 @@ driven configuration already follows, extended to a second application.
   `apps/studio/schemaTypes/index.ts`, and (from WP3 onward) a matching
   renderer case in the page-builder component in `apps/web`.
 - **No real Stripe account exists yet (WP7)** — same status as Sanity.
-  `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` unset means the shop browses
-  fine but checkout/webhook both degrade honestly (see WP7 above). Setting
+  `STRIPE_SECRET_KEY`/`STRIPE_SHOP_WEBHOOK_SECRET` unset means the shop
+  browses fine but checkout/webhook both degrade honestly (see WP7 above).
+  The shop endpoint's signing secret goes in `STRIPE_SHOP_WEBHOOK_SECRET`,
+  never `STRIPE_WEBHOOK_SECRET` (reserved for the content-subscription
+  endpoint since Phase 5). Setting
   up a real account, creating live Products/Prices in the Stripe
   Dashboard, and configuring the webhook endpoint
   (`https://moraltree.media/api/stripe/webhook`) are external-account

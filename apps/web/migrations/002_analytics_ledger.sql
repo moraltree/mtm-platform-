@@ -1,7 +1,16 @@
--- Apply only to a dedicated TEST database. Never to the live legacy service.
--- Requires 001_subscriptions.sql. Transactional and repeatable: re-running it
--- never duplicates the baseline or moves a recorded coverage start.
-BEGIN;
+-- MTM migration 002 analytics ledger (payment ledger, contract snapshots, history). Requires 001.
+-- Environments: every subscription database (loopback test, preview and
+-- production) — applied ONLY by `node scripts/migrate.mjs`, which runs it in
+-- one transaction and records its checksum in mtm_schema_migrations. Never
+-- apply it to the legacy backend/ service (which has no database).
+-- The guard below refuses direct psql execution, which would not be atomic.
+-- Repeatable: re-running it never duplicates the baseline or moves a
+-- recorded coverage start.
+DO $guard$ BEGIN
+  IF current_setting('mtm.migration_runner', true) IS DISTINCT FROM 'on' THEN
+    RAISE EXCEPTION 'MTM migrations must be applied with scripts/migrate.mjs';
+  END IF;
+END $guard$;
 
 -- When each derived dataset began recording. Periods before a start are not
 -- presented as complete business performance unless a validated backfill
@@ -100,4 +109,3 @@ INSERT INTO mtm_analytics_coverage(dataset,coverage_start,method,note) VALUES
   ('subscription_contracts',now(),'webhook','Contract amounts captured on each subscription sync from this instant. Earlier rows gain one on their next webhook.'),
   ('subscription_history',now(),'webhook','Baseline of projected states at this instant, then webhook transitions.')
 ON CONFLICT (dataset) DO NOTHING;
-COMMIT;

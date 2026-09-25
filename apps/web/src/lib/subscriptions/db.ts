@@ -1,5 +1,11 @@
 import { Pool, type PoolClient } from "pg";
+import { databaseConfig } from "../database/policy.mjs";
 
+/**
+ * One small pool per server instance. On Vercel the URL should be the
+ * provider's pooled (PgBouncer-style, transaction mode) endpoint, and TLS is
+ * enforced by lib/database/policy.mjs for every non-loopback host.
+ */
 let pool: Pool | undefined;
 export function database() {
   if (
@@ -8,10 +14,18 @@ export function database() {
   ) {
     throw new Error("Subscriptions are not configured");
   }
-  return (pool ??= new Pool({
-    connectionString: process.env.SUBSCRIPTIONS_DATABASE_URL,
-    max: 5,
-  }));
+  if (!pool) {
+    const created = new Pool(
+      databaseConfig(process.env.SUBSCRIPTIONS_DATABASE_URL),
+    );
+    // An idle client losing its server connection must not crash the
+    // instance. Logged without the error object (which can carry host detail).
+    created.on("error", () =>
+      console.error("Subscription database idle client error"),
+    );
+    pool = created;
+  }
+  return pool;
 }
 
 export async function transaction<T>(

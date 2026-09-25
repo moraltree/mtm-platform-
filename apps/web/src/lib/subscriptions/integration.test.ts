@@ -8,6 +8,7 @@ import {
   vi,
 } from "vitest";
 import { readFile } from "node:fs/promises";
+import { runMigrationSql } from "../../../scripts/lib/migrations.mjs";
 import { randomUUID } from "node:crypto";
 import type Stripe from "stripe";
 
@@ -131,7 +132,8 @@ describe.skipIf(!testUrl)(
         "002_analytics_ledger.sql",
         "003_analytics_intelligence.sql",
       ])
-        await database().query(
+        await runMigrationSql(
+          database(),
           await readFile(
             new URL(`../../../migrations/${migration}`, import.meta.url),
             "utf8",
