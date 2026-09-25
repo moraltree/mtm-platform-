@@ -137,7 +137,6 @@ function PaymentStatus({ overview: d }: { overview: Overview }) {
 export function FinanceView({ overview: d }: { overview: Overview }) {
   const f = d.finance;
   const c = d.counts;
-  const i = d.insights;
   if (!f)
     return (
       <>
@@ -265,6 +264,18 @@ export function FinanceView({ overview: d }: { overview: Overview }) {
         </div>
       </div>
 
+      <FinanceDetail overview={d} />
+    </>
+  );
+}
+
+/** Daily gross revenue, plan attribution and payment status (Phase 2 ledger + Phase 1 events). */
+export function FinanceDetail({ overview: d }: { overview: Overview }) {
+  const f = d.finance;
+  const i = d.insights;
+  if (!f) return <PaymentStatus overview={d} />;
+  return (
+    <>
       <section aria-labelledby="revenue-trend">
         <SectionHeading
           id="revenue-trend"

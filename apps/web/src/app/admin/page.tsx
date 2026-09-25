@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAdminOverview } from "@/lib/admin/overview";
+import { getConsole } from "@/lib/admin/console";
+import { parsePeriod } from "@/lib/admin/intel/periods";
 import { Dashboard } from "./Dashboard";
 import { parseView } from "./views";
 import styles from "./admin.module.css";
@@ -13,8 +14,13 @@ export const metadata: Metadata = {
   referrer: "no-referrer",
 };
 export default async function AdminPage(props: PageProps<"/admin">) {
-  // Authorization runs first on every request; the view only selects presentation.
-  const result = await getAdminOverview();
+  // Parameters are only allowlisted presentation choices; getConsole authorizes
+  // the session and role before any query runs.
+  const params = await props.searchParams;
+  const view = parseView(params.view);
+  const period = parsePeriod(params.period);
+  const campaign = typeof params.campaign === "string" ? params.campaign : null;
+  const result = await getConsole(view, period, campaign);
   if (result.status === "denied") notFound();
   if (result.status === "unavailable")
     return (
@@ -28,8 +34,13 @@ export default async function AdminPage(props: PageProps<"/admin">) {
         <a href="/admin">Try again</a>
       </section>
     );
-  const view = parseView((await props.searchParams).view);
   return (
-    <Dashboard overview={result.overview} role={result.role} view={view} />
+    <Dashboard
+      data={result.data}
+      role={result.role}
+      view={view}
+      period={period}
+      asOf={result.asOf}
+    />
   );
 }

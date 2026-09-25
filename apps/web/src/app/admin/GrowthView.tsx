@@ -1,11 +1,9 @@
 import type { Overview } from "@/lib/admin/overview";
 import type { Finance } from "@/lib/admin/financeSnapshot";
 import type { Period } from "@/lib/admin/finance";
-import { share, UP_IS_GOOD, type SeriesKey } from "@/lib/admin/insights";
+import { share, type SeriesKey } from "@/lib/admin/insights";
 import { BarTrend, ShareBars } from "./charts";
 import {
-  Delta,
-  InfoTip,
   Kpi,
   number,
   percent,
@@ -117,94 +115,6 @@ export function GrowthView({ overview: d }: { overview: Overview }) {
   const churn = f?.churn;
   return (
     <>
-      <div className={styles.split}>
-        <section className={styles.panel} aria-labelledby="funnel-heading">
-          <SectionHeading
-            id="funnel-heading"
-            title="Registration → trial → paid"
-            meta={
-              <InfoTip label="the conversion funnel">
-                All-time counts with shares of registered accounts. Stages are
-                not strictly nested: a direct purchase can skip the trial, so
-                “Ever paid” can exceed “Converted from trial”. Recent
-                registrations have not had time to convert.
-              </InfoTip>
-            }
-          />
-          <ShareBars
-            caption="Conversion funnel, all time"
-            rows={[
-              {
-                label: "Registered accounts",
-                value: c.accounts,
-                share: share(c.accounts, c.accounts),
-              },
-              {
-                label: "Started a trial",
-                value: c.trials_started,
-                share: share(c.trials_started, c.accounts),
-              },
-              {
-                label: "Converted from trial",
-                value: c.converted,
-                share: share(c.converted, c.accounts),
-                note: `Trial-to-paid: ${percent(d.conversionRate)} of started trials.`,
-              },
-              {
-                label: "Ever paid (any route)",
-                value: i.everPaid,
-                share: share(i.everPaid, c.accounts),
-              },
-              {
-                label: "Paying now",
-                value: c.paid,
-                share: share(c.paid, c.accounts),
-              },
-            ]}
-          />
-        </section>
-        <section className={styles.panel} aria-labelledby="compare-heading">
-          <SectionHeading
-            id="compare-heading"
-            title="Period comparison"
-            meta="Rolling windows ending now"
-          />
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th scope="col">Measure</th>
-                  <th scope="col">Last 7 days · vs prior 7</th>
-                  <th scope="col">Last 30 days · vs prior 30</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(Object.keys(seriesLabels) as SeriesKey[]).map((key) => (
-                  <tr key={key}>
-                    <th scope="row">{seriesLabels[key]}</th>
-                    {(["d7", "d30"] as const).map((w) => (
-                      <td key={w}>
-                        <strong>{number(i.comparisons[key][w].current)}</strong>
-                        <Delta
-                          comparison={i.comparisons[key][w]}
-                          period={w === "d7" ? "7 days" : "30 days"}
-                          upIsGood={UP_IS_GOOD[key]}
-                          compact
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className={styles.detail}>
-            Each window is compared with the equal window immediately before it.
-            Billing events use database receipt time.
-          </p>
-        </section>
-      </div>
-
       <section aria-labelledby="trend-heading">
         <SectionHeading
           id="trend-heading"

@@ -1,6 +1,6 @@
 # Moral Tree Media Founder/Admin Analytics — Phase 3 (Founder Console)
 
-Branch: `admin-analytics-v3` (from `admin-analytics-v2` at `7e0e810`). Builds the finished, read-only Founder Console on top of [Phase 1](./ADMIN_ANALYTICS_V1.md) and [Phase 2](./ADMIN_ANALYTICS_V2.md). There is no migration, no new write path, no provider call and no change to the authorization boundary. Nothing was deployed, merged or pushed.
+Branch: `admin-analytics-v3` (from `admin-analytics-v2` at `7e0e810`). Phase 4 extends this console; see [ADMIN_ANALYTICS_V4.md](./ADMIN_ANALYTICS_V4.md). Builds the finished, read-only Founder Console on top of [Phase 1](./ADMIN_ANALYTICS_V1.md) and [Phase 2](./ADMIN_ANALYTICS_V2.md). There is no migration, no new write path, no provider call and no change to the authorization boundary. Nothing was deployed, merged or pushed.
 
 ## What was built
 

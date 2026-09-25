@@ -24,6 +24,8 @@ export interface LedgerEntry {
   livemode: boolean;
   occurredAt: Date;
   occurredAtSource: "paid_at" | "object_created" | "event_created";
+  /** Stripe invoice billing_reason (payments only): subscription_create = new, subscription_cycle = renewal. */
+  billingReason?: string | null;
 }
 export type Extracted =
   | { entry: LedgerEntry }
@@ -108,6 +110,11 @@ export function invoicePaymentEntry(
       livemode: false,
       occurredAt: paidAt ?? fallback!,
       occurredAtSource: paidAt ? "paid_at" : "event_created",
+      billingReason:
+        typeof invoice.billing_reason === "string" &&
+        /^[a-z_]{1,40}$/.test(invoice.billing_reason)
+          ? invoice.billing_reason
+          : null,
     },
   };
 }
@@ -217,9 +224,9 @@ export async function writeLedger(
   await db.query(
     `INSERT INTO mtm_ledger_entries(entry_key,provider,kind,user_id,provider_customer_id,provider_subscription_id,provider_invoice_id,
       provider_payment_intent_id,provider_charge_id,provider_object_id,amount_minor,currency,status,plan,price_id,livemode,
-      provider_occurred_at,occurred_at_source,source,source_event_id)
+      provider_occurred_at,occurred_at_source,source,source_event_id,billing_reason)
      SELECT $1,'stripe',$2,$3,$4,COALESCE($5,p.provider_subscription_id),COALESCE($6,p.provider_invoice_id),$7,$8,$9,$10,$11,$12,
-      COALESCE($13,p.plan),COALESCE($14,p.price_id),$15,$16,$17,'webhook',$18
+      COALESCE($13,p.plan),COALESCE($14,p.price_id),$15,$16,$17,'webhook',$18,$19
      FROM (SELECT 1) one LEFT JOIN LATERAL (
       SELECT provider_subscription_id,provider_invoice_id,plan,price_id FROM mtm_ledger_entries
       WHERE kind='payment' AND $2<>'payment' AND provider_payment_intent_id=$7 AND user_id=$3 LIMIT 1) p ON true
@@ -246,6 +253,82 @@ export async function writeLedger(
       e.livemode,
       e.occurredAt,
       e.occurredAtSource,
+      eventId,
+      e.billingReason ?? null,
+    ],
+  );
+  return true;
+}
+
+export interface PaymentFailure {
+  invoiceId: string;
+  subscriptionId: string | null;
+  amountDueMinor: number;
+  currency: string;
+  failedAt: Date;
+}
+
+/** A failed attempt's value is the invoice amount due; unverifiable invoices become gaps. */
+export function invoiceFailureEntry(
+  invoice: Stripe.Invoice,
+  customerId: string,
+  eventCreated: number,
+): { failure: PaymentFailure } | Extract<Extracted, { gap: string }> {
+  const gap = (reason: string) => ({
+    gap: reason,
+    objectId: String(invoice?.id ?? "unknown"),
+    kind: "payment" as const,
+  });
+  if (!invoice?.id || typeof invoice.id !== "string")
+    return gap("missing invoice id");
+  if (invoice.livemode !== false) return gap("not a test-mode invoice");
+  if (ref(invoice.customer) !== customerId) return gap("customer mismatch");
+  if (!minor(invoice.amount_due)) return gap("invalid amount due");
+  const code = currency(invoice.currency);
+  if (!code) return gap("invalid currency");
+  const failedAt = seconds(eventCreated);
+  if (!failedAt) return gap("missing occurrence time");
+  return {
+    failure: {
+      invoiceId: invoice.id,
+      subscriptionId: ref(
+        invoice.parent?.subscription_details?.subscription as
+          string | { id: string } | null,
+      ),
+      amountDueMinor: invoice.amount_due,
+      currency: code,
+      failedAt,
+    },
+  };
+}
+
+/** One row per invoice; each distinct failed-payment event (already deduplicated by receipt) adds an attempt. */
+export async function writeFailure(
+  db: PoolClient,
+  userId: string,
+  customerId: string,
+  eventId: string,
+  result: ReturnType<typeof invoiceFailureEntry>,
+) {
+  if ("gap" in result)
+    return writeLedger(db, userId, customerId, eventId, result);
+  const f = result.failure;
+  await db.query(
+    `INSERT INTO mtm_payment_failures(provider_invoice_id,user_id,provider_subscription_id,amount_due_minor,currency,livemode,first_failed_at,last_failed_at,source_event_id)
+     VALUES($1,$2,$3,$4,$5,false,$6,$6,$7)
+     ON CONFLICT (provider_invoice_id) DO UPDATE SET
+      attempts=mtm_payment_failures.attempts+1,
+      amount_due_minor=excluded.amount_due_minor,
+      first_failed_at=LEAST(mtm_payment_failures.first_failed_at,excluded.first_failed_at),
+      last_failed_at=GREATEST(mtm_payment_failures.last_failed_at,excluded.last_failed_at)
+     WHERE mtm_payment_failures.user_id=excluded.user_id AND mtm_payment_failures.currency=excluded.currency`,
+    [
+      f.invoiceId,
+      userId,
+      f.subscriptionId,
+      f.amountDueMinor,
+      f.currency,
+      f.failedAt,
       eventId,
     ],
   );

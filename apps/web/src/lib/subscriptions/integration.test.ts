@@ -92,6 +92,8 @@ describe.skipIf(!testUrl)(
       customer,
       status: "paid",
       amount_paid: 999,
+      amount_due: 999,
+      billing_reason: "subscription_create",
       currency: "gbp",
       status_transitions: { paid_at: future - 86400 * 30 },
       parent: { subscription_details: { subscription: "sub_fixture" } },
@@ -127,6 +129,7 @@ describe.skipIf(!testUrl)(
       for (const migration of [
         "001_subscriptions.sql",
         "002_analytics_ledger.sql",
+        "003_analytics_intelligence.sql",
       ])
         await database().query(
           await readFile(
@@ -138,7 +141,7 @@ describe.skipIf(!testUrl)(
     beforeEach(async () => {
       vi.clearAllMocks();
       await database().query(
-        "TRUNCATE mtm_accounts,mtm_login_tokens,mtm_sessions,mtm_subscriptions,mtm_checkout_attempts,mtm_webhook_events,mtm_billing_events,mtm_library,mtm_ledger_entries,mtm_ledger_gaps,mtm_subscription_history CASCADE",
+        "TRUNCATE mtm_accounts,mtm_login_tokens,mtm_sessions,mtm_subscriptions,mtm_checkout_attempts,mtm_webhook_events,mtm_billing_events,mtm_library,mtm_ledger_entries,mtm_ledger_gaps,mtm_subscription_history,mtm_payment_failures CASCADE",
       );
       await database().query(
         "INSERT INTO mtm_library(id,title,published,free_selection) SELECT 'story-'||n,'Story '||n,true,true FROM generate_series(1,30) n",
@@ -823,6 +826,72 @@ describe.skipIf(!testUrl)(
         contract_recorded_at: null,
         price_id: "price_monthly",
       });
+    });
+    it("classifies new versus renewal payments from the retrieved invoice", async () => {
+      await processSubscriptionEvent(invoiceEvent("evt_new", "in_new"));
+      mocks.stripe.invoices.retrieve.mockResolvedValueOnce(
+        paidInvoice("in_renew", { billing_reason: "subscription_cycle" }),
+      );
+      await processSubscriptionEvent(invoiceEvent("evt_renew", "in_renew"));
+      mocks.stripe.invoices.retrieve.mockResolvedValueOnce(
+        paidInvoice("in_odd", { billing_reason: "DROP TABLE" }),
+      );
+      await processSubscriptionEvent(invoiceEvent("evt_odd", "in_odd"));
+      const reasons = Object.fromEntries(
+        (await ledger()).map((r) => [r.provider_object_id, r.billing_reason]),
+      );
+      expect(reasons).toEqual({
+        in_new: "subscription_create",
+        in_renew: "subscription_cycle",
+        in_odd: null,
+      });
+    });
+    it("records failed invoice value once per invoice and counts each failed attempt", async () => {
+      const failed = (id: string, extra = {}) => {
+        mocks.stripe.invoices.retrieve.mockResolvedValueOnce(
+          paidInvoice("in_fail", {
+            status: "open",
+            amount_paid: 0,
+            amount_due: 1299,
+            ...extra,
+          }),
+        );
+        return processSubscriptionEvent(
+          invoiceEvent(id, "in_fail", "invoice.payment_failed"),
+        );
+      };
+      await failed("evt_fail_1");
+      await failed("evt_fail_2");
+      await processSubscriptionEvent(
+        invoiceEvent("evt_fail_2", "in_fail", "invoice.payment_failed"),
+      ); // Redelivery: receipt dedupe prevents a third attempt.
+      const rows = (
+        await database().query("SELECT * FROM mtm_payment_failures")
+      ).rows;
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({
+        provider_invoice_id: "in_fail",
+        amount_due_minor: "1299",
+        currency: "gbp",
+        attempts: 2,
+        livemode: false,
+      });
+      mocks.stripe.invoices.retrieve.mockResolvedValueOnce(
+        paidInvoice("in_fail_live", { livemode: true, amount_due: 5 }),
+      );
+      await processSubscriptionEvent(
+        invoiceEvent("evt_fail_live", "in_fail_live", "invoice.payment_failed"),
+      );
+      expect(
+        (await database().query("SELECT * FROM mtm_payment_failures")).rowCount,
+      ).toBe(1);
+      expect(
+        (
+          await database().query(
+            "SELECT reason FROM mtm_ledger_gaps WHERE provider_object_id='in_fail_live'",
+          )
+        ).rows,
+      ).toEqual([{ reason: "not a test-mode invoice" }]);
     });
   },
 );

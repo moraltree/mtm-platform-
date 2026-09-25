@@ -28,7 +28,9 @@ new subscription integration or the existing Stripe client.
 
 Use a **dedicated test PostgreSQL database**, never the live backend database.
 Apply `apps/web/migrations/001_subscriptions.sql` with a database migration
-client against that explicit test target. Then apply `apps/web/migrations/002_analytics_ledger.sql` (payment ledger,
+client against that explicit test target. Then apply `apps/web/migrations/002_analytics_ledger.sql` and
+`003_analytics_intelligence.sql` (new vs renewal, failed-payment value;
+see `ADMIN_ANALYTICS_V4.md`) in order. For 002: (payment ledger,
 contract snapshots, subscription history — see `ADMIN_ANALYTICS_V2.md`); the
 webhook writes those tables, so apply 002 before deploying that code. A
 restricted test key additionally needs read access to Invoices, Charges,

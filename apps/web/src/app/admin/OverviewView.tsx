@@ -14,15 +14,25 @@ import {
 } from "./components";
 import { ActivityList } from "./ActivityList";
 import { healthTone } from "./health";
+import type { CoverageIntel } from "@/lib/admin/intel/load";
 import styles from "./admin.module.css";
 
 /** One-screen executive summary: KPIs, trend tiles, health and latest activity. */
-export function OverviewView({ overview: d }: { overview: Overview }) {
+export function OverviewView({
+  overview: d,
+  coverage,
+}: {
+  overview: Overview;
+  coverage?: CoverageIntel;
+}) {
   const c = d.counts;
   const f = d.finance;
   const i = d.insights;
   const month = f?.revenue.find((w) => w.period === "month");
   const health = healthTone(d);
+  const netMovement =
+    i.comparisons.new_paid.d30.current -
+    i.comparisons.cancellations.d30.current;
   return (
     <>
       <section aria-labelledby="kpi-heading">
@@ -86,6 +96,57 @@ export function OverviewView({ overview: d }: { overview: Overview }) {
         </div>
       </section>
 
+      {coverage && (
+        <section className={styles.trust} aria-labelledby="trust-heading">
+          <div>
+            <h2 id="trust-heading">What data can I trust?</h2>
+            <p className={styles.detail}>
+              {coverage.domains.filter((x) => x.status === "available").length}{" "}
+              areas fully measured ·{" "}
+              {coverage.domains.filter((x) => x.status === "partial").length}{" "}
+              partial ·{" "}
+              {
+                coverage.domains.filter((x) => x.status === "unavailable")
+                  .length
+              }{" "}
+              awaiting a data source
+              {coverage.sandbox
+                ? " · money figures are TEST-mode sandbox data"
+                : ""}
+              .
+            </p>
+          </div>
+          <ul className={styles.healthList}>
+            {coverage.domains
+              .filter((x) =>
+                [
+                  "revenue",
+                  "mrr",
+                  "history",
+                  "listening",
+                  "campaigns",
+                ].includes(x.id),
+              )
+              .map((x) => (
+                <li key={x.id}>
+                  <StatusPill
+                    tone={
+                      x.status === "available"
+                        ? "good"
+                        : x.status === "partial"
+                          ? "warning"
+                          : "neutral"
+                    }
+                  >
+                    {x.title}
+                  </StatusPill>
+                </li>
+              ))}
+          </ul>
+          <a href="/admin?view=coverage">Data coverage →</a>
+        </section>
+      )}
+
       <div className={styles.split}>
         <section className={styles.panel} aria-labelledby="plans-heading">
           <SectionHeading id="plans-heading" title="Plans & movement" />
@@ -104,6 +165,16 @@ export function OverviewView({ overview: d }: { overview: Overview }) {
             Accounts holding both plans appear in each row.
           </p>
           <dl className={styles.miniStats}>
+            <div>
+              <dt>Net subscription movement · 30 days</dt>
+              <dd>
+                {netMovement > 0 ? "+" : ""}
+                {number(netMovement)}
+              </dd>
+              <p className={styles.detail}>
+                New paid subscriptions − completed cancellations.
+              </p>
+            </div>
             <div>
               <dt>Cancellations · 30 days</dt>
               <dd>{number(i.comparisons.cancellations.d30.current)}</dd>

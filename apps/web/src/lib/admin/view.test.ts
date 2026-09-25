@@ -185,7 +185,7 @@ describe("Phase 2 finance presentation", () => {
     expect(html).toContain("No consolidated total");
     expect(html).toContain("Stripe TEST-mode sandbox data");
     expect(html).not.toContain("£27"); // Never GBP + USD added together.
-    expect(html).toContain("Phase 3");
+    expect(html).toContain("Phase 4");
   });
   it("keeps MRR, churn and matured conversion explicitly unavailable", () => {
     const html = render(finance());

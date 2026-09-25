@@ -82,13 +82,26 @@ describe("Phase 3 insight rules", () => {
       42,
     ])
       expect(parseView(bad)).toBe("overview");
+    expect(parseView("roadmap")).toBe("coverage"); // Phase 3 bookmark.
+    for (const proto of [
+      "__proto__",
+      "constructor",
+      "toString",
+      "hasOwnProperty",
+    ])
+      expect(parseView(proto)).toBe("overview");
     expect(VIEWS.map((v) => v.id)).toEqual([
       "overview",
       "growth",
+      "cohorts",
       "finance",
+      "funnel",
+      "campaigns",
+      "audience",
+      "listening",
       "operations",
       "activity",
-      "roadmap",
+      "coverage",
     ]);
   });
 });

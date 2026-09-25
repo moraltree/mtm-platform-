@@ -20,6 +20,9 @@ The private Founder/Admin console is documented in
 revenue, MRR, subscription history/churn; migration 002 must precede the
 webhook code). [ADMIN_ANALYTICS_V3.md](./ADMIN_ANALYTICS_V3.md) documents the
 read-only multi-view Founder Console UI (`/admin?view=…`) built on both.
+[ADMIN_ANALYTICS_V4.md](./ADMIN_ANALYTICS_V4.md) adds period intelligence,
+cohorts, campaigns, geography, aggregate exports and the (not yet enabled)
+listening telemetry schema; migration 003 must also precede the webhook code.
 
 ## Project status
 

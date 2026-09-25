@@ -8,8 +8,10 @@ import { parsePlan, type Plan } from "./policy";
 import {
   classifyTransition,
   disputeEntry,
+  invoiceFailureEntry,
   invoicePaymentEntry,
   refundEntry,
+  writeFailure,
   writeLedger,
   type SubscriptionState,
 } from "./ledger";
@@ -213,6 +215,16 @@ async function recordLedger(
       customer,
       event.id,
       invoicePaymentEntry(invoice, customer, planFor, event.created),
+    );
+  }
+  if (event.type === "invoice.payment_failed") {
+    const invoice = await stripe.invoices.retrieve(object.id);
+    await writeFailure(
+      db,
+      account.id,
+      customer,
+      event.id,
+      invoiceFailureEntry(invoice, customer, event.created),
     );
   }
   if (

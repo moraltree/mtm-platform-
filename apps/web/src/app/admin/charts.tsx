@@ -46,12 +46,17 @@ export function BarTrend({
   format = number,
   unit,
   note,
+  partialLabel = "today so far",
+  partialAxis = "Today (so far)",
 }: {
   title: string;
   points: BarPoint[];
   format?: (value: number) => string;
   unit: string;
   note?: string;
+  /** How the still-accumulating last bucket is described (daily: "today so far"). */
+  partialLabel?: string;
+  partialAxis?: string;
 }) {
   const covered = points.filter((p) => !p.uncovered);
   const total = covered.reduce((sum, p) => sum + p.value, 0);
@@ -112,7 +117,7 @@ export function BarTrend({
                     className={p.partial ? styles.barPartial : styles.bar}
                   />
                 )}
-                <title>{`${shortDay(p.day)}${p.partial ? " (today so far)" : ""}: ${format(p.value)} ${unit}`}</title>
+                <title>{`${shortDay(p.day)}${p.partial ? ` (${partialLabel})` : ""}: ${format(p.value)} ${unit}`}</title>
               </g>
             );
           })}
@@ -123,7 +128,7 @@ export function BarTrend({
         <span>{points[0] && shortDay(points[0].day)}</span>
         <span>
           {points.at(-1)?.partial
-            ? "Today (so far)"
+            ? partialAxis
             : points.at(-1) && shortDay(points.at(-1)!.day)}
         </span>
       </div>

@@ -98,10 +98,13 @@ export function Delta({
   period,
   upIsGood,
   compact = false,
+  against,
 }: {
   comparison: Comparison;
   period: string;
   upIsGood: boolean;
+  /** Full comparison phrase (e.g. "same time yesterday"); defaults to "previous {period}". */
+  against?: string;
   /** Table cells: the column states the period; full wording stays for screen readers. */
   compact?: boolean;
 }) {
@@ -118,7 +121,7 @@ export function Delta({
       : c.change === null
         ? `${c.direction === "up" ? "Up" : "Down"} from ${number(c.previous)}`
         : `${c.direction === "up" ? "Up" : "Down"} ${Math.abs(c.change)}%`;
-  const period_ = `vs previous ${period} (${number(c.previous)})`;
+  const period_ = `vs ${against ?? `previous ${period}`} (${number(c.previous)})`;
   if (compact)
     return (
       <p className={`${styles.delta} ${tone}`} title={`${words} ${period_}`}>
@@ -129,9 +132,7 @@ export function Delta({
   return (
     <p className={`${styles.delta} ${tone}`}>
       <span aria-hidden="true">{arrow}</span> {words}{" "}
-      <span className={styles.deltaPeriod}>
-        vs previous {period} ({number(c.previous)})
-      </span>
+      <span className={styles.deltaPeriod}>{period_}</span>
     </p>
   );
 }

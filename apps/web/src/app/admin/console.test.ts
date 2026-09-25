@@ -109,7 +109,7 @@ describe("Phase 3 Founder Console", () => {
           `aria-current="page"[^>]*>${current.label.replace("&", "&amp;")}<`,
         ),
       );
-      expect(html).toContain("Phase 3 · Read-only");
+      expect(html).toContain("Phase 4 · Read-only");
       expect(html).toContain("Founder access");
       // No write capability exists anywhere in the console.
       expect(html.match(/<form/g)).toHaveLength(1); // Sign out only.
@@ -132,21 +132,17 @@ describe("Phase 3 Founder Console", () => {
     expect(html).toContain("Attention"); // Failed payments carry words, not colour alone.
   });
 
-  it("shows the funnel, equal-window comparisons and trends on Subscribers & conversion", () => {
+  it("keeps the Phase 3 trends, conversion and status sections on Subscribers", () => {
+    // Phase 4 moved the funnel to its own view and replaced the rolling
+    // comparison table with period KPIs; without the Phase 4 migration the
+    // view says so rather than showing zeros.
     const html = render("growth");
     for (const text of [
-      "Registration → trial → paid",
-      "Registered accounts",
-      "Ever paid (any route)",
-      "Paying now",
-      "17.5%", // 7 of 40 paying now.
-      "Trial-to-paid: 20%",
-      "Last 7 days",
-      "Up 200%", // Cancellations 3 vs 1, rendered as bad news.
-      "Up from 0", // Failed payments 2 vs 0: no invented percentage.
-      "No change",
+      "Period subscriber intelligence",
+      "Not installed",
       "Daily trends",
       "records since",
+      "Trial-to-paid conversion",
       "Canceling at period end",
     ])
       expect(html).toContain(text);
@@ -197,21 +193,20 @@ describe("Phase 3 Founder Console", () => {
     expect(html).toContain("not installed on this database");
   });
 
-  it("lists every future area as inactive with its activation requirement", () => {
-    const html = render("roadmap");
+  it("lists every still-inactive area on Data coverage with its activation requirement", () => {
+    const html = render("coverage");
     expect(FUTURE_AREAS.map((a) => a.id)).toEqual([
       "listening",
-      "content",
-      "campaigns",
       "partners",
-      "vouchers",
-      "geography",
+      "sources",
+      "visits",
       "devices",
     ]);
     for (const area of FUTURE_AREAS)
       expect(html).toContain(area.title.replace("&", "&amp;"));
-    expect(html.match(/Not yet available/g)).toHaveLength(7);
-    expect(html.match(/Required to activate/g)).toHaveLength(7);
+    // Five future cards plus the "not installed" coverage inventory notice.
+    expect(html.match(/Not yet available/g)).toHaveLength(6);
+    expect(html.match(/Required to activate/g)).toHaveLength(5);
     expect(html).not.toMatch(/\d+%/);
   });
 

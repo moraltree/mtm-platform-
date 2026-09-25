@@ -1,4 +1,5 @@
 import "server-only";
+import type { PoolClient } from "pg";
 import { database } from "@/lib/subscriptions/db";
 import { testSecret } from "@/lib/subscriptions/policy";
 import { utcWindows, conversionRate } from "./policy";
@@ -47,67 +48,84 @@ export interface Overview {
   insights: Insights;
 }
 
-/** One consistent snapshot, bounded activity and query time, no provider calls or writes. */
-export async function readOverview(now = new Date()): Promise<Overview> {
+/**
+ * One consistent, read-only snapshot with a per-statement timeout. Every
+ * console read (Phase 1–4) runs inside this; no provider calls or writes.
+ */
+export async function withSnapshot<T>(
+  work: (db: PoolClient) => Promise<T>,
+): Promise<T> {
   const db = await database().connect();
   try {
     await db.query("BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY");
     await db.query("SET LOCAL statement_timeout = '5s'");
-    const windows = utcWindows(now);
-    const counts = (await db.query<Counts>(countsSql, [now])).rows[0];
-    const statuses = (await db.query(statusSql)).rows;
-    const payments = (
-      await db.query(paymentsSql, [
-        now,
-        windows.today,
-        windows.week,
-        windows.month,
-      ])
-    ).rows[0];
-    const activity = (await db.query(activitySql, [now])).rows.map((r) => ({
-      kind: r.kind,
-      at: r.occurred_at.toISOString(),
-    }));
-    const health = (await db.query(healthSql, [now])).rows[0];
-    const finance = await readFinance(db, now, windows);
-    const insights = await readInsights(
-      db,
-      now,
-      finance ? new Date(finance.coverage.ledgerStart) : null,
-    );
+    const result = await work(db);
     await db.query("COMMIT");
-    return {
-      asOf: now.toISOString(),
-      counts,
-      conversionRate: conversionRate(counts.converted, counts.trials_started),
-      statuses,
-      payments,
-      activity,
-      health: {
-        database: true,
-        testBillingConfigured:
-          testSecret(process.env.STRIPE_SECRET_KEY) &&
-          /^whsec_\w+$/.test(process.env.STRIPE_WEBHOOK_SECRET ?? "") &&
-          Boolean(
-            process.env.STRIPE_PRICE_MONTHLY?.startsWith("price_") &&
-            process.env.STRIPE_PRICE_ANNUAL?.startsWith("price_") &&
-            process.env.STRIPE_PRICE_MONTHLY !==
-              process.env.STRIPE_PRICE_ANNUAL,
-          ),
-        lastWebhook: health.last_webhook?.toISOString() ?? null,
-        receipts: health.receipts,
-        failedPayments: health.failed_payments,
-        deduplication: health.receipt_key && health.billing_key,
-      },
-      finance,
-      insights,
-    };
+    return result;
   } catch (error) {
     await db.query("ROLLBACK").catch(() => undefined);
     throw error;
   } finally {
     db.release();
   }
+}
+
+export function readOverview(now = new Date()): Promise<Overview> {
+  return withSnapshot((db) => readOverviewIn(db, now));
+}
+
+/** Phase 1–3 overview model, read inside the caller's snapshot. */
+export async function readOverviewIn(
+  db: PoolClient,
+  now: Date,
+): Promise<Overview> {
+  const windows = utcWindows(now);
+  const counts = (await db.query<Counts>(countsSql, [now])).rows[0];
+  const statuses = (await db.query(statusSql)).rows;
+  const payments = (
+    await db.query(paymentsSql, [
+      now,
+      windows.today,
+      windows.week,
+      windows.month,
+    ])
+  ).rows[0];
+  const activity = (await db.query(activitySql, [now])).rows.map((r) => ({
+    kind: r.kind,
+    at: r.occurred_at.toISOString(),
+  }));
+  const health = (await db.query(healthSql, [now])).rows[0];
+  const finance = await readFinance(db, now, windows);
+  const insights = await readInsights(
+    db,
+    now,
+    finance ? new Date(finance.coverage.ledgerStart) : null,
+  );
+  return {
+    asOf: now.toISOString(),
+    counts,
+    conversionRate: conversionRate(counts.converted, counts.trials_started),
+    statuses,
+    payments,
+    activity,
+    health: {
+      database: true,
+      testBillingConfigured:
+        testSecret(process.env.STRIPE_SECRET_KEY) &&
+        /^whsec_\w+$/.test(process.env.STRIPE_WEBHOOK_SECRET ?? "") &&
+        Boolean(
+          process.env.STRIPE_PRICE_MONTHLY?.startsWith("price_") &&
+          process.env.STRIPE_PRICE_ANNUAL?.startsWith("price_") &&
+          process.env.STRIPE_PRICE_MONTHLY !== process.env.STRIPE_PRICE_ANNUAL,
+        ),
+      lastWebhook: health.last_webhook?.toISOString() ?? null,
+      receipts: health.receipts,
+      failedPayments: health.failed_payments,
+      deduplication: health.receipt_key && health.billing_key,
+    },
+    finance,
+    insights,
+  };
 }
 
 export type AdminOverviewResult =

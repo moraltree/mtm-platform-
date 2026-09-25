@@ -34,6 +34,9 @@ const tables = [
   "mtm_ledger_entries",
   "mtm_ledger_gaps",
   "mtm_subscription_history",
+  // Phase 4 tables, likewise fingerprinted if ever present in public.
+  "mtm_payment_failures",
+  "mtm_listening_events",
 ];
 async function fingerprint() {
   const hash = createHash("sha256");
