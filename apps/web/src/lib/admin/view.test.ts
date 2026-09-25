@@ -5,6 +5,25 @@ vi.mock("@/app/subscribe/actions", () => ({ logout: async () => undefined }));
 import { Dashboard } from "@/app/admin/Dashboard";
 import type { Overview } from "./overview";
 import type { Finance } from "./financeSnapshot";
+import type { Insights } from "./insightsSnapshot";
+import { compare, fillDays, SERIES } from "./insights";
+import { VIEWS } from "@/app/admin/views";
+const snapshotAt = new Date("2026-09-11T12:00:00Z");
+const insights = (extra: Partial<Insights> = {}): Insights => ({
+  dataStart: null,
+  series: Object.fromEntries(
+    SERIES.map((k) => [k, fillDays(new Map(), snapshotAt)]),
+  ) as Insights["series"],
+  comparisons: Object.fromEntries(
+    SERIES.map((k) => [k, { d7: compare(0, 0), d30: compare(0, 0) }]),
+  ) as Insights["comparisons"],
+  everPaid: 0,
+  webhook: { last24h: 0, last7d: 0 },
+  openGaps: null,
+  revenueSeries: null,
+  feed: [],
+  ...extra,
+});
 const empty: Overview = {
   asOf: "2026-09-11T12:00:00Z",
   counts: {
@@ -30,6 +49,7 @@ const empty: Overview = {
     deduplication: true,
   },
   finance: null,
+  insights: insights(),
 };
 afterEach(() => vi.unstubAllGlobals());
 describe("executive overview presentation", () => {
@@ -59,6 +79,15 @@ describe("executive overview presentation", () => {
           raw: "PRIVATE_PROVIDER_PAYLOAD",
         },
       ],
+      insights: insights({
+        feed: [
+          {
+            kind: "payment" as const,
+            at: empty.asOf,
+            raw: "PRIVATE_PROVIDER_PAYLOAD",
+          } as Insights["feed"][number],
+        ],
+      }),
     };
     const html = renderToStaticMarkup(
       React.createElement(Dashboard, { overview, role: "admin" }),
@@ -133,14 +162,18 @@ const finance = (extra: Partial<Finance> = {}): Finance => ({
   ...extra,
 });
 describe("Phase 2 finance presentation", () => {
+  // Phase 3 splits the console into views; these assertions span all of them.
   const render = (f: Finance) => {
     vi.stubGlobal("React", React);
-    return renderToStaticMarkup(
-      React.createElement(Dashboard, {
-        overview: { ...empty, finance: f },
-        role: "founder",
-      }),
-    );
+    return VIEWS.map((v) =>
+      renderToStaticMarkup(
+        React.createElement(Dashboard, {
+          overview: { ...empty, finance: f },
+          role: "founder",
+          view: v.id,
+        }),
+      ),
+    ).join("\n");
   };
   it("shows per-currency amounts with coverage labels and no consolidated total", () => {
     const html = render(finance());
@@ -152,7 +185,7 @@ describe("Phase 2 finance presentation", () => {
     expect(html).toContain("No consolidated total");
     expect(html).toContain("Stripe TEST-mode sandbox data");
     expect(html).not.toContain("£27"); // Never GBP + USD added together.
-    expect(html).toContain("Phase 2");
+    expect(html).toContain("Phase 3");
   });
   it("keeps MRR, churn and matured conversion explicitly unavailable", () => {
     const html = render(finance());

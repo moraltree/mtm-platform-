@@ -11,6 +11,7 @@ import {
 } from "./queries";
 import { authorizeAdmin } from "./auth";
 import { readFinance, type Finance } from "./financeSnapshot";
+import { readInsights, type Insights } from "./insightsSnapshot";
 
 export interface Counts {
   accounts: number;
@@ -42,6 +43,8 @@ export interface Overview {
   };
   /** Phase 2. Null when the ledger migration has not been applied to this database. */
   finance: Finance | null;
+  /** Phase 3 trends, comparisons and feed from the same snapshot. */
+  insights: Insights;
 }
 
 /** One consistent snapshot, bounded activity and query time, no provider calls or writes. */
@@ -67,6 +70,11 @@ export async function readOverview(now = new Date()): Promise<Overview> {
     }));
     const health = (await db.query(healthSql, [now])).rows[0];
     const finance = await readFinance(db, now, windows);
+    const insights = await readInsights(
+      db,
+      now,
+      finance ? new Date(finance.coverage.ledgerStart) : null,
+    );
     await db.query("COMMIT");
     return {
       asOf: now.toISOString(),
@@ -92,6 +100,7 @@ export async function readOverview(now = new Date()): Promise<Overview> {
         deduplication: health.receipt_key && health.billing_key,
       },
       finance,
+      insights,
     };
   } catch (error) {
     await db.query("ROLLBACK").catch(() => undefined);

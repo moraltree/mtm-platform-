@@ -1,6 +1,6 @@
 # Moral Tree Media Founder/Admin Analytics — Phase 2
 
-Branch: `admin-analytics-v2`. Extends [Phase 1](./ADMIN_ANALYTICS_V1.md) with a durable financial data foundation. No deployment, merge, production database operation, or Stripe configuration change is part of this work. Every Phase 1 metric definition, the authorization boundary, and the API/page security headers are unchanged.
+Branch: `admin-analytics-v2`. The Phase 3 console UI is documented in [ADMIN_ANALYTICS_V3.md](./ADMIN_ANALYTICS_V3.md). Extends [Phase 1](./ADMIN_ANALYTICS_V1.md) with a durable financial data foundation. No deployment, merge, production database operation, or Stripe configuration change is part of this work. Every Phase 1 metric definition, the authorization boundary, and the API/page security headers are unchanged.
 
 ## Summary
 

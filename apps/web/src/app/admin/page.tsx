@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAdminOverview } from "@/lib/admin/overview";
 import { Dashboard } from "./Dashboard";
+import { parseView } from "./views";
 import styles from "./admin.module.css";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -11,7 +12,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   referrer: "no-referrer",
 };
-export default async function AdminPage() {
+export default async function AdminPage(props: PageProps<"/admin">) {
+  // Authorization runs first on every request; the view only selects presentation.
   const result = await getAdminOverview();
   if (result.status === "denied") notFound();
   if (result.status === "unavailable")
@@ -26,5 +28,8 @@ export default async function AdminPage() {
         <a href="/admin">Try again</a>
       </section>
     );
-  return <Dashboard overview={result.overview} role={result.role} />;
+  const view = parseView((await props.searchParams).view);
+  return (
+    <Dashboard overview={result.overview} role={result.role} view={view} />
+  );
 }

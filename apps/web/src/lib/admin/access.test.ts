@@ -8,6 +8,8 @@ vi.mock("@/lib/subscriptions/db", () => ({
 import { authorizeAdmin } from "./auth";
 import { getAdminOverview } from "./overview";
 import { GET } from "@/app/api/admin/overview/route";
+import AdminPage from "@/app/admin/page";
+vi.mock("@/app/subscribe/actions", () => ({ logout: async () => undefined }));
 const id = "11111111-1111-4111-8111-111111111111";
 describe("private console boundaries", () => {
   beforeEach(() => {
@@ -152,4 +154,20 @@ describe("private console boundaries", () => {
     expect(await r.text()).not.toContain(secret);
     expect(query).toHaveBeenCalledWith("ROLLBACK");
   });
+  it.each(["finance", "operations", "../../api", ""])(
+    "authorises before honouring view=%s and denies with a 404",
+    async (view) => {
+      mocks.account.mockResolvedValue({
+        id: "22222222-2222-4222-8222-222222222222",
+        blocked: false,
+      });
+      await expect(
+        AdminPage({
+          params: Promise.resolve({}),
+          searchParams: Promise.resolve({ view }),
+        } as unknown as PageProps<"/admin">),
+      ).rejects.toThrow(/NEXT_HTTP_ERROR_FALLBACK;404|NEXT_NOT_FOUND/);
+      expect(mocks.connect).not.toHaveBeenCalled();
+    },
+  );
 });

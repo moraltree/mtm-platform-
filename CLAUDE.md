@@ -18,7 +18,8 @@ The private Founder/Admin console is documented in
 [ADMIN_ANALYTICS_V1.md](./ADMIN_ANALYTICS_V1.md) and
 [ADMIN_ANALYTICS_V2.md](./ADMIN_ANALYTICS_V2.md) (payment ledger, per-currency
 revenue, MRR, subscription history/churn; migration 002 must precede the
-webhook code).
+webhook code). [ADMIN_ANALYTICS_V3.md](./ADMIN_ANALYTICS_V3.md) documents the
+read-only multi-view Founder Console UI (`/admin?view=…`) built on both.
 
 ## Project status
 
