@@ -109,4 +109,47 @@ describe("private console boundaries", () => {
     expect(JSON.stringify(data)).not.toContain(id);
     expect(data.overview.health.database).toBe(true);
   });
+  it("returns a generic 503 and rolls back when a Phase 2 finance query fails", async () => {
+    const secret = "SENTINEL_FINANCE_FAILURE";
+    const query = vi.fn(async (sql: string) => {
+      if (sql.includes("to_regclass('mtm_ledger_entries')"))
+        return { rows: [{ present: true }] };
+      if (sql.includes("mtm_analytics_coverage")) throw new Error(secret);
+      if (sql.includes("AS accounts"))
+        return {
+          rows: [
+            {
+              accounts: 0,
+              paid: 0,
+              trials: 0,
+              canceled_accounts: 0,
+              trials_started: 0,
+              converted: 0,
+              monthly: 0,
+              annual: 0,
+            },
+          ],
+        };
+      if (sql.includes("AS lifetime"))
+        return { rows: [{ today: 0, week: 0, month: 0, lifetime: 0 }] };
+      if (sql.includes("AS receipts"))
+        return {
+          rows: [
+            {
+              last_webhook: null,
+              receipts: 0,
+              failed_payments: 0,
+              receipt_key: true,
+              billing_key: true,
+            },
+          ],
+        };
+      return { rows: [] };
+    });
+    mocks.connect.mockResolvedValue({ query, release: vi.fn() });
+    const r = await GET();
+    expect(r.status).toBe(503);
+    expect(await r.text()).not.toContain(secret);
+    expect(query).toHaveBeenCalledWith("ROLLBACK");
+  });
 });

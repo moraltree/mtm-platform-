@@ -2,6 +2,7 @@ import type { Overview } from "@/lib/admin/overview";
 import type { AdminRole } from "@/lib/admin/policy";
 import { logout } from "@/app/subscribe/actions";
 import styles from "./admin.module.css";
+import { FinanceLifecycle, FinanceRevenue } from "./FinanceSections";
 const number = (value: number) => new Intl.NumberFormat("en-GB").format(value);
 const timestamp = (value: string) =>
   new Intl.DateTimeFormat("en-GB", {
@@ -61,6 +62,7 @@ export function Dashboard({
   role: AdminRole;
 }) {
   const c = d.counts;
+  const f = d.finance;
   const statuses = Object.entries(statusLabels).map(([key, label]) => ({
     key,
     label,
@@ -85,6 +87,7 @@ export function Dashboard({
           </a>
           <a href="#revenue">Revenue &amp; plans</a>
           <a href="#conversion">Conversion</a>
+          {f && <a href="#lifecycle">Subscriber movement</a>}
           <a href="#subscriptions">Subscription status</a>
           <a href="#geography">Geography</a>
           <a href="#activity">Recent activity</a>
@@ -126,10 +129,9 @@ export function Dashboard({
         <div className={styles.notice} role="note">
           <strong>Database snapshot · data coverage is partial</strong>
           <p>
-            Figures reflect the connected subscription database, including any
-            retained test fixtures. Revenue amounts, geography and webhook
-            failure history are not recorded yet. No live Stripe data is
-            requested.
+            {f
+              ? "Figures reflect the connected subscription database, including any retained test fixtures. Revenue comes only from the payment ledger and is labelled with its coverage. Geography and webhook failure history are not recorded yet. No live Stripe data is requested."
+              : "Figures reflect the connected subscription database, including any retained test fixtures. Revenue amounts, geography and webhook failure history are not recorded yet. No live Stripe data is requested."}
           </p>
         </div>
         <section aria-labelledby="subscribers-heading">
@@ -165,37 +167,45 @@ export function Dashboard({
             <h2 id="revenue-heading">Revenue &amp; plans</h2>
             <span>UTC · week starts Monday</span>
           </div>
-          <div className={styles.grid4}>
-            {[
-              "Revenue today",
-              "Revenue this week",
-              "Revenue this month",
-              "Lifetime subscription revenue",
-            ].map((label) => (
-              <Unavailable
-                key={label}
-                label={label}
-                reason="Payment events do not store amounts or currencies. Counts cannot establish revenue."
-              />
-            ))}
-          </div>
-          <div className={styles.planStrip}>
-            <div>
-              <span>Monthly paid accounts</span>
-              <strong>{number(c.monthly)}</strong>
-            </div>
-            <div>
-              <span>Annual paid accounts</span>
-              <strong>{number(c.annual)}</strong>
-            </div>
-            <div>
-              <span>Monthly recurring revenue</span>
-              <strong className={styles.smallValue}>Not yet available</strong>
-              <small>
-                Contract amounts, currencies and discounts are not stored.
-              </small>
-            </div>
-          </div>
+          {f ? (
+            <FinanceRevenue finance={f} monthly={c.monthly} annual={c.annual} />
+          ) : (
+            <>
+              <div className={styles.grid4}>
+                {[
+                  "Revenue today",
+                  "Revenue this week",
+                  "Revenue this month",
+                  "Lifetime subscription revenue",
+                ].map((label) => (
+                  <Unavailable
+                    key={label}
+                    label={label}
+                    reason="Payment events do not store amounts or currencies. Counts cannot establish revenue."
+                  />
+                ))}
+              </div>
+              <div className={styles.planStrip}>
+                <div>
+                  <span>Monthly paid accounts</span>
+                  <strong>{number(c.monthly)}</strong>
+                </div>
+                <div>
+                  <span>Annual paid accounts</span>
+                  <strong>{number(c.annual)}</strong>
+                </div>
+                <div>
+                  <span>Monthly recurring revenue</span>
+                  <strong className={styles.smallValue}>
+                    Not yet available
+                  </strong>
+                  <small>
+                    Contract amounts, currencies and discounts are not stored.
+                  </small>
+                </div>
+              </div>
+            </>
+          )}
           <div className={styles.panel}>
             <h3>Recorded successful payment events</h3>
             <p className={styles.detail}>
@@ -246,12 +256,29 @@ export function Dashboard({
                   : "Converted trials ÷ started trials. Includes ongoing trials; not a matured cohort rate."
               }
             />
-            <Unavailable
-              label="Churn rate"
-              reason="No opening subscriber cohort or historical status snapshots. Cancellation counts alone are insufficient."
-            />
+            {f ? (
+              <Metric
+                label="Matured trial conversion"
+                value={
+                  f.maturedTrials.rate === null
+                    ? "—"
+                    : `${f.maturedTrials.rate}%`
+                }
+                detail={
+                  f.maturedTrials.rate === null
+                    ? "Not yet available: no trial deadline has passed."
+                    : `${number(f.maturedTrials.converted)} of ${number(f.maturedTrials.matured)} trials whose deadline has passed converted (at any time).`
+                }
+              />
+            ) : (
+              <Unavailable
+                label="Churn rate"
+                reason="No opening subscriber cohort or historical status snapshots. Cancellation counts alone are insufficient."
+              />
+            )}
           </div>
         </section>
+        {f && <FinanceLifecycle finance={f} />}
         <div className={styles.twoColumns}>
           <section
             id="subscriptions"
@@ -397,8 +424,10 @@ export function Dashboard({
             All reporting windows start at 00:00 UTC; weeks start Monday. Events
             are grouped by database receipt time and may arrive after their
             provider occurrence. Monthly and annual counts may overlap if an
-            account has both plans. Monetary values are intentionally
-            unavailable until an auditable invoice ledger exists.
+            account has both plans.{" "}
+            {f
+              ? "Monetary values come only from the idempotent payment ledger, reported per currency by provider occurrence time, and are marked partial where stored payment receipts lack a ledger amount."
+              : "Monetary values are intentionally unavailable until an auditable invoice ledger exists."}
           </p>
           <p>
             This console reads existing account, subscription, billing-event and
@@ -408,7 +437,8 @@ export function Dashboard({
           </p>
         </details>
         <footer className={styles.footer}>
-          Moral Tree Media · Private Founder/Admin Analytics · Phase 1
+          Moral Tree Media · Private Founder/Admin Analytics ·{" "}
+          {f ? "Phase 2" : "Phase 1"}
         </footer>
       </div>
     </div>

@@ -1,6 +1,6 @@
 # Moral Tree Media Founder/Admin Analytics — Phase 1
 
-Branch: `admin-analytics-v1`. Private, read-only dashboard at `/admin`; protected aggregate endpoint at `/api/admin/overview`. No deployment or production changes are included.
+Branch: `admin-analytics-v1`. **Phase 2 (ledger, per-currency revenue, MRR, history/churn) is documented in [ADMIN_ANALYTICS_V2.md](./ADMIN_ANALYTICS_V2.md); Phase 1 definitions below are unchanged.** Private, read-only dashboard at `/admin`; protected aggregate endpoint at `/api/admin/overview`. No deployment or production changes are included.
 
 ## Authorization and activation
 

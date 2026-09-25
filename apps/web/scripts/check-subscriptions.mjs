@@ -74,6 +74,14 @@ if (process.env.SUBSCRIPTIONS_DATABASE_URL) {
     );
     console.log(`Free story selection: ${result.rows[0].count}/30 minimum`);
     if (result.rows[0].count < 30) process.exitCode = 1;
+    // The webhook writes the payment ledger/history; apply 002 before deploying it.
+    const ledger = await pool.query(
+      "SELECT to_regclass('mtm_ledger_entries') IS NOT NULL AND to_regclass('mtm_subscription_history') IS NOT NULL AS ready",
+    );
+    console.log(
+      `Analytics ledger migration (002): ${ledger.rows[0].ready ? "applied" : "MISSING"}`,
+    );
+    if (!ledger.rows[0].ready) process.exitCode = 1;
   } catch {
     console.log(
       "Subscription database/readiness: FAILED (connection or migration missing)",

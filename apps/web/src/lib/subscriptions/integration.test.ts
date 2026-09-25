@@ -27,6 +27,9 @@ const mocks = vi.hoisted(() => ({
     billingPortal: { sessions: { create: vi.fn() } },
     setupIntents: { retrieve: vi.fn() },
     charges: { retrieve: vi.fn() },
+    invoices: { retrieve: vi.fn() },
+    refunds: { list: vi.fn() },
+    disputes: { retrieve: vi.fn() },
   },
   cookie: { get: vi.fn(), set: vi.fn() },
 }));
@@ -82,6 +85,25 @@ describe.skipIf(!testUrl)(
       },
       cancel_at_period_end: false,
     });
+    const paidInvoice = (id = "in_fixture", extra = {}) => ({
+      id,
+      object: "invoice",
+      livemode: false,
+      customer,
+      status: "paid",
+      amount_paid: 999,
+      currency: "gbp",
+      status_transitions: { paid_at: future - 86400 * 30 },
+      parent: { subscription_details: { subscription: "sub_fixture" } },
+      lines: {
+        has_more: false,
+        data: [{ pricing: { price_details: { price: "price_monthly" } } }],
+      },
+      payments: {
+        data: [{ status: "paid", payment: { payment_intent: "pi_fixture" } }],
+      },
+      ...extra,
+    });
     const account = async () =>
       (
         await database().query<Account>(
@@ -102,17 +124,21 @@ describe.skipIf(!testUrl)(
       process.env.SUBSCRIPTIONS_DATABASE_URL = testUrl;
       process.env.STRIPE_PRICE_MONTHLY = "price_monthly";
       process.env.STRIPE_PRICE_ANNUAL = "price_annual";
-      await database().query(
-        await readFile(
-          new URL("../../../migrations/001_subscriptions.sql", import.meta.url),
-          "utf8",
-        ),
-      );
+      for (const migration of [
+        "001_subscriptions.sql",
+        "002_analytics_ledger.sql",
+      ])
+        await database().query(
+          await readFile(
+            new URL(`../../../migrations/${migration}`, import.meta.url),
+            "utf8",
+          ),
+        );
     });
     beforeEach(async () => {
       vi.clearAllMocks();
       await database().query(
-        "TRUNCATE mtm_accounts,mtm_login_tokens,mtm_sessions,mtm_subscriptions,mtm_checkout_attempts,mtm_webhook_events,mtm_billing_events,mtm_library CASCADE",
+        "TRUNCATE mtm_accounts,mtm_login_tokens,mtm_sessions,mtm_subscriptions,mtm_checkout_attempts,mtm_webhook_events,mtm_billing_events,mtm_library,mtm_ledger_entries,mtm_ledger_gaps,mtm_subscription_history CASCADE",
       );
       await database().query(
         "INSERT INTO mtm_library(id,title,published,free_selection) SELECT 'story-'||n,'Story '||n,true,true FROM generate_series(1,30) n",
@@ -131,6 +157,13 @@ describe.skipIf(!testUrl)(
       );
       mocks.stripe.subscriptions.retrieve.mockResolvedValue(subscription());
       mocks.stripe.subscriptions.list.mockResolvedValue({
+        data: [],
+        has_more: false,
+      });
+      mocks.stripe.invoices.retrieve.mockImplementation(async (id) =>
+        paidInvoice(id),
+      );
+      mocks.stripe.refunds.list.mockResolvedValue({
         data: [],
         has_more: false,
       });
@@ -480,6 +513,316 @@ describe.skipIf(!testUrl)(
         items: [{ id: "si_fixture", price: "price_annual" }],
       });
       expect(mocks.stripe.checkout.sessions.create).not.toHaveBeenCalled();
+    });
+    const invoiceEvent = (id: string, invoice: string, type = "invoice.paid") =>
+      ({
+        ...event(id, type),
+        data: {
+          object: {
+            id: invoice,
+            customer,
+            parent: { subscription_details: { subscription: "sub_fixture" } },
+          },
+        },
+      }) as unknown as Stripe.Event;
+    const ledger = async () =>
+      (
+        await database().query(
+          "SELECT * FROM mtm_ledger_entries ORDER BY entry_key",
+        )
+      ).rows;
+    it("records one ledger payment across invoice.paid, payment_succeeded and concurrent redelivery", async () => {
+      await Promise.all([
+        processSubscriptionEvent(invoiceEvent("evt_inv_paid", "in_one")),
+        processSubscriptionEvent(invoiceEvent("evt_inv_paid", "in_one")),
+      ]);
+      await processSubscriptionEvent(
+        invoiceEvent("evt_inv_ok", "in_one", "invoice.payment_succeeded"),
+      );
+      const rows = await ledger();
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({
+        entry_key: "stripe:invoice:in_one",
+        kind: "payment",
+        user_id: userId,
+        provider_customer_id: customer,
+        provider_subscription_id: "sub_fixture",
+        provider_payment_intent_id: "pi_fixture",
+        amount_minor: "999",
+        currency: "gbp",
+        plan: "monthly",
+        livemode: false,
+        occurred_at_source: "paid_at",
+        source: "webhook",
+        source_event_id: "evt_inv_paid",
+      });
+      expect(rows[0].provider_occurred_at.getTime()).toBe(
+        (future - 86400 * 30) * 1000,
+      );
+      expect(
+        (
+          await database().query(
+            "SELECT * FROM mtm_billing_events WHERE type='PAYMENT_SUCCEEDED'",
+          )
+        ).rowCount,
+      ).toBe(1);
+    });
+    it("records malformed or unverifiable invoices as gaps without blocking entitlement", async () => {
+      mocks.stripe.invoices.retrieve.mockResolvedValueOnce(
+        paidInvoice("in_bad", { currency: null }),
+      );
+      await processSubscriptionEvent(invoiceEvent("evt_bad", "in_bad"));
+      mocks.stripe.invoices.retrieve.mockResolvedValueOnce(
+        paidInvoice("in_live", { livemode: true }),
+      );
+      await processSubscriptionEvent(invoiceEvent("evt_live", "in_live"));
+      mocks.stripe.invoices.retrieve.mockResolvedValueOnce(
+        paidInvoice("in_other", { customer: "cus_other" }),
+      );
+      await processSubscriptionEvent(invoiceEvent("evt_other", "in_other"));
+      expect(await ledger()).toEqual([]);
+      const gaps = (
+        await database().query(
+          "SELECT reason FROM mtm_ledger_gaps ORDER BY reason",
+        )
+      ).rows.map((r) => r.reason);
+      expect(gaps).toEqual([
+        "customer mismatch",
+        "invalid currency",
+        "not a test-mode invoice",
+      ]);
+      expect(await accessFor(userId)).toBe("paid");
+    });
+    it("rolls back the ledger with the receipt when invoice retrieval fails", async () => {
+      mocks.stripe.invoices.retrieve.mockRejectedValueOnce(
+        new Error("temporary network failure"),
+      );
+      await expect(
+        processSubscriptionEvent(invoiceEvent("evt_inv_retry", "in_retry")),
+      ).rejects.toThrow();
+      expect(await ledger()).toEqual([]);
+      expect(
+        (await database().query("SELECT * FROM mtm_webhook_events")).rowCount,
+      ).toBe(0);
+      await processSubscriptionEvent(invoiceEvent("evt_inv_retry", "in_retry"));
+      expect(await ledger()).toHaveLength(1);
+    });
+    it("attributes annual invoices and leaves mixed-price invoices unattributed", async () => {
+      mocks.stripe.invoices.retrieve.mockResolvedValueOnce(
+        paidInvoice("in_annual", {
+          lines: {
+            has_more: false,
+            data: [{ pricing: { price_details: { price: "price_annual" } } }],
+          },
+        }),
+      );
+      await processSubscriptionEvent(invoiceEvent("evt_annual", "in_annual"));
+      mocks.stripe.invoices.retrieve.mockResolvedValueOnce(
+        paidInvoice("in_mixed", {
+          lines: {
+            has_more: false,
+            data: [
+              { pricing: { price_details: { price: "price_monthly" } } },
+              { pricing: { price_details: { price: "price_annual" } } },
+            ],
+          },
+        }),
+      );
+      await processSubscriptionEvent(invoiceEvent("evt_mixed", "in_mixed"));
+      const plans = Object.fromEntries(
+        (await ledger()).map((r) => [r.provider_object_id, r.plan]),
+      );
+      expect(plans).toEqual({ in_annual: "annual", in_mixed: null });
+    });
+    it("records refunds idempotently, progresses their status and inherits plan from the payment", async () => {
+      await processSubscriptionEvent(invoiceEvent("evt_pay", "in_one"));
+      mocks.stripe.charges.retrieve.mockResolvedValue({
+        id: "ch_fixture",
+        customer,
+        livemode: false,
+      });
+      const refund = (status: string) => ({
+        id: "re_fixture",
+        amount: 500,
+        currency: "gbp",
+        status,
+        created: future - 86400,
+        charge: "ch_fixture",
+        payment_intent: "pi_fixture",
+      });
+      mocks.stripe.refunds.list.mockResolvedValueOnce({
+        data: [refund("pending")],
+        has_more: false,
+      });
+      const refunded = {
+        ...event("evt_refund_1", "charge.refunded"),
+        data: { object: { id: "ch_fixture", customer } },
+      } as unknown as Stripe.Event;
+      await processSubscriptionEvent(refunded);
+      mocks.stripe.refunds.list.mockResolvedValue({
+        data: [refund("succeeded")],
+        has_more: false,
+      });
+      await processSubscriptionEvent({
+        ...refunded,
+        id: "evt_refund_2",
+      } as Stripe.Event);
+      await processSubscriptionEvent({
+        ...refunded,
+        id: "evt_refund_2",
+      } as Stripe.Event);
+      const rows = (await ledger()).filter((r) => r.kind === "refund");
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({
+        amount_minor: "500",
+        status: "succeeded",
+        plan: "monthly",
+        provider_invoice_id: "in_one",
+        occurred_at_source: "object_created",
+      });
+    });
+    it("records an unverified refund charge as a gap", async () => {
+      mocks.stripe.charges.retrieve.mockResolvedValue({
+        id: "ch_fixture",
+        customer: "cus_other",
+        livemode: false,
+      });
+      await processSubscriptionEvent({
+        ...event("evt_refund_bad", "charge.refunded"),
+        data: { object: { id: "ch_fixture", customer } },
+      } as unknown as Stripe.Event);
+      expect(await ledger()).toEqual([]);
+      expect(mocks.stripe.refunds.list).not.toHaveBeenCalled();
+      expect(
+        (await database().query("SELECT reason FROM mtm_ledger_gaps")).rows,
+      ).toEqual([{ reason: "refund charge not verified" }]);
+    });
+    it("tracks one dispute row whose status follows the retrieved dispute", async () => {
+      mocks.stripe.charges.retrieve.mockResolvedValue({ customer });
+      const dispute = (status: string) => ({
+        id: "dp_fixture",
+        amount: 999,
+        currency: "gbp",
+        status,
+        created: future - 3600,
+        livemode: false,
+        charge: "ch_fixture",
+        payment_intent: "pi_fixture",
+      });
+      mocks.stripe.disputes.retrieve.mockResolvedValueOnce(
+        dispute("needs_response"),
+      );
+      const opened = {
+        ...event("evt_dp_open", "charge.dispute.created"),
+        data: { object: { id: "dp_fixture", charge: "ch_fixture" } },
+      } as unknown as Stripe.Event;
+      await processSubscriptionEvent(opened);
+      mocks.stripe.disputes.retrieve.mockResolvedValueOnce(dispute("lost"));
+      await processSubscriptionEvent({
+        ...opened,
+        id: "evt_dp_closed",
+        type: "charge.dispute.closed",
+      } as Stripe.Event);
+      const rows = await ledger();
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({ kind: "dispute", status: "lost" });
+    });
+    it("captures contract snapshots and appends only real subscription transitions", async () => {
+      const priced = (extra = {}) => ({
+        ...subscription(),
+        items: {
+          data: [
+            {
+              ...subscription().items.data[0],
+              discounts: [],
+              price: {
+                id: "price_monthly",
+                unit_amount: 999,
+                currency: "GBP",
+                billing_scheme: "per_unit",
+                recurring: {
+                  interval: "month",
+                  interval_count: 1,
+                  usage_type: "licensed",
+                },
+              },
+            },
+          ],
+        },
+        discounts: [],
+        ...extra,
+      });
+      mocks.stripe.subscriptions.retrieve.mockResolvedValue(priced());
+      await processSubscriptionEvent(event("evt_h1"));
+      await processSubscriptionEvent(event("evt_h2")); // No state change.
+      mocks.stripe.subscriptions.retrieve.mockResolvedValue(
+        priced({ cancel_at_period_end: true }),
+      );
+      await processSubscriptionEvent(event("evt_h3"));
+      await processSubscriptionEvent(event("evt_h3")); // Redelivery.
+      mocks.stripe.subscriptions.retrieve.mockResolvedValue(
+        priced({ status: "canceled" }),
+      );
+      await processSubscriptionEvent(
+        event("evt_h4", "customer.subscription.deleted"),
+      );
+      const history = (
+        await database().query(
+          "SELECT source_event_id,transitions,prev_status,status FROM mtm_subscription_history ORDER BY id",
+        )
+      ).rows;
+      expect(history).toEqual([
+        {
+          source_event_id: "evt_h1",
+          transitions: ["created"],
+          prev_status: null,
+          status: "active",
+        },
+        {
+          source_event_id: "evt_h3",
+          transitions: ["cancellation_scheduled"],
+          prev_status: "active",
+          status: "active",
+        },
+        {
+          source_event_id: "evt_h4",
+          transitions: [
+            "status_changed",
+            "canceled",
+            "cancellation_unscheduled",
+          ],
+          prev_status: "active",
+          status: "canceled",
+        },
+      ]);
+      const contract = (
+        await database().query(
+          "SELECT unit_amount_minor,currency,billing_interval,interval_count,quantity,discounted,contract_recorded_at FROM mtm_subscriptions",
+        )
+      ).rows[0];
+      expect(contract).toMatchObject({
+        unit_amount_minor: "999",
+        currency: "gbp",
+        billing_interval: "month",
+        interval_count: 1,
+        quantity: 1,
+        discounted: false,
+      });
+      expect(contract.contract_recorded_at).toBeInstanceOf(Date);
+    });
+    it("stores no contract amount for pricing shapes it cannot normalise", async () => {
+      await processSubscriptionEvent(event("evt_unpriced"));
+      expect(
+        (
+          await database().query(
+            "SELECT unit_amount_minor,contract_recorded_at,price_id FROM mtm_subscriptions",
+          )
+        ).rows[0],
+      ).toEqual({
+        unit_amount_minor: null,
+        contract_recorded_at: null,
+        price_id: "price_monthly",
+      });
     });
   },
 );

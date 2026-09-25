@@ -29,6 +29,11 @@ const tables = [
   "mtm_webhook_events",
   "mtm_billing_events",
   "mtm_library",
+  // Phase 2 tables: absent from the retained public data today; fingerprinted if ever added.
+  "mtm_analytics_coverage",
+  "mtm_ledger_entries",
+  "mtm_ledger_gaps",
+  "mtm_subscription_history",
 ];
 async function fingerprint() {
   const hash = createHash("sha256");

@@ -14,6 +14,11 @@ provider configuration. `SUBSCRIPTIONS_ENABLED=false` preserves the historical
 email stand-in. The original legacy backend and deployment remain unchanged.
 Historical statements below that no account/billing implementation exists now
 apply to the disabled fallback, not the feature-gated subscription module.
+The private Founder/Admin console is documented in
+[ADMIN_ANALYTICS_V1.md](./ADMIN_ANALYTICS_V1.md) and
+[ADMIN_ANALYTICS_V2.md](./ADMIN_ANALYTICS_V2.md) (payment ledger, per-currency
+revenue, MRR, subscription history/churn; migration 002 must precede the
+webhook code).
 
 ## Project status
 

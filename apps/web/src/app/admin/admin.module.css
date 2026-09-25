@@ -273,7 +273,7 @@
 }
 .twoColumns {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   gap: 18px;
 }
 .statusList {
@@ -404,6 +404,69 @@
   display: inline-block;
   margin-top: 20px;
 }
+.tagComplete,
+.tagPartial {
+  display: inline-block;
+  margin-top: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.tagComplete {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.tagPartial {
+  border-color: var(--color-accent-gold);
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+}
+.currencyList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.currencyList .value {
+  margin-bottom: 4px;
+}
+.currencyList li + li {
+  border-top: 1px solid var(--color-border-subtle);
+  margin-top: 10px;
+}
+.grid1 {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+.tableWrap {
+  overflow-x: auto;
+  margin: 12px 0;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.table th,
+.table td {
+  text-align: left;
+  padding: 8px 10px 8px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  white-space: nowrap;
+}
+.table thead th {
+  font-size: 11px;
+  font-weight: 550;
+  color: var(--color-text-muted);
+}
+.table tbody th {
+  font-weight: 500;
+  white-space: normal;
+}
 @media (min-width: 1500px) {
   .sidebar {
     position: sticky;
@@ -427,7 +490,7 @@
 }
 @media (max-width: 850px) {
   .shell {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .sidebar {
     border-right: 0;
@@ -460,7 +523,7 @@
     align-items: flex-start;
   }
   .twoColumns {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 @media (max-width: 540px) {
