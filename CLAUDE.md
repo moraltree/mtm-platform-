@@ -136,7 +136,25 @@ Implementation proceeded in work packages:
   see "Guidance for future sessions" for what going live actually requires.
   No real Stripe account exists yet; nothing here has processed a real
   charge.
-- **WP8 — Consumer campaign funnel (partial, `/free30` only)** 🚧 A second,
+- **WP17 — Stripe Subscriptions v1 + Founder-approved platform trial
+  (SUPERSEDED by Phase 5)** — historical record only. `main` briefly
+  carried a parallel, Sanity-based subscription design (`4b3ed03`,
+  `4230950`, `261fe94`, `f431355`, `38360f7`, `6746516`): a Sanity
+  `subscription` document per trial/subscriber, an `mtm_sub_ref`
+  possession cookie as identity, `/subscription/success|cancelled`,
+  `/api/subscription/portal`, and subscription handling inside
+  `/api/stripe/webhook`. It never worked in production (no Sanity project
+  or write token exists, so every `/free30` signup failed; the Price
+  variables in Vercel were misnamed, so checkout was unreachable) and it
+  held no data. Phase 5 (`ADMIN_ANALYTICS_V5.md`, reconciled on
+  `admin-analytics-v5-reconcile`) removed it: PostgreSQL is the identity,
+  trial and entitlement authority, Stripe the billing authority, Sanity
+  editorial only. Retained from it: the stripe@22.6.1 SDK and its `2026-08-26.dahlia` pin (now used by
+  the subscription client, the dormant shop client and the readiness check), and the canonical
+  `STRIPE_PRICE_MONTHLY`/`STRIPE_PRICE_ANNUAL` variable names (which both
+  designs used).
+
+- **WP8 — Consumer campaign funnel (partial, `/free30` only)** ✅ A second,
   deliberately separate visual/functional system for QR-code and
   direct-link traffic, alongside (not replacing) the corporate site.
   `lib/campaignRoutes.ts` is the hand-maintained registry of which routes
@@ -189,14 +207,15 @@ moral-tree-mark.png` (also an approved, already-generated asset, see
   deliberate default (not a hard requirement), same carve-out as
   `/cart`/checkout routes sitting outside the three null-handling rules —
   flip it if the owner wants a campaign page discoverable via search too.
-  **The signup action does not provision an actual trial** — no customer
-  account/audiobook-delivery/CRM system exists anywhere in this codebase.
-  It validates, rate-limits, and honeypots exactly like `ContactForm`,
-  then (inert-until-configured on `FREE_TRIAL_TO_EMAIL`/
-  `CONTACT_FORM_FROM_EMAIL`, same contract as WP4/WP7) emails a human to
-  follow up by hand. Building real automated provisioning is the
-  genuinely unresolved dependency this WP stopped short of — see
-  "Guidance for future sessions."
+  **Trial provisioning (Phase 5):** with `SUBSCRIPTIONS_ENABLED=true`, the
+  signup action starts the PostgreSQL flow — a hashed, 15-minute email
+  verification link; the account and the 30-day trial are created only on
+  verification, with a hashed session cookie (see
+  `STRIPE_SUBSCRIPTIONS_V1.md`/`ADMIN_ANALYTICS_V5.md`). With it off (the
+  default) the action validates, rate-limits and honeypots exactly like
+  `ContactForm`, then (inert-until-configured on `FREE_TRIAL_TO_EMAIL`/
+  `CONTACT_FORM_FROM_EMAIL`) emails a human to follow up by hand. Sanity is
+  never used for accounts, trials or entitlement.
 - **WP9 — Shopify merch integration, Phase 1 (nav link only)** ✅ Owner
   decision (2026-08-21, following a repo audit): a real Shopify store now
   exists (Shopify Payments active, GBP payouts enabled) and is the system
@@ -927,14 +946,16 @@ driven configuration already follows, extended to a second application.
 
 - Keep this file's work-package checklist current as WPs land.
 - Do not touch `backend/` — see above.
-- **`/free30`'s signup does not grant an actual free trial** (see WP8) —
-  it notifies a human by email, nothing more. Making "free for 30 nights"
-  real needs a genuine decision + build: some kind of customer
-  account/access-grant system and a way to actually deliver audiobook
-  content (a member area? emailed links? a third-party platform?). That's
-  a real product/architecture decision for the owner, not something to
-  infer and build unprompted. Don't add fake "trial activated" UI states
-  before that system exists.
+- **`/free30` trials, accounts and entitlement are PostgreSQL-only (Phase 5)** — never Sanity. Trial access is the curated `mtm_library.
+free_selection` stories (at least 30 published before a nonzero trial
+  can start); paid access comes only from a paid, active Stripe
+  subscription projected into `mtm_subscriptions`. Everything is TEST MODE
+  only and off until `SUBSCRIPTIONS_ENABLED=true`; see
+  `ADMIN_ANALYTICS_V5.md` for configuration, the Stripe endpoint gate and
+  the deployment procedure. The content-subscription webhook is
+  `/api/subscriptions/webhook` (secret `STRIPE_WEBHOOK_SECRET`); the
+  dormant shop webhook `/api/stripe/webhook` uses
+  `STRIPE_SHOP_WEBHOOK_SECRET` and ignores subscription events.
 - Adding a new campaign/QR landing route (`/blackpool`, `/pampers`,
   `/chester-zoo` are the named examples) means: a thin
   `app/<slug>/page.tsx` rendering `<CampaignLanding campaign="<slug>" />`
@@ -972,7 +993,9 @@ driven configuration already follows, extended to a second application.
   (`https://moraltree.media/api/stripe/webhook`) are external-account
   steps for the owner to do, same category as DNS/domain changes — don't
   do this without being asked, and **use test-mode keys** even once asked,
-  unless the owner explicitly says to go live. Once product Prices exist
+  unless the owner explicitly says to go live. Content-subscription Prices
+  go in `STRIPE_PRICE_MONTHLY`/`STRIPE_PRICE_ANNUAL` (never the misnamed
+  `STRIPE_*_PRICE_ID`, which fail closed). Once product Prices exist
   in Stripe, create matching `product` documents in the Studio with each
   one's `stripePriceId` — there's no sync/import tooling for this, it's a
   manual one-to-one link by design (see the price-drift note above).

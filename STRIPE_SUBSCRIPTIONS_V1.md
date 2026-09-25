@@ -8,7 +8,7 @@ new subscription integration or the existing Stripe client.
 
 ## Architecture audit
 
-- `apps/web` is Next.js 16.3 App Router (patched from 16.3.0 to 16.3.4 during security review), React 19, Stripe SDK 22.5.0;
+- `apps/web` is Next.js 16.3 App Router (patched from 16.3.0 to 16.3.4 during security review), React 19, Stripe SDK 22.5.0 (22.6.1 since the Phase 5 reconciliation);
   Sanity owns editorial campaigns, products and legacy orders.
 - `backend/index.js` is an Express health endpoint, associated with a live
   systemd service in the original worktree. It is unchanged; there is no
@@ -94,8 +94,10 @@ It never prints keys, database URLs, provider error bodies, or payment data.
    and `charge.dispute.closed`.
 5. Exercise test card success, declined card, authentication challenge,
    renewal, cancellation and duplicate event redelivery in the Dashboard.
-   Outbound SDK/API requests are pinned to `2026-07-29.dahlia`. Prefer that
-   schema for a separately configured Dashboard endpoint. CLI 1.50.11 uses the
+   Outbound SDK/API requests are pinned to `2026-08-26.dahlia` (stripe@22.6.1,
+   adopted from `main` during the Phase 5 reconciliation; previously
+   `2026-07-29.dahlia` with 22.5.0). Prefer that schema for a separately
+   configured Dashboard endpoint. CLI 1.50.11 uses the
    account-default event version (currently `2026-08-26.dahlia`) and offers only
    `--latest`, not an arbitrary event-version pin. Do not change the account
    default or an existing endpoint to run local acceptance.

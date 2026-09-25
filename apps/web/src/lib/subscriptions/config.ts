@@ -27,7 +27,7 @@ export function billingStripe() {
   // malformed secrets, duplicate Prices) rather than guessing.
   assertStripeConfig(process.env);
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2026-07-29.dahlia",
+    apiVersion: "2026-08-26.dahlia",
     maxNetworkRetries: 2,
     timeout: 15000,
   });

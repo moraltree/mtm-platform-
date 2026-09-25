@@ -35,7 +35,7 @@ else if (!/^(sk|rk)_test_/.test(key)) {
   process.exitCode = 1;
 } else {
   const stripe = new Stripe(key, {
-    apiVersion: "2026-07-29.dahlia",
+    apiVersion: "2026-08-26.dahlia",
     timeout: 15000,
     maxNetworkRetries: 0,
   });
