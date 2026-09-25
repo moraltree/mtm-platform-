@@ -1,3 +1,4 @@
+import { errorSummary } from "@/lib/safeLog";
 import { sendEmail } from "../email";
 import type { AttributionState } from "../attribution/types";
 import type { RegistrationConsentState } from "../registrationConsent";
@@ -13,6 +14,10 @@ import type {
 } from "./ids";
 
 /**
+ * Historical email fallback contract. The test-only subscription implementation
+ * now lives in lib/subscriptions and registration selects it when explicitly
+ * enabled. The descriptions below explain this fallback's original scope.
+ *
  * The typed contract this repository should call for everything the
  * architecture proposal assigns to the shared platform backend or the
  * external audiobook platform — accounts, auth, entitlements, real
@@ -123,7 +128,7 @@ export interface StartTrialRequest {
 }
 
 export interface StartTrialResult {
-  status: "pending-manual-follow-up" | "error";
+  status: "pending-manual-follow-up" | "pending-email-verification" | "error";
   /** User-facing copy for whatever the platform route renders next —
    * today always a "we'll be in touch" message; once the real backend
    * exists this may instead carry a redirect target (e.g. into the
@@ -205,7 +210,7 @@ export const emailStandInPlatformClient: PlatformClient = {
       console.warn(
         "startTrial (email stand-in) called but FREE_TRIAL_TO_EMAIL/" +
           "CONTACT_FORM_FROM_EMAIL aren't set — see .env.example. Lead " +
-          `was NOT recorded anywhere: ${adult.email} (campaign=${campaignId}).`,
+          `was NOT recorded anywhere (campaign=${campaignId}; email withheld from logs).`,
       );
       return {
         status: "error",
@@ -303,7 +308,7 @@ export const emailStandInPlatformClient: PlatformClient = {
     if (!result.ok) {
       console.error(
         "startTrial (email stand-in) notification failed:",
-        result.error,
+        errorSummary(result.error),
       );
       return {
         status: "error",

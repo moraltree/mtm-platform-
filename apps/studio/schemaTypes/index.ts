@@ -9,7 +9,6 @@ import legalPage from "./documents/legalPage";
 import siteSettings from "./documents/siteSettings";
 import product from "./documents/product";
 import order from "./documents/order";
-import subscription from "./documents/subscription";
 import partner from "./documents/partner";
 import campaign from "./documents/campaign";
 
@@ -45,7 +44,6 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   siteSettings,
   product,
   order,
-  subscription,
   partner,
   campaign,
 

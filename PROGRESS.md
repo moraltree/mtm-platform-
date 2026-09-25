@@ -4,6 +4,22 @@ Concise, dated record of autonomous work sessions on this repo. Full detail
 lives in `git log`; current architecture/status lives in `CLAUDE.md`. Newest
 entries first.
 
+## 2026-09-10 — Stripe Subscriptions v1 (test feature branch)
+
+- Audited website, legacy health-only backend, campaign/registration,
+  attribution, rewards, Sanity orders, environment and tests before edits.
+- Added feature-gated PostgreSQL accounts, verified email sessions, one
+  platform-managed trial deadline, monthly/annual hosted Checkout, authenticated
+  Customer Portal, signed transactional/idempotent lifecycle processing and
+  durable analytics hooks. Trial conversion requires confirmed payment.
+- Added a private-library delivery adapter with a 30-story curated readiness
+  gate and time-based replayable access. No fake stories or production data.
+- The original backend/worktree/services were not modified. No merge or deploy.
+- Patched existing Next.js security advisories with 16.3.4; web runtime audit clean.
+- See STRIPE_SUBSCRIPTIONS_V1.md for test configuration, limitations and the
+  separate release handoff. All Stripe credentials/Prices and external content
+  configuration are absent; no provider-backed payment has been claimed.
+
 ## 2026-08-25 — WP16: Overnight refinement pass, Contact page visual balance
 
 - Task: small, controlled overnight pass — owner's brief scoped it

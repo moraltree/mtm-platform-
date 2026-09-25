@@ -1,5 +1,6 @@
 "use server";
 
+import { errorSummary } from "@/lib/safeLog";
 import { headers } from "next/headers";
 import { isStripeConfigured, stripe } from "@/lib/stripe";
 import { getProducts } from "@/lib/sanity/queries";
@@ -107,7 +108,10 @@ export async function createCheckoutSession(
 
     return { url: session.url };
   } catch (error) {
-    console.error("Stripe Checkout Session creation failed:", error);
+    console.error(
+      "Stripe Checkout Session creation failed:",
+      errorSummary(error),
+    );
     return {
       error: "Something went wrong starting checkout. Please try again.",
     };

@@ -1,3 +1,4 @@
+import { errorSummary } from "./safeLog";
 import Stripe from "stripe";
 import { useMockContent } from "./sanity/env";
 import { mockProductPrices } from "./mockContent";
@@ -5,7 +6,12 @@ import type { ResolvedPrice } from "./sanity/types";
 
 export { formatPrice } from "./format";
 
-const secretKey = process.env.STRIPE_SECRET_KEY;
+const configuredKey = process.env.STRIPE_SECRET_KEY;
+// This branch is TEST MODE only, including the dormant shop.
+const secretKey =
+  configuredKey && /^(sk|rk)_test_/.test(configuredKey)
+    ? configuredKey
+    : undefined;
 
 export const isStripeConfigured = Boolean(secretKey);
 
@@ -59,7 +65,10 @@ export async function getProductPrice(
         ?.interval as ResolvedPrice["recurringInterval"],
     };
   } catch (error) {
-    console.error(`Failed to retrieve Stripe price ${stripePriceId}:`, error);
+    console.error(
+      `Failed to retrieve Stripe price ${stripePriceId}:`,
+      errorSummary(error),
+    );
     return null;
   }
 }

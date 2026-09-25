@@ -99,6 +99,7 @@ export default defineType({
           name: "trialLengthDays",
           title: "Trial length (days)",
           type: "number",
+          validation: (rule) => rule.integer().min(0).max(30),
         }),
         defineField({
           name: "discountPercentage",

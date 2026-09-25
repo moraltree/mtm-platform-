@@ -1,209 +1,57 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { PropositionShell } from "@/components/patterns/PropositionShell";
 import { ContactForm } from "@/components/patterns/ContactForm";
-import { Container } from "@/components/ui/Container";
-import { Button } from "@/components/ui/Button";
 import { buildMetadata } from "@/lib/metadata";
-import { areSubscriptionPlansConfigured } from "@/lib/subscriptionPlans";
-import {
-  getSubscriptionByCorrelationRef,
-  hasPaidSubscriptionAccess,
-  hasTrialAccess,
-  type SubscriptionStatus,
-} from "@/lib/subscriptionEntitlement";
-import {
-  SUBSCRIPTION_CORRELATION_COOKIE,
-} from "@/lib/subscriptionCorrelation";
+import { enabled } from "@/lib/subscriptions/config";
+import { SubscriptionPanel } from "./SubscriptionPanel";
 import { StarIcon } from "./subscribe-icons";
-import { SubscribeForm } from "./SubscribeForm";
-import styles from "./subscribe-page.module.css";
 
 /**
- * Subscription page — shows real Stripe-hosted Checkout when plans are
- * configured (STRIPE_PRICE_MONTHLY / STRIPE_PRICE_ANNUAL set), otherwise
- * falls back to the "coming soon" proposition shell + waitlist form so the
- * page is always honest about what's actually available.
+ * A dedicated subscription-intent page — not a real payment/subscription
+ * flow (no Stripe/payment infrastructure exists for this yet, and
+ * building one prematurely is exactly what this sprint's brief says not
+ * to do), but a real, distinct destination rather than routing
+ * "Subscribe" straight into the generic Contact form (the gap this page
+ * closes — see audiobooks/page.tsx, the one current consumer). The one
+ * real, working action here is the 30-day free trial (`/free30`,
+ * genuinely functional); the waitlist below reuses `ContactForm`
+ * verbatim (same validation/honeypot/rate-limiting/honest-degradation
+ * contract, just its own heading/intro) rather than building a second,
+ * parallel capture mechanism for what is, mechanically, the same
+ * "notify a human" action ContactForm already does.
  *
- * Returning subscribers (with the correlationRef cookie set) see their
- * subscription status and a Manage Billing link instead of the checkout form.
- *
- * Free-trial users (status="trialing") are shown their trial status and
- * encouraged to upgrade. Trial access is separate from paid access — the
- * subscribe page is the upgrade path.
+ * Not Sanity-backed (like `/free30`, `/subscribe` isn't a `pageId`) —
+ * there's no editorial content here to author, just a fixed intent page.
  */
 
 export const metadata: Metadata = buildMetadata("Subscribe", {
-  metaDescription:
-    "Subscribe to Moral Tree Media — unlimited access to the full audiobook library across every Story World.",
+  metaDescription: enabled()
+    ? "Monthly or annual access to the Moral Tree Media audiobook library. Up to 30 calendar days of curated free access."
+    : "Subscriptions to Moral Tree Media's full audiobook library are coming — start a free trial today or join the waitlist.",
 });
 
-function statusLabel(status: SubscriptionStatus): string {
-  switch (status) {
-    case "active":
-      return "Active";
-    case "trialing":
-      return "Free trial active";
-    case "past_due":
-      return "Payment past due — please update your billing details";
-    case "incomplete":
-      return "Subscription pending — this can take a moment to confirm";
-    case "cancelled":
-      return "Cancelled";
-    default:
-      return "Unknown";
-  }
-}
-
-export default async function SubscribePage() {
-  const plansConfigured = areSubscriptionPlansConfigured();
-
-  // Check if this visitor already has a subscription or trial (via correlationRef cookie).
-  const cookieStore = await cookies();
-  const correlationRef = cookieStore.get(SUBSCRIPTION_CORRELATION_COOKIE)?.value;
-  const existing = correlationRef
-    ? await getSubscriptionByCorrelationRef(correlationRef)
-    : null;
-
-  const isPaidSubscriber = existing
-    ? hasPaidSubscriptionAccess(existing.status)
-    : false;
-  const isOnTrial = existing
-    ? hasTrialAccess(existing.status, existing.trialEnd)
-    : false;
-
-  // Active paid subscriber — show status + manage billing.
-  if (existing && existing.status !== "unknown" && !isOnTrial) {
+export default async function SubscribePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string }>;
+}) {
+  if (enabled()) {
+    const { notice } = await searchParams;
     return (
-      <Container className={styles.wrap}>
-        <div className={styles.statusCard}>
-          <StarIcon />
-          <h1 className={styles.heading}>Your Moral Tree Media subscription</h1>
-          <dl className={styles.statusList}>
-            <dt>Status</dt>
-            <dd className={styles[`status-${existing.status}` as keyof typeof styles] ?? ""}>
-              {statusLabel(existing.status)}
-            </dd>
-            {existing.plan && (
-              <>
-                <dt>Plan</dt>
-                <dd>{existing.plan === "MONTHLY" ? "Monthly" : "Annual"}</dd>
-              </>
-            )}
-            {existing.currentPeriodEnd && (
-              <>
-                <dt>
-                  {existing.cancelAtPeriodEnd
-                    ? "Access until"
-                    : "Next renewal"}
-                </dt>
-                <dd>
-                  {new Date(existing.currentPeriodEnd).toLocaleDateString(
-                    "en-GB",
-                    { day: "numeric", month: "long", year: "numeric" },
-                  )}
-                </dd>
-              </>
-            )}
-          </dl>
-          {isPaidSubscriber && (
-            <p className={styles.accessNote}>
-              You have full access to the Moral Tree Media audiobook library.
-            </p>
-          )}
-          {existing.stripeCustomerId && (
-            <form action="/api/subscription/portal" method="POST">
-              <input type="hidden" name="_action" value="create-portal" />
-              <Button type="submit">Manage billing</Button>
-            </form>
-          )}
-          {!isPaidSubscriber && existing.status === "incomplete" && (
-            <p className={styles.pendingNote}>
-              Your subscription is being confirmed — if this takes more than
-              a few minutes, please{" "}
-              <a href="/contact">contact us</a> and we&rsquo;ll help.
-            </p>
-          )}
-          {existing.status === "cancelled" && plansConfigured && (
-            <div className={styles.resubscribeBox}>
-              <p>Want to resubscribe? Choose a plan below.</p>
-              <SubscribeForm />
-            </div>
-          )}
-        </div>
-      </Container>
+      <>
+        <PropositionShell
+          icon={<StarIcon />}
+          eyebrow="Subscribe"
+          heading="Stories for every day"
+          intro="Choose monthly or annual access to every available story. Subscribe whenever you are ready, including during free access."
+          features={[]}
+          ctas={[]}
+        />
+        <SubscriptionPanel notice={notice} />
+      </>
     );
   }
-
-  // Trial user — show trial status and upgrade option.
-  if (isOnTrial && plansConfigured) {
-    return (
-      <Container className={styles.wrap}>
-        <div className={styles.checkoutShell}>
-          <div className={styles.checkoutIntro}>
-            <StarIcon />
-            <h1 className={styles.heading}>Upgrade to full access</h1>
-            <p className={styles.intro}>
-              Your free trial gives you access to the Starter Collection.
-              Subscribe now to unlock the full audiobook library across every
-              Story World — your subscription starts immediately.
-            </p>
-            <ul className={styles.featureList}>
-              <li>Every Story World, one subscription</li>
-              <li>New titles included as they&rsquo;re released</li>
-              <li>Family-friendly — designed for a household</li>
-              <li>Cancel anytime, no long-term commitment</li>
-            </ul>
-          </div>
-          <div className={styles.checkoutFormWrap}>
-            <h2 className={styles.formHeading}>Choose your plan</h2>
-            <SubscribeForm />
-            <p className={styles.trialNote}>
-              Your free trial ends immediately when you subscribe — unused
-              trial days are not credited. You&rsquo;re charged at the start
-              of your subscription.
-            </p>
-          </div>
-        </div>
-      </Container>
-    );
-  }
-
-  // Plans are live — show the checkout form.
-  if (plansConfigured) {
-    return (
-      <Container className={styles.wrap}>
-        <div className={styles.checkoutShell}>
-          <div className={styles.checkoutIntro}>
-            <StarIcon />
-            <h1 className={styles.heading}>Subscribe to Moral Tree Media</h1>
-            <p className={styles.intro}>
-              Unlimited access to the full audiobook library across every Story
-              World, as the catalogue grows. Choose monthly or annual billing —
-              cancel anytime.
-            </p>
-            <ul className={styles.featureList}>
-              <li>Every Story World, one subscription</li>
-              <li>New titles included as they&rsquo;re released</li>
-              <li>Family-friendly — designed for a household</li>
-              <li>Cancel anytime, no long-term commitment</li>
-            </ul>
-            <p className={styles.trialCta}>
-              Want to try before subscribing?{" "}
-              <a href="/free30">Start your 30-day free trial</a> — no card
-              required.
-            </p>
-          </div>
-          <div className={styles.checkoutFormWrap}>
-            <h2 className={styles.formHeading}>Start your subscription</h2>
-            <SubscribeForm />
-          </div>
-        </div>
-      </Container>
-    );
-  }
-
-  // Plans not configured — show coming-soon shell + waitlist.
   return (
     <>
       <PropositionShell
