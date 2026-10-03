@@ -651,6 +651,27 @@ batch2-v1.png` — confirmed against it directly, see WP13); the same
   unmodified. All 143 tests, lint, typecheck, format, and a
   `USE_MOCK_CONTENT=false` production build all pass.
 
+- **WP18 — Founder Console Phase 1 (private `/admin`)** ✅ (3 Oct 2026,
+  `redevelopment/founder-console-phase1`, on top of the approved audiobook
+  checkpoint `0992216`; **visually approved by Stuart Taylor on 3 October
+  2026**; **NO PRODUCTION DEPLOYMENT**) The previously approved console
+  (`664e11f`, preserved as `preservation/founder-console-phase1-2026-10-03`)
+  restored into this app: approved `Dashboard`/`admin.module.css` under
+  `app/admin/`, Founder logic isolated in `lib/founder/` (not the unrelated
+  `lib/admin/adminOperations.ts`). Access is a server-side signed Founder
+  session gated by `requireFounder()` on every request; sign-in only via a
+  one-time link minted on the server by `scripts/founder-sign-in-link.mjs`;
+  everyone else gets the site's ordinary 404. Off by default
+  (`FOUNDER_CONSOLE_ENABLED` unset everywhere, so `/admin` 404s in
+  production). Data is read-only Sanity `subscription` aggregates (counts
+  and timestamps only); unavailable metrics keep the approved "Not yet
+  available" cards; a labelled development fixture exists for private
+  review only. No shared layout/config files changed, no packages added,
+  no `/api/admin`. Full design, security model, metric definitions, review
+  procedure and limitations: `FOUNDER_CONSOLE_PHASE1.md`. Do not start
+  later console phases (Finance, Story Production, Content Inventory,
+  System Administration) without explicit approval.
+
 ## Repository structure
 
 ```
