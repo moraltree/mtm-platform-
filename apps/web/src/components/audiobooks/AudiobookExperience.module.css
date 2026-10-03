@@ -1,0 +1,117 @@
+/*
+ * Audiobook experience layout — the approved prototype's 38% / 62%
+ * artwork-and-player split, rebuilt on this site's tokens (its warm
+ * cream/cocoa palette already matches the prototype's hex values almost
+ * exactly). Scoped entirely to this module: nothing here touches global
+ * styles.
+ */
+
+.root {
+  /* Matches the prototype's Tailwind `font-serif` stack for the large
+     story title and shelf headings — no extra web font download. */
+  --audiobook-serif:
+    ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+.emptyCatalogue {
+  padding: var(--space-8) 0;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  scroll-margin-top: var(--space-8);
+}
+
+/* iPad portrait and up: artwork beside the player, as in the prototype. */
+@media (min-width: 768px) {
+  .hero {
+    grid-template-columns: minmax(0, 38fr) minmax(0, 62fr);
+    gap: var(--space-6);
+  }
+}
+
+.artwork {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  max-height: 24rem;
+  overflow: hidden;
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+  border-radius: 1.625rem;
+  background: radial-gradient(
+    circle at top,
+    var(--color-white),
+    var(--color-brand-100) 55%,
+    var(--color-border-subtle)
+  );
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 768px) {
+  .artwork {
+    aspect-ratio: auto;
+    max-height: none;
+    min-height: 30rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .artwork {
+    min-height: 33.75rem;
+  }
+}
+
+.artworkImage {
+  object-fit: cover;
+  object-position: top center;
+  animation: artworkIn var(--duration-slow) var(--ease-standard);
+}
+
+@keyframes artworkIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.storyMeta {
+  margin: var(--space-6) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.04em;
+}
+
+.storyTitle {
+  margin: var(--space-2) 0 0;
+  font-family: var(--audiobook-serif);
+  font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.75rem);
+  font-weight: var(--weight-regular);
+  line-height: 1.02;
+  color: var(--color-heading-accent);
+}
+
+.synopsis {
+  max-width: 48rem;
+  margin: var(--space-4) 0 var(--space-5);
+  color: var(--color-text-muted);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+}
+
+/* Continue Listening card sits just under the player. */
+.details > :last-child {
+  margin-top: var(--space-4);
+}

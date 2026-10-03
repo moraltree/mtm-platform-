@@ -1,0 +1,79 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+/* Sized by the player column (a container query), not the viewport —
+   the column is narrow beside the artwork on iPad portrait. */
+@container (min-width: 34rem) {
+  .grid {
+    grid-template-columns: 1.4fr 1fr 1.2fr;
+  }
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 5.5rem;
+  padding: var(--space-4) var(--space-4);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+  border-radius: 1.125rem;
+  background: var(--color-white);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.card:focus-within {
+  outline: var(--border-width-md) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* The native select fills the card's value row; the chevron is drawn
+   on top and ignores pointer events so taps still open the picker. */
+.select {
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  padding: 0 var(--space-6) 0 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-snug);
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.select:focus-visible {
+  /* The whole card shows focus instead (see .card:focus-within). */
+  outline: none;
+}
+
+.chevron {
+  position: absolute;
+  right: 0;
+  flex-shrink: 0;
+  pointer-events: none;
+}

@@ -1,0 +1,289 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+  border-radius: 1.625rem;
+  background: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 1024px) {
+  .panel {
+    padding: var(--space-6) 1.75rem;
+  }
+}
+
+.notice {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.noticeError {
+  background: var(--color-danger-surface);
+  color: var(--color-danger);
+}
+
+.testBadge {
+  align-self: center;
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  border: var(--border-width-sm) dashed var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  text-align: center;
+}
+
+/* Transport — ±15s either side of the big play button. */
+.transport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2.5rem, 8vw, 6rem);
+}
+
+.skip,
+.play,
+.storyNavButton {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.skip:disabled,
+.play:disabled,
+.storyNavButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.skip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: var(--radius-full);
+  color: var(--color-brand-700);
+}
+
+.skip:not(:disabled):hover {
+  background: var(--color-surface-subtle);
+}
+
+.skipLabel {
+  position: absolute;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.play {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 6rem;
+  height: 6rem;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-600);
+  color: var(--color-on-brand);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.play:not(:disabled):hover {
+  transform: scale(1.03);
+  background: var(--color-brand-700);
+}
+
+/* Optical centring — a play triangle reads off-centre without this. */
+.playGlyph {
+  margin-left: 0.25rem;
+}
+
+.spinner {
+  position: absolute;
+  inset: -0.3rem;
+  border: 3px solid transparent;
+  border-top-color: var(--color-accent-gold);
+  border-radius: var(--radius-full);
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Seek row */
+.seekRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.time {
+  flex-shrink: 0;
+  min-width: 3rem;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.timeEnd {
+  text-align: right;
+}
+
+/* Shared slider styling (seek + volume): a filled track drawn with a
+   gradient driven by --fill, and a round thumb. Generous hit area for
+   small fingers on a bedside iPad. */
+.range {
+  --fill: 0%;
+  flex: 1;
+  min-width: 0;
+  height: 1.75rem;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.range:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.range::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  background: linear-gradient(
+    to right,
+    var(--color-brand-600) var(--fill),
+    var(--color-border-subtle) var(--fill)
+  );
+}
+
+.range::-moz-range-track {
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-border-subtle);
+}
+
+.range::-moz-range-progress {
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-600);
+}
+
+.range::-webkit-slider-thumb {
+  appearance: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: -0.3125rem;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-600);
+  box-shadow: var(--shadow-sm);
+}
+
+.range::-moz-range-thumb {
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-600);
+}
+
+.range:focus-visible {
+  outline: var(--border-width-md) solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Volume + sleep timer */
+.utilityRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  padding-top: var(--space-5);
+  border-top: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+@media (min-width: 640px) {
+  .utilityRow {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}
+
+.volume {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.volumeRange {
+  flex: 0 1 9rem;
+}
+
+.range.volumeRange::-webkit-slider-runnable-track {
+  height: 0.375rem;
+}
+
+.range.volumeRange::-webkit-slider-thumb {
+  margin-top: -0.375rem;
+}
+
+.utilityText {
+  font-size: var(--text-sm);
+}
+
+.sleep {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sleepSelect {
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width-sm) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+/* Previous / Next story */
+.storyNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-5);
+  border-top: var(--border-width-sm) solid var(--color-border-subtle);
+}
+
+.storyNavButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
+.storyNavButton:not(:disabled):hover {
+  background: var(--color-surface-subtle);
+}
