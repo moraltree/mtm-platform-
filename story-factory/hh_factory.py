@@ -217,7 +217,7 @@ def cmd_build(args: argparse.Namespace) -> int:
 REGISTER_COLUMNS = [
     "Story ref", "Season", "No.", "Approved title", "Status", "Lead character(s)",
     "Supporting characters", "Primary moral lesson", "Secondary educational theme",
-    "Season / setting", "Manuscript version", "Created", "Last revised",
+    "Season / setting", "Founder creative brief", "Concept-review flags", "Manuscript version", "Created", "Last revised",
     "Narrated words (counted)", "Chapters (counted)", "Piers score /10", "Lock 1 result",
     "Lock 2 result", "Lock 3 result", "Mira revisions", "Sherlock checks",
     "Outstanding exceptions", "Drive file name", "Drive file ID",
@@ -240,12 +240,36 @@ def cmd_register(args: argparse.Namespace) -> int:
         c.font = Font(bold=True, color="FFFFFF")
         c.fill = PatternFill("solid", fgColor="3B5B3A")
         c.alignment = Alignment(wrap_text=True, vertical="top")
+    slate = {}
+    if args.slate:
+        data = json.loads(Path(args.slate).read_text(encoding="utf-8"))
+        if int(data["season"]) != s:
+            raise SystemExit("Slate season does not match --season")
+        slate = {int(x["no"]): x for x in data["stories"]}
+    col = {name: i for i, name in enumerate(REGISTER_COLUMNS)}
     for n in range(1, 31):
-        ws.append([f"HH-S{s:02d}-{n:03d}", s, n, "", STATUSES[0]] + [""] * (len(REGISTER_COLUMNS) - 6)
-                  + ["Not approved"])
+        row = [""] * len(REGISTER_COLUMNS)
+        row[col["Story ref"]], row[col["Season"]], row[col["No."]] = f"HH-S{s:02d}-{n:03d}", s, n
+        row[col["Status"]] = STATUSES[0]
+        row[col["Founder approval status"]] = "Not approved"
+        if n in slate:
+            x = slate[n]
+            row[col["Approved title"]] = x["title"]
+            row[col["Lead character(s)"]] = x["leads"]
+            row[col["Primary moral lesson"]] = x["moral"]
+            row[col["Secondary educational theme"]] = x.get("secondary", "")
+            row[col["Season / setting"]] = x["season"]
+            row[col["Founder creative brief"]] = x["brief"]
+            row[col["Concept-review flags"]] = "\n".join(x.get("flags", []))
+            row[col["Notes"]] = (args.note or "")
+        ws.append(row)
+    for r in ws.iter_rows(min_row=2):
+        for c in r:
+            c.alignment = Alignment(wrap_text=True, vertical="top")
     ws.freeze_panes = "E2"
     ws.auto_filter.ref = ws.dimensions
-    widths = {"A": 13, "B": 7, "C": 5, "D": 36, "E": 30}
+    widths = {"A": 13, "B": 7, "C": 5, "D": 36, "E": 30, "F": 26, "H": 28, "I": 22,
+              "J": 10, "K": 60, "L": 70}
     for col, w in widths.items():
         ws.column_dimensions[col].width = w
     dv = DataValidation(type="list", formula1='"' + ",".join(STATUSES) + '"', allow_blank=False)
@@ -312,6 +336,8 @@ def main() -> int:
     r = sub.add_parser("register")
     r.add_argument("out")
     r.add_argument("--season", required=True, choices=["1", "2"])
+    r.add_argument("--slate", help="JSON slate of founder briefs (see slates/)")
+    r.add_argument("--note", help="note written to every slate row")
     r.set_defaults(fn=cmd_register)
 
     args = p.parse_args()

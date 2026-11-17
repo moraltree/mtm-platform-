@@ -1,0 +1,401 @@
+{
+  "season": 1,
+  "source": "Founder Season One commission, Stuart Taylor, received 17 Nov 2026",
+  "stories": [
+    {
+      "no": 1,
+      "season": "Autumn",
+      "title": "The Morning Hickory Hollow Woke Up Laughing",
+      "leads": "Great-Grandpappy Buck; complete cast",
+      "moral": "Joy grows when shared",
+      "secondary": "",
+      "brief": "Mysterious chuckles echo through the Hollow one autumn morning. Each friend has a different theory. The search uncovers an amusing secret beneath Buck's porch. Season opener introducing all eleven naturally.",
+      "flags": [
+        "ORIGINALITY: archived S01-001 also hinged on a discovery beneath Buck's porch (Bramble's drawings). The secret must be different in kind.",
+        "SHERLOCK: if the chuckle has a natural source, it must be accurate for autumn.",
+        "CROWDING: introducing eleven characters in one story needs a light, staggered structure."
+      ]
+    },
+    {
+      "no": 2,
+      "season": "Autumn",
+      "title": "Benny and the Bridge That Wouldn't Behave",
+      "leads": "Benny; Barney; Reba",
+      "moral": "Listening to different ideas",
+      "secondary": "Practical engineering",
+      "brief": "Benny's carefully calculated footbridge runs into unexpected problems. Barney's unconventional ideas frustrate him until combining both approaches gives a better solution.",
+      "flags": [
+        "VARIETY: same 'careful Benny v. playful Barney' engine as 009 and 025. Each needs a distinct turn.",
+        "CANON: the Hollow's seven named bridges are old. Place the new footbridge over a side stream or ditch.",
+        "SAFEGUARDING: low crossing over shallow water, adult present for any cutting.",
+        "BRIEF GAP: Reba's role is undefined. Use her v1.1 curiosity, not v1.0 Rosie's inventor role (open decision)."
+      ]
+    },
+    {
+      "no": 3,
+      "season": "Autumn",
+      "title": "Maggie Mae's Magnificent Autumn Party",
+      "leads": "Maggie Mae; Charlie",
+      "moral": "People matter more than perfection",
+      "secondary": "Hospitality",
+      "brief": "Maggie Mae plans an elegant autumn celebration. Charlie's eager help causes comic mishaps. Maggie Mae learns friendship matters more than flawless arrangements.",
+      "flags": [
+        "VARIETY: 'well-meant help causes comic chaos at an event' also drives 018, 023 and 028, all featuring Maggie Mae. Space them out and vary the engine."
+      ]
+    },
+    {
+      "no": 4,
+      "season": "Autumn",
+      "title": "Maverick and the Mystery of the Golden Feathers",
+      "leads": "Maverick; Rusty",
+      "moral": "Seek evidence before reaching conclusions",
+      "secondary": "Natural history: moult",
+      "brief": "Golden feathers appear along woodland paths. Maverick and Rusty's theories grow wilder until careful observation reveals the truth.",
+      "flags": [
+        "SHERLOCK: plausible native source in autumn, e.g. northern flicker (yellow-shafted) or the American goldfinch's autumn moult. Verify before outlining.",
+        "PROHIBITION: the explanation must never imply predation. Feathers come from moulting only."
+      ]
+    },
+    {
+      "no": 5,
+      "season": "Autumn",
+      "title": "Brody and the Very Small Hero",
+      "leads": "Brody; Charlie",
+      "moral": "Everyone has something valuable to contribute",
+      "secondary": "",
+      "brief": "Brody believes strength makes him every adventure's hero. A much smaller friend succeeds where strength cannot.",
+      "flags": [
+        "CANON: v1.1 Brody is warm and gentle. His overconfidence must stay kindly, never boastful or dismissive (012 already covers boasting).",
+        "CANON: Charlie is 'loving and inexperienced', not v1.0 Pip's 'small but mighty'. Her success should come from her own traits."
+      ]
+    },
+    {
+      "no": 6,
+      "season": "Autumn",
+      "title": "Sadie Belle and the Secret of Silver Creek",
+      "leads": "Sadie Belle; Beau",
+      "moral": "Curiosity and patience reveal hidden wonders",
+      "secondary": "",
+      "brief": "An unusual arrangement of stones by Silver Creek leads Sadie Belle and Beau to a forgotten woodland tradition.",
+      "flags": [
+        "CANON: must not be confused with v1.0's Story Stones (a ring in a fold of the hills). Archived S01-029 was 'Beau and the Story Stones'.",
+        "VARIETY: 'rediscovered forgotten tradition' also in 017 (old map) and 022. Differentiate.",
+        "CANON: Sadie Belle's crush on Beau stays innocent and largely unnoticed by him."
+      ]
+    },
+    {
+      "no": 7,
+      "season": "Autumn",
+      "title": "Reba's Great Hickory Nut Mix-Up",
+      "leads": "Reba; Barney",
+      "moral": "Honesty and responsibility",
+      "secondary": "Harvest and storing",
+      "brief": "Reba organises the nut harvest. Her shortcuts create a hilarious muddle, so she must own up and put it right with Barney.",
+      "flags": [
+        "VARIETY: Reba's 'enthusiasm makes a mess; she makes amends' arc recurs in 023. Make 007 about organising and shortcuts, 023 about appetite and self-control.",
+        "CANON: shortcuts are v1.0 Finn/Rusty's signature. Make sure Reba's are her own."
+      ]
+    },
+    {
+      "no": 8,
+      "season": "Autumn",
+      "title": "The Lanterns of Hickory Hollow",
+      "leads": "Great-Grandpappy Buck; complete cast",
+      "moral": "Gratitude and belonging",
+      "secondary": "Woodland tradition",
+      "brief": "At autumn's close the friends make lanterns for what they are thankful for. One unexpected lantern becomes the most meaningful.",
+      "flags": [
+        "FOUNDER: is the lantern custom new canon, or part of v1.0's Harvest Home 'going-round of thanks'? Recommend making it part of Harvest Home.",
+        "SAFEGUARDING: lit flames. Adults light and carry them, or use lanterns with no open flame for the children.",
+        "CANON: keep distinct from the winter Longest Night candles."
+      ]
+    },
+    {
+      "no": 9,
+      "season": "Winter",
+      "title": "Barney and the Snowflake Surprise",
+      "leads": "Barney; Benny",
+      "moral": "Kindness matters more than grandeur",
+      "secondary": "",
+      "brief": "Barney's spectacular winter surprise fails. Benny helps him see small thoughtful gestures mean most.",
+      "flags": [
+        "VARIETY: third Benny/Barney pairing. Here the roles reverse, which helps. Keep it.",
+        "OPTIONAL: no winter story uses v1.0's Longest Night, the franchise's most beloved festival. This or 014 could host it if wanted."
+      ]
+    },
+    {
+      "no": 10,
+      "season": "Winter",
+      "title": "The Night Maverick Couldn't See the Stars",
+      "leads": "Maverick; Great-Grandpappy Buck",
+      "moral": "Accepting uncertainty and seeking guidance",
+      "secondary": "Winter sky and weather",
+      "brief": "Winter cloud hides the stars Maverick loves. He cannot lead a familiar evening tradition and learns from Buck when to wait and when to ask for help.",
+      "flags": [
+        "SHERLOCK: bald eagles are daytime birds that roost at dusk. Keep him on the ground at night, star-watching from the porch rather than flying.",
+        "FOUNDER/CANON: the 'familiar evening tradition' Maverick guides is new and must be defined."
+      ]
+    },
+    {
+      "no": 11,
+      "season": "Winter",
+      "title": "Maggie Mae and the Mystery of the Missing Mittens",
+      "leads": "Maggie Mae; Reba",
+      "moral": "Never assume the worst about someone",
+      "secondary": "",
+      "brief": "Mittens go missing across the Hollow. Maggie Mae and Reba discover a touching explanation involving a neighbour quietly helping others.",
+      "flags": [
+        "SAFEGUARDING/MORAL: the neighbour must not be modelled as taking things without asking. Recommended mechanism: the neighbour mends or knits from a lost-property basket, or the mittens were given freely.",
+        "CANON: Reba, the pantry investigator, as a suspect must be handled kindly or avoided."
+      ]
+    },
+    {
+      "no": 12,
+      "season": "Winter",
+      "title": "Beau's Big Winter Boast",
+      "leads": "Beau; Rusty",
+      "moral": "Humility and sportsmanship",
+      "secondary": "",
+      "brief": "Beau declares himself the finest winter sportsman. Comic failures teach him friendship and good sportsmanship beat winning.",
+      "flags": [
+        "SAFEGUARDING: no skating on ice the children judge themselves. Only adult-designated ice, or snow sports on safe slopes.",
+        "SAFEGUARDING: comic falls stay soft and harmless."
+      ]
+    },
+    {
+      "no": 13,
+      "season": "Winter",
+      "title": "Charlie and the Quietest Day",
+      "leads": "Charlie; Sadie Belle",
+      "moral": "Patience and appreciation",
+      "secondary": "Winter nature observation",
+      "brief": "Energetic Charlie struggles with a snowbound afternoon. Sadie Belle shows her the small wonders hidden in winter's stillness.",
+      "flags": [
+        "SHERLOCK: real chipmunks are mostly dormant in winter. A light in-world line can explain Charlie being up and about."
+      ]
+    },
+    {
+      "no": 14,
+      "season": "Winter",
+      "title": "Great-Grandpappy Buck's Storytelling Challenge",
+      "leads": "Great-Grandpappy Buck; complete cast",
+      "moral": "Every voice deserves to be heard",
+      "secondary": "Storytelling",
+      "brief": "Buck invites every friend to contribute a story to a winter gathering. Each struggles with self-doubt before finding their own voice.",
+      "flags": [
+        "CROWDING: ten separate self-doubt arcs will not fit well in 5,500 words. Recommend three or four deep arcs, the rest light.",
+        "VARIETY: overlaps 024 (a storytelling game that spreads to the whole Hollow). Differentiate."
+      ]
+    },
+    {
+      "no": 15,
+      "season": "Winter",
+      "title": "Benny, Barney and the Frozen Waterwheel",
+      "leads": "Benny; Barney; Brody",
+      "moral": "Cooperation and careful problem-solving",
+      "secondary": "Waterwheels and freezing",
+      "brief": "The Old Mill's wheel stops in a cold spell. Working safely with experienced adults, the friends investigate and help find a practical solution.",
+      "flags": [
+        "SAFEGUARDING: children stay away from the wheel, the millrace and ice. Adults handle all machinery and ice.",
+        "SHERLOCK: accurate mechanics (ice in the race and on the paddles, why the miller stops the wheel)."
+      ]
+    },
+    {
+      "no": 16,
+      "season": "Spring",
+      "title": "Sadie Belle and the First Spring Flower",
+      "leads": "Sadie Belle; Maggie Mae",
+      "moral": "Respect for nature",
+      "secondary": "Spring wildflowers",
+      "brief": "Sadie Belle hunts for the first spring flower to surprise Maggie Mae and learns to appreciate living things without disturbing them.",
+      "flags": [
+        "SHERLOCK: earliest native candidates are hepatica, bloodroot and trailing arbutus.",
+        "CANON: avoid skunk cabbage, as Maggie Mae must never be linked to bad smells.",
+        "SUGGESTION: Maggie Mae is the gardener (v1.1), so give her that expertise."
+      ]
+    },
+    {
+      "no": 17,
+      "season": "Spring",
+      "title": "Rusty and the Map That Led Nowhere",
+      "leads": "Rusty; Beau",
+      "moral": "Perseverance and appreciating the journey",
+      "secondary": "Map reading",
+      "brief": "Rusty finds an old map with curious symbols. A supervised expedition leads to unexpected discoveries.",
+      "flags": [
+        "ORIGINALITY: archived S02-011 was 'Rusty's Map for the Brothers'. Keep the premise distinct.",
+        "VARIETY: another 'relic of the past' story alongside 006 and 022.",
+        "SAFEGUARDING: the supervising adult is named and present throughout."
+      ]
+    },
+    {
+      "no": 18,
+      "season": "Spring",
+      "title": "Charlie's Big-Sister Surprise",
+      "leads": "Charlie; Maggie Mae",
+      "moral": "Thoughtful help starts with understanding another's needs",
+      "secondary": "",
+      "brief": "Charlie takes over Maggie Mae's responsibilities for a day. Comic confusion follows and she gains appreciation for all Maggie Mae does.",
+      "flags": [
+        "VARIETY: second Charlie-causes-comic-chaos-for-Maggie-Mae story after 003. Recommend 018 focuses on Charlie's discovery of Maggie Mae's hidden, unseen work, not on mishaps."
+      ]
+    },
+    {
+      "no": 19,
+      "season": "Spring",
+      "title": "Brody and the Butterfly Garden",
+      "leads": "Brody; Reba",
+      "moral": "Caring requires understanding",
+      "secondary": "Pollination and habitats",
+      "brief": "Brody plants for beauty, not usefulness. Reba helps him learn what butterflies and pollinators actually need.",
+      "flags": [
+        "CANON: Maggie Mae, not Reba, is the gardener in v1.1. Recommend Reba learns by curious observation (watching which flowers are visited) rather than as the expert.",
+        "SHERLOCK: native nectar and host plants (milkweed, bee balm, asters, joe-pye weed), and caterpillars need host plants. Planting in spring with butterflies arriving later needs a realistic timescale."
+      ]
+    },
+    {
+      "no": 20,
+      "season": "Spring",
+      "title": "Maverick's Mountain Message",
+      "leads": "Maverick; Benny",
+      "moral": "Responsibility and communication",
+      "secondary": "",
+      "brief": "An important message must reach neighbours across the ridge before a celebration. Maverick learns reliable delivery needs planning, clarity and responsibility.",
+      "flags": [
+        "CANON: the neighbours across the ridge are a new community. Founder confirmation needed if they are named."
+      ]
+    },
+    {
+      "no": 21,
+      "season": "Spring",
+      "title": "The Day Beau Became a Gentleman",
+      "leads": "Beau; Sadie Belle",
+      "moral": "Be yourself and treat others with consideration",
+      "secondary": "Manners",
+      "brief": "Beau tries to become the most refined gentleman in the Hollow. Exaggerated manners cause hilarity until he finds genuine kindness more impressive.",
+      "flags": [
+        "CANON CONFLICT (founder decision): the brief has Beau trying to impress Sadie Belle. Bible v1.1 says her innocent crush on him is 'largely unnoticed' by him. Recommended alternative: Beau wants to impress the whole Hollow, or learn from Maggie Mae, while Sadie Belle's quiet affection runs alongside, unnoticed by him."
+      ]
+    },
+    {
+      "no": 22,
+      "season": "Spring",
+      "title": "The Secret Garden of Hickory Hollow",
+      "leads": "Maggie Mae; Charlie; complete cast",
+      "moral": "Community cooperation and caring for shared places",
+      "secondary": "Gardening",
+      "brief": "An overgrown garden behind an old woodland cottage becomes a community restoration, revealing a forgotten tradition that brings generations together.",
+      "flags": [
+        "TITLE: closely echoes Frances Hodgson Burnett's 'The Secret Garden' (public domain). Founder may prefer a more distinctive title.",
+        "MORAL/SAFEGUARDING: the cottage's ownership must be clear, so the restoration is by permission or of a shared place.",
+        "VARIETY: third 'forgotten tradition' story (006, 017)."
+      ]
+    },
+    {
+      "no": 23,
+      "season": "Summer",
+      "title": "Reba and the Great Blackberry Disaster",
+      "leads": "Reba; Maggie Mae",
+      "moral": "Self-control and making amends",
+      "secondary": "",
+      "brief": "Reba helps Maggie Mae make blackberry treats. Her appetite causes a sticky disaster needing honesty, patience and teamwork.",
+      "flags": [
+        "VARIETY: see 007 and 003. Keep the appetite and self-control engine.",
+        "CANON: Blackberry Bank (v1.0); blackberries ripen mid-summer, which fits."
+      ]
+    },
+    {
+      "no": 24,
+      "season": "Summer",
+      "title": "Maverick and the Cloud Castle",
+      "leads": "Maverick; Charlie",
+      "moral": "Imagination and creativity",
+      "secondary": "Cloud types",
+      "brief": "Maverick and Charlie see shapes in summer clouds. Their game grows into a storytelling adventure for the whole Hollow.",
+      "flags": [
+        "VARIETY: whole-Hollow storytelling overlaps 014.",
+        "SAFEGUARDING: Charlie must not ride on Maverick in flight unless the founder approves it, as it is an imitation risk."
+      ]
+    },
+    {
+      "no": 25,
+      "season": "Summer",
+      "title": "Benny's Impossible Invention",
+      "leads": "Benny; Barney; Rusty",
+      "moral": "Practical wisdom and learning from failure",
+      "secondary": "Simple machines",
+      "brief": "Benny's elaborate chore-saving invention grows ever more complicated. Barney helps him see simple solutions are often best.",
+      "flags": [
+        "VARIETY: closest to 002 (Benny's plan versus Barney's insight). Recommend 025 lets Benny's own failed tests teach him, with Rusty's role meaningful."
+      ]
+    },
+    {
+      "no": 26,
+      "season": "Summer",
+      "title": "Brody and the Little Lost Melody",
+      "leads": "Brody; Great-Grandpappy Buck",
+      "moral": "Patience and the joy of learning",
+      "secondary": "Music",
+      "brief": "Brody can't remember a melody Buck played. Their search becomes a gentle musical adventure about patience and treasured memories.",
+      "flags": [
+        "ORIGINALITY: archived S01-025 was 'Brody's First Banjo Song'.",
+        "CANON: implies Buck is the banjo master and Brody the learner, which settles the earlier banjo question if confirmed."
+      ]
+    },
+    {
+      "no": 27,
+      "season": "Summer",
+      "title": "The Mystery of the Moonlit Meadow",
+      "leads": "Sadie Belle; Maverick; Rusty",
+      "moral": "Wonder, observation and respect for nature",
+      "secondary": "Bioluminescence",
+      "brief": "Strange lights over Fern Meadow on a supervised summer evening lead to an extraordinary natural phenomenon.",
+      "flags": [
+        "SHERLOCK (required before outline): recommended phenomenon is synchronous fireflies (Photinus carolinus), native to the Smokies. Peak display is roughly late May to mid-June.",
+        "CONFLICT: that timing suits early summer, so 027 may need to move nearer 023 or be set 'early summer'.",
+        "CONFLICT: displays are best on dark nights, so 'Moonlit' in the title fights the science (could be a thin moon).",
+        "ORIGINALITY: avoid foxfire (archived S01-004 'Hattie and the Foxfire').",
+        "CANON: ordinary fireflies are already nightly in v1.0, so the wonder must be the synchrony."
+      ]
+    },
+    {
+      "no": 28,
+      "season": "Summer",
+      "title": "Beau and the World's Worst Picnic",
+      "leads": "Beau; Charlie; Maggie Mae",
+      "moral": "Resilience, humour and friendship",
+      "secondary": "",
+      "brief": "Beau's magnificent surprise picnic goes wrong in every way but becomes unexpectedly memorable.",
+      "flags": [
+        "VARIETY: event-goes-wrong engine (003, 023); also echoes 009 (grand surprise fails). Differentiate, perhaps by making the failures external rather than Beau's fault."
+      ]
+    },
+    {
+      "no": 29,
+      "season": "Summer",
+      "title": "The Summer Everyone Helped",
+      "leads": "Complete cast",
+      "moral": "Community responsibility and compassion",
+      "secondary": "Keeping cool; caring for the vulnerable",
+      "brief": "Unusual heat causes difficulties. The community protects vulnerable neighbours, shares resources and keeps everyone comfortable.",
+      "flags": [
+        "SAFEGUARDING: heat stays an inconvenience, not a danger. No wildfire, no drought peril, no one becomes ill on the page.",
+        "CONTINUITY: the heatwave sets up 030 and v1.0's 'hottest day of a hot summer, Silver Creek running low' log origin."
+      ]
+    },
+    {
+      "no": 30,
+      "season": "Summer",
+      "title": "The Promise Beneath the Hickory Tree",
+      "leads": "Benny; Barney; Great-Grandpappy Buck; complete cast",
+      "moral": "Friendship, belonging and courage to embrace change",
+      "secondary": "",
+      "brief": "At the final summer gathering the friends reflect and make promises. Benny and Barney discover an opportunity hinting at a journey beyond the Hollow.",
+      "flags": [
+        "FOUNDER DECISION REQUIRED BEFORE DRAFTING: the ending. Bible v1.0 Canon 5 has the hollow-log departure. Bible v1.1 says 'no destination, route, departure or River Rangers connection is established' and reserves it for Benny & Barney's Great Adventure.",
+        "SAFEGUARDING: v1.0's version has young beavers asleep in a drifting log on open water. Dr Noura would require careful handling to avoid an imitation risk.",
+        "SEASON TWO DEPENDENCY: if the brothers leave, Season Two must be planned around their absence or return."
+      ]
+    }
+  ]
+}
