@@ -218,3 +218,61 @@ All 13 round-1 revisions were addressed: 12 fully, and #4 in a way that introduc
 **Founder decision required before release:** approve the non-porch close (Fern Meadow fence post at dusk, no banjo or rocking chair), or ask for a short porch coda. Also confirm the open round-1 items: the rabbit family (now with a father), the speaking status of wild birds, and minor geography.
 
 These are all small, local edits. After them, a focused round-3 check (R1–R5 only, plus a skim for regressions) should suffice.
+
+---
+
+## Round 3 — verification of R1–R5 and final verdict
+
+*Role-based AI assessment by a separate review agent (same underlying model family as the author); not an independent human review.*
+
+I checked the revised `s01/HH-S01-004.txt` passage by passage and did not edit it. Ten chapters are confirmed. `wc` gives 5,251 words including headings, within band; the machine count governs.
+
+### R1–R5 verification
+
+| # | Required fix | Status | Evidence |
+|---|---|---|---|
+| R1 | Flicker contradiction | **Fixed** | Ch6, para 278 now reads "wild, wary things that kept to themselves, and they had already gone off about their own business". This agrees with the birds living in the snag (Ch6), returning at noon to a crowd that is hidden and silent (Ch9), and roosting there at dusk (Ch10). The "travellers on their way south" and "had heard of birds like these" lines are gone, so Ch5's "a call he did not know" is no longer in tension. |
+| R2 | Evidence overreach | **Fixed** | Ch4, para 170: "there were new ones this morning, because I swept the trail last night". Rusty's deduction (para 182) is now properly scoped ("came back to that pine snag since last night"). |
+| R3 | Plant the fence-post promise | **Fixed** | End of Ch7: Rusty asks Maverick to "show me how you land on that fence post. Properly. Without the thistles." Maverick answers "I promise… This evening." Ch10's "something they had promised to do" now pays this off. Bonus irony: Maverick promises to demonstrate a skill he has never managed, and succeeds by "watching the post instead of watching yourself". |
+| R4 | Buck awake at the gate | **Fixed** | Ch7, para 293: Buck "lifted a paw from his stool to show he had seen them safely back". The boys sit "still in sight of him". Supervision is continuous from Ch4 to Ch7. |
+| R5 | No solo dusk outing | **Fixed** | Ch3, para 143: "He told his mother where he was going, and went back to the old trail before supper, while it was still light." |
+| Rec. | Wink cue | **Applied** | Ch8, para 356: "with a sideways wink at Maverick, he shuffled a little to the side". This now reads as a shared joke, not abandonment. |
+| Rec. | "wick-a-wick" uniform | **Applied** | "wick-a-wick-a-wick" in Ch5 and Ch6. |
+| Rec. | Ch10 "proper way" | **Applied** | "Rusty went home the proper way, along the path, with no shortcuts at all." Clear by ear. See note 2 below. |
+
+### Regression skim (did the fixes break anything?)
+
+Nothing material broke. Timeline, feather counts, supervision and flicker facts all still hold. Minor points, none required:
+
+1. **Ch4, para 182: tense wobble.** "they'd been and gone before I got there, because the feathers are already down by breakfast". Change "are" to "were" for a smoother read-aloud.
+2. **Ch10, "with no shortcuts at all".** Rusty's shortcut habit is canon to preserve. One thematic evening of choosing the path, after the shortcut-as-lie metaphor, is fine and does not read as a permanent change. Flagged so later stories do not treat it as Rusty "giving up" shortcuts.
+3. **Ch10: Rusty walks home alone from the bridge in the dusk.** He has just come from an outing with Buck, along the path, as lights come on. This is normal Hollow life and consistent with other season closes. *Optional:* "where his mother had left the lamp burning", which also echoes the R5 fix.
+4. **Ch9: "Grandpappy Buck"** is still the short form (recommended, not required). Use "Great-Grandpappy Buck", or confirm the short form with the founder.
+5. **Ch7: Rusty has two consecutive speeches** ("…stand a bit to the side," said Rusty / "And afterwards," said Rusty). Attribution is clear; no action needed.
+6. **Not restored (recommended only):** Buck's corrected golden-eagle description as a fair clue; live rumour dialogue including a line for Charlie; Buck's "take only fallen feathers" ethic.
+
+### Final scores and verdicts
+
+**Lock One — Piers Morgan: 8.6 / 10, PASS.**
+- The two issues that held round 2 at 8.4 are resolved cleanly: the contradiction in the mystery's logic and the evidence overreach.
+- The planted promise strengthens the ending. Maverick's arc now runs from a boast in Ch2, to a promise in Ch7, to an earned landing in Ch10.
+- What keeps it short of 9 is the recommended items in point 6: the lost fair-play clue against Maverick's theory and the summarised rumour scene. These are matters of polish, not required changes.
+
+**Lock Two — Moneypenny / Sherlock: PASS WITH NOTES.**
+- Canon, timeline and natural history are clean, and there is no predation.
+- Notes are founder confirmations only, all logged rather than required as edits:
+  - The meadow close in Ch10 (no porch, rocking chair or banjo). Permissible under "porch-and-wisdom close in most stories", but it is the season's first departure, so it needs explicit approval.
+  - The rabbit family, now with a father.
+  - The speaking status of wild birds, now handled in-world as "wild, wary".
+  - Maverick's hickory branch.
+  - Minor geography and the "Grandpappy Buck" short form.
+
+**Lock Three — Dr Noura: PASS.**
+- Supervision is continuous and explicit (mother told; Buck present and awake from dawn to return).
+- No frightening content. The public apology is modelled with peer kindness.
+- The moral is shown through action, with #73 standing alone.
+- The close is calm and sleep-ward.
+- Narration-ready: the onomatopoeia is consistent, attribution is clear, and there are no visual-only jokes.
+- Optional polish: points 1 and 3 above.
+
+**Overall: all three locks pass.** No required revisions remain. Release is subject to the founder's decision on the non-porch close and the confirmations listed under Lock Two. The optional polish (points 1, 3, 4 and 6) can be done at copy-edit without another lock round.

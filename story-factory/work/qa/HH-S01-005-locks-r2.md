@@ -215,3 +215,64 @@ All round-1 safeguarding items (S1–S4) and revisions 1, 3, 4, 5, 6 and 9 are f
 5. **Founder log:** confirm the new-details list in Lock Two (especially the barn latch and rain-barrel hole, Buck's "whole bridge" mistake, the harvest-scout partnership, Charlie's mother and the non-porch close).
 
 Keep the narrated length at or above 5,000 words.
+
+---
+
+## Round 3 — verification of round-2 fixes and final verdict
+
+*Same disclaimer applies: this is a role-based AI assessment by a separate review agent (same underlying model family as the author), not an independent human review.*
+
+I checked the revised manuscript against the round-2 required revisions, then read the changed passages (Ch3–4, Ch6, Ch8–10) in context for anything the fixes broke. Raw `wc` gives 5,298 words including chapter titles, comfortably inside 5,000–6,000.
+
+### Round-2 revision check
+| # | Round-2 required revision | Status | Evidence |
+|---|---|---|---|
+| 1 | Doors drawn open by the handle (match Ch4) | **Addressed** | Ch8: "Buck took hold of the handle and drew the doors towards him". The doors now open outward consistently: Ch3 Brody's push from inside, Ch4 pulling on the handle, Ch8 drawing open, Ch8 closing. |
+| 2 | Porch close, or founder approval; replace the S01-003 mother-and-candle image | **Addressed** | Ch10 now closes on Buck's porch: lantern on its hook, the hickory rocking chair's "first slow creak", banjo, Mountain Wisdom #16, and the chair creaking in the dark. Canon 3 is satisfied. Fireflies are correctly absent on a hard-frost night. The handover is now to "her family's lantern" and "a soft voice from behind the lantern". No candle, no doorstep, no named mother, so it no longer repeats S01-003. |
+| 3 | Replace the six stock phrases; drop "close but not too close" and "bow over one ear" | **Addressed** | All eight are gone. The replacements are specific and character-true: "Nobody said anything." (Ch4), "her whiskers quivered" (Ch6), "gingham bow knocked sideways, grinning so hard that her cheeks puffed out" (Ch8, a chipmunk-true image), "too busy being glad" (Ch8), "All week he had not understood that. Now he did." (Ch9), "nearly slid off the step" (Ch9). Sadie Belle now listens to Beau "tell the story of the barn as if she had not been there herself". That is a fresh, funny take on the crush and no longer an echo of S01-004. |
+| 4 | Step material; "for years" rationale; Brody's neckerchief | **Addressed** | The stone step has gone with the move to the porch; the barn step stays wooden and creaky (Ch9). Ch4 now reads "all through harvest week, with the doors standing open, we've kept the string tucked up inside, out of the way of the carts", which is logical. The neckerchief stays with Brody. |
+| 5 | Founder log | **Outstanding (founder action)** | See the updated list below. |
+
+### Anything the fixes broke
+- **Bramble's patchwork quilt now goes home with Charlie** ("lifted her up, quilt and all… passed her down"). It is one of Buck's canon signature objects, the same kind of problem as the neckerchief in r2, though less visible because the quilt is not part of a character's design. **Advisory, not blocking:** one clause would fix it, for example Buck unwinding the quilt and her family wrapping her in their own shawl, or "the quilt would come back tomorrow".
+- **Brody's humming simile** has changed from a cat purring to "like a kettle singing quietly on a stove". It still works, and it is homelier and fits the setting. Neutral.
+- **The latch mechanism, traced again from Ch3 to Ch8, is fully consistent.** Pivoting latch, notch, cord loop knocked off, bang and clunk, string tucked inside for harvest week, Charlie pushes it out through the hole, a steady pull, clunk, doors drawn open, string hung out. No new contradictions.
+- **Buck's lodge on the creek path, Silver Creek "talking quietly to its stones", and the woodpile** are all canon-consistent (Bible v1.0 places Buck's lodge by Silver Creek).
+- **"the longest day of the harvest"** echoes, but does not contradict, the Longest Night festival. Fine.
+- **No new safeguarding issues.** The walk to the porch is led by Buck with his lantern, families collect the youngsters, and the close is calm and secure.
+
+### Lock One — re-score: **8.6 / 10: PASS**
+The fixes remove every structural and mechanical objection, and the prose polish is now at publishable level. What remains is below the bar of a required revision:
+- The story carries two Buck sayings: the Ch9 latch-string gloss and Mountain Wisdom #16. The first has no moral attached and works as atmosphere.
+- Ch2's "I like it when people cheer" is redeemed by the narration around it.
+- Brody's harvest-scout speech in Ch9 is long.
+- Season-level pattern: Charlie is again the sidelined small one (compare S01-003). This is for the series editor, not this manuscript.
+
+### Lock Two — **PASS WITH NOTES**
+Canon and continuity are clean, the facts are verified (see round 2), and the latch logic is consistent. Notes:
+- Advisory: Bramble's quilt leaves with Charlie.
+- Advisory: "an eagle's eyes would see best in the dim light" is mild licence; "sharpest" would be accurate.
+- **Founder confirmations still needed:**
+  1. The harvest-week custom and Buck's slate.
+  2. The Great Barn's pivoting latch, cord loop, latch-string hole, rain-barrel, gable hay-loft door and eave shutters.
+  3. The rotted hole behind the rain-barrel (mend it on-page later or log it).
+  4. "Grey cap" as a hard-frost sign.
+  5. Buck's saying "the latch-string is always out".
+  6. Buck's past "whole bridge" mistake, per Sadie Belle.
+  7. Barney's Latch-String Jig.
+  8. The harvest-scout partnership for next year, Charlie counting "to a hundred and forty, nearly", and Brody losing count after twelve.
+  9. Charlie's family appearing at the close (now unnamed).
+
+  The non-porch close has been withdrawn, so it is no longer needed.
+
+### Lock Three — **PASS WITH NOTES**
+Supervision, the right to stop, the low climb, moving Charlie clear before the pull, Buck firm rather than sharp, "That'll mend", and the repaired exclusion all stand. The porch ritual is restored, so the bedtime signal is back, and the close slows properly (the tune played three times, slower; the creek; lanterns going home; the chair creaking in the dark). Optional items remain: loosen Reba's wrist-string, and set Buck's lantern on a flat stone in Ch7.
+
+### Final verdict
+| Lock | Final result |
+|---|---|
+| Lock One | **8.6 / 10: PASS** |
+| Lock Two | **PASS WITH NOTES** (founder confirmations outstanding; quilt advisory) |
+| Lock Three | **PASS WITH NOTES** (optional items only) |
+
+**No remaining required manuscript revisions.** Before sign-off, the founder needs to confirm the nine new details listed under Lock Two. A one-clause fix so that Bramble's quilt stays on Buck's porch is recommended.

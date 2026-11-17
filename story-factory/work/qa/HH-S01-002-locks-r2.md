@@ -165,3 +165,43 @@ Buck appears with his walking-stick, cap, dungarees and spectacles. He keeps the
 - Cut the l.371 "understood it better for saying it out loud" coda.
 - Add one sentence of autumn grounding at the opening.
 - Founder confirmation of the new details listed under Lock Two.
+
+---
+
+## Round 3: line-check of R1–R5 and final verdict
+
+Role-based AI assessment by a separate review agent (same underlying model family as the author); not an independent human review.
+
+I checked each fix against the current s01/HH-S01-002.txt and then skimmed the whole text again for anything the fixes broke. I did not edit the manuscript.
+
+### Fix verification
+
+| Fix | Status | Evidence |
+|---|---|---|
+| R1: no punching or pushing into water | **Verified** | l.220: "Barney bumped Benny with his shoulder, and Benny flicked a little splash of water at Barney with his tail". This is harmless, cannot be copied dangerously, and keeps the joke. |
+| R2: the bell gift | **Verified** | l.453: Buck "pressed it into his paw, and said he had been saving it for something worth ringing about". This is now consistent with Benny's line at l.475. |
+| R3: three or four stones | **Verified** | l.243 and l.251 now say "four stones" and "took the top four stones off". In Ch7, Barney misremembers "about three", so "Four. I measured." now works as a correction that fits what the listener saw. |
+| R4: the unclear laughing line | **Verified** | l.391: "And the two brothers burst out laughing together." Clear when read aloud. |
+| R5: porch close | **Verified, with one staging note** | Everyone follows Buck's lantern up to his lodge. The rocking chair gives "its first slow creak". Bramble's quilt goes over the smallest knees. Buck plays a few slow banjo notes. Families fetch their youngsters, and the distant bell rings "all the way up to Buck's porch". The signature ritual is restored without losing the new bank scene. **Note:** the Mountain Wisdom is still given on the bank, *before* the walk to the porch. The Bible's ideal order is porch, then creak, then wisdom. This counts as varied staging under the founder's 17 Nov decision. It is not a blocker. Optionally, move Buck's grandpappy speech to the rocking chair. |
+
+### Skim for anything the fixes broke
+
+- **Brothers going home (l.84).** "The brothers were the last to go. They lived nearest the ponds, and Buck walked them to the end of the porch and watched until their lodge door closed behind them."
+  - Safety: acceptable. A trusted adult watches them all the way to their door.
+  - The words "last ... because nearest" are logical but read slightly oddly.
+  - It also makes clearer that no adult fetches the brothers, so the open founder question about who else lives in the brothers' lodge becomes a little more visible. This was already implied by "the brothers' lodge" in 002 and 003. It is a founder note, not a defect.
+- **"Families of the Hollow ... fetch their youngsters" (l.82).** This is a gentle new community detail and is consistent with the no-orphan-backstory default for Brody. Fine.
+- **"Time we were all home" (l.78)** is followed by a stop at Buck's porch first. Families collect the youngsters there, so it holds together.
+- **Owl, lantern and night walk.** All are supervised and calm, with no new safeguarding concern.
+- **No new continuity errors, retired names or factual problems found.** The round-2 recommendations (trim Barney's Ch10 impression; cut the l.371 "understood it better" coda; one sentence of autumn grounding at the top) were not taken up. They remain optional and are not blockers.
+- **Season note for the coordinator.** Across 001–005, two of five stories now close on the porch (001 and 002). 002 now complies with the founder's "porch close in most stories" rule, but upcoming stories should lean towards the porch to rebalance the season.
+
+### Final verdict
+
+| Lock | Final result |
+|---|---|
+| Lock One (Piers Morgan) | **8.8 / 10: PASSED** |
+| Lock Two (Moneypenny / Sherlock) | **PASS WITH NOTES.** No blockers. Founder confirmations are still open for: Pebble Run and its bridge; the big dam below the ponds; the clay bank; Barney's tactile gift; the workshop bell; wisdom #68 attributed to Buck's grandpappy; and who else lives in the brothers' lodge. |
+| Lock Three (Dr Noura and narration) | **PASSED.** Optional: trim the Ch10 impression. |
+
+**Blockers: none.** Subject to the founder confirmations above, HH-S01-002 clears all three locks.

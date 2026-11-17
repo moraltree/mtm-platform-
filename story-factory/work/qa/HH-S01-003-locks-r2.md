@@ -249,3 +249,44 @@ All 15 round-1 required revisions are addressed (#3 substantially, with one acce
 - The new-details list in Lock Two, especially Charlie's burrow under the beech with its green door, and Charlie's mother.
 - The logged clocks / "o'clock" times.
 - Mountain Wisdom #85.
+
+---
+
+## Round 3 — line-check of the round-2 required fixes
+
+*Role-based AI assessment by a separate review agent (same underlying model family as the author); not an independent human review.*
+
+I re-read the revised manuscript (450 lines), concentrating on Ch2, Ch5, Ch7 and Ch8–10. I did not edit the manuscript.
+
+### Verification of the round-2 required fixes
+
+| # | Fix | Status |
+|---|---|---|
+| 1 | **Timeline** | **Verified.** The card now says "tomorrow, at three o'clock" (l.54). Beau's reading is "Tomorrow. Or possibly the day after." (l.88). Line 337 now reads "for the first time since she had pinned up her list". The existing line "I'll bake another one tomorrow" (l.145) now fits the party-morning bake in Ch5 (l.207), and the list → night → party-morning sequence is consistent. Beau arriving "on the right day" still works. |
+| 2 | **Brothers leaving twice** | **Verified.** Line 426 no longer sends Benny and Barney off on their own: Barney only shuffles "to the gate". Rusty's shortcut now ends with him "joined the others". Buck's escort (l.428) covers Reba, Beau, Rusty and the brothers, with Brody, Sadie Belle and Maverick going "as far as the bridge". Nobody is left walking home alone after dark except Maggie Mae's short walk back by the lit window. |
+| 3 | **Unattended lanterns** | **Verified.** Buck puts out the rose-arch lanterns before he leaves and leaves "a lamp burning safely" in her front window (l.442). Adults still handle all the flames; Charlie's mother's candle is likewise an adult's. A household lamp left in a window is an ordinary, low-risk image. |
+| — | **Stale "twenty-six things"** (recommended) | **Removed** from l.233 and l.335. The one remaining instance, at night in l.203, is correct. |
+
+### Anything the fixes broke
+
+Two small slips were introduced. Each is a one-phrase fix, and neither blocks a pass.
+
+1. **"Lantern-lit garden" (l.432).** Line 442 now says Buck put out the rose-arch lanterns *before he left*. That means the garden is no longer lantern-lit once he has gone, yet l.432 comes straight after his departure and calls it "the lantern-lit garden". Suggested fix: "alone in the starlit garden", or "in the glow of the window lamp".
+   - Related: the lantern-dousing is told in retrospect at l.442. It would read more smoothly in sequence at l.428 ("…he put out the rose-arch lanterns one by one, and set a lamp in her window, and at the gate he turned…"). This is optional.
+2. **"With all its things still unticked" (l.233).** This contradicts the story. Number two (delivering the invitations) was ticked in Ch2 (l.94), and Maggie Mae has worked for hours that morning. Suggested fix: "with so many things still unticked".
+
+The rest of the text is unaffected. Arrivals, the hospitality refrain, the teacup, the wisdom and the coda all read consistently. The round-2 non-blocking recommendations remain open, as noted:
+- the length of the closing section after Buck's wisdom, with no line about sleep;
+- the final image at l.448;
+- Sadie Belle's three o'clock arrival is still narrated after Reba's four o'clock one (l.358);
+- "all at once and in order" (l.335).
+
+### Final verdict
+
+| Lock | Final result |
+|---|---|
+| **Lock One** (Piers Morgan) | **PASSED: 8.6 / 10.** Unchanged. The fixes are neutral to positive (the shared walk home reads warmly). |
+| **Lock Two** (Moneypenny / Sherlock) | **PASS WITH NOTES.** All required continuity fixes are verified. Two trivial slips remain (l.432, l.233), and founder confirmations are pending as listed in round 2 (clocks and "o'clock" times; Rose Arch Cottage; Maggie Mae's grandmother and heirlooms; Charlie's burrow and mother; Mountain Wisdom #85). |
+| **Lock Three** (Dr Noura / narration) | **PASS WITH NOTES.** The flame-safety fix is verified, and the escort now covers everyone. Ending on a line about sleep is still recommended. |
+
+**Blockers:** none. Before the text is locked, I recommend the two one-phrase fixes above: "starlit" at l.432 and "so many things" at l.233. The coordinator should also confirm a fresh machine word count.

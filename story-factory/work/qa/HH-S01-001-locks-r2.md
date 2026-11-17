@@ -192,3 +192,33 @@ All three locks pass, on condition that the remaining required items below are m
 ### Founder confirmation needed
 
 The rain-pipe and basin under Buck's porch; Buck's youth backstory and his mother; Brody's banjo and his fishing habit; the miller and the miller's wife; the rabbits and "the lane"; the sycamore, elderberry, garden wall, watercress and porch footings; Maggie Mae's gift habit; Barney's "scruffier and rounder" look; and the no-fireflies-in-autumn series policy.
+
+---
+
+## Round 3 — line-check of R2-1 to R2-9 (17 Nov 2026)
+
+*Same role-based AI assessment caveat as above.* Method: a line-by-line diff of the round-2 text against the current `s01/HH-S01-001.txt` (456 lines). Exactly 13 lines changed, all of them at the R2 locations. Nothing else in the manuscript was touched. I then re-read each changed passage in context.
+
+| Item | Status | Current text / comment |
+|---|---|---|
+| R2-1 flames | **Fixed** | l.409 "with Buck minding the oven for her". This complies with the founder default. |
+| R2-2 count | **Fixed** | l.143 "Lots of friends. Lots of ideas. One of them is a jealous jar of jam." With no number, there is nothing to get wrong, and it keeps the rhythm. |
+| R2-3 stock phrasing | **Fixed** | l.184 is now "For a little while, a whole stretch of Hickory Hollow was laughing its head off". The idiom is common in British speech, child-friendly and not frightening. l.426 is now "Brody beamed from ear to ear", still a familiar phrase but no longer clashing with the lantern. l.64 is now "burst out of her like dandelion seeds", so only one "the way…" simile remains (l.27). |
+| R2-4 dry floor vs basin | **Fixed** | l.258 now has "soft earth on the floor, a little stone channel running out towards the creek". The overflow is accounted for, so the "dry" crawl-space is consistent. |
+| R2-5 roof height / Buck's footing | **Fixed** | l.262 now reads "porch roof just above", and l.356 has Buck pouring "from the porch itself, standing steady with one paw on the post", with water brought "a little at a time, so that his can never got too heavy". The two lines now agree, there is no tiptoe and no top-step fall risk, and it shows sensible adult behaviour. |
+| R2-6 Buck's Ch1 resolution | **Fixed** | l.33 "Let's see who finds it first." This matches his Ch5 deflection and his Ch7 admission ("I thought it would be a fine thing for you to find out for yourselves"). Buck's arc is now seamless. |
+| R2-7 Maggie Mae's age line | **Fixed** | l.129 "…and can't keep it in. I never can keep a surprise in." Her age is no longer blurred. Cosmetic only: "keep it in" / "keep a surprise in" is a close echo. It reads naturally as her agreeing with herself, so no change is required. |
+| R2-8 long sentences | **Fixed** | l.372 is split into three short sentences ("Some were laughing… Some were… And some…"), which also reads better aloud. l.411 is split, and the Sadie Belle–Beau beat is intact. |
+| R2-9 Maverick's chest | **Fixed** | l.123 "puffing out his chest above his tan explorer's vest". This is now canon- and fact-correct. |
+
+**Did the fixes break anything?** No. Continuity holds: the overflow channel doesn't affect the basin mechanism (the pipe end still sits under the water, l.264), and the low roof is consistent with Benny seeing the leaf-mat in the gutter (l.309). There are no new characters, places or safety issues, and no change to word count that matters. The recommended-only items from round 2 (the undelivered roses and jam, trickle vs "enough at once", Brody fishing in sight of the porch, the miller laughing at himself) remain open. None of them is a blocker.
+
+### Final verdict
+
+| Lock | Final result |
+|---|---|
+| Lock One — Piers Morgan (editorial) | **PASS — 8.6 / 10** (unchanged; the fixes clean up the text but don't change the assessment of the story) |
+| Lock Two — Moneypenny / Sherlock (canon/facts) | **PASS** (all continuity and fact items resolved; the founder-confirmation list still stands as a separate approval, not a QA blocker) |
+| Lock Three — Dr Noura (safeguarding/narration) | **PASS** |
+
+**Blockers:** none. **Outstanding outside QA:** founder confirmation of the new details listed under Lock Two above (the rain-pipe and basin under Buck's porch; Buck's youth backstory and his mother; Brody's banjo and fishing habit; the miller and the miller's wife; the rabbits and "the lane"; the sycamore, elderberry, garden wall, watercress and porch footings; Maggie Mae's gift habit; Barney's look; the no-fireflies-in-autumn policy).
