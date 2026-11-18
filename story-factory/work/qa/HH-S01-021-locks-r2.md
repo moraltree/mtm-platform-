@@ -255,3 +255,74 @@ It still fails Lock One (8.3) and Moneypenny on internal contradictions left beh
 - two "at all" echoes and "porch grew quiet" next to rocking remain in the close.
 
 All five are line-level fixes. After them, a targeted check is sufficient and the story should pass.
+
+---
+
+## Round 3 targeted check
+
+Role-based AI assessment by a separate review agent (same underlying model family as the author); not an independent human review.
+
+**Text reviewed:** `s01/HH-S01-021.txt` (5,633 words and STRUCTURE PASS by script, so not recounted). I checked the lines named in round 2 (l.3–9, l.137, l.305–321, l.343, l.403–405, l.421, l.430–458). I also searched the whole text again for "at all", "June", "summer", "the way X", "underneath", "beam", "stick", "heard about", "grew quiet" and "went quiet".
+
+### Required fixes
+
+| # | Status | Evidence |
+|---|---|---|
+| N-1 | **DONE** | l.305 "until Charlie stepped over the stream further up, where it was hardly there"; l.309 "Stepped over it?"; l.311 "It was about as wide as my tail … never any need for a bridge there at all, this time of year. And then my hat rolled into the mud … Barney had to fetch it." This matches Ch3 (l.137, l.143). No under-bridge, beam, stream-fishing or stick image remains anywhere in the text |
+| N-2 | **DONE** | l.5 "gone home … that morning"; l.7 "That evening, sitting on his porch, Great-Grandpappy Buck was still thinking about it. 'Now there,' he said, 'went a true gentleman.'" The past tense "went" settles the timing, and l.9 ("Everybody on the porch nodded") and l.15 ("all evening … all night") now follow cleanly |
+| N-3 | **DONE** | l.434–436: eyebrow raised, then "That tea party," she said. This now reads as a rueful comment from someone who was there (l.233), and "My cups survived. Nearly all of them." (l.440) lands as the punchline |
+| N-4 | **DONE** | l.403 ends "…sat down beside her and did not notice either thing." l.405 opens "Nobody stood up." There is no duplicate |
+| N-5 | **DONE** | l.421 "did not seem to mind them a bit"; l.450 "and nobody minded." The 011 echo is broken. l.456 "Then, little by little, the evening came on." "Porch grew/went quiet" is gone, so Buck's rocking at l.458 no longer pairs with a banned beat |
+
+### Advisories
+
+| # | Status | Evidence |
+|---|---|---|
+| A-1 "June" once | **DONE** | Only at l.430; l.458 is now "into the warm dark". No "summer" anywhere |
+| A-2 Sadie Belle's idea | **DONE** | l.343: "Sadie Belle had seen Granny Opal's face, and put a gentle hoof on her mother's arm". The child leads and the adult follows |
+| A-3 Dry-weather clause | **DONE** | l.137: "after a fortnight without rain". Beau's "this time of year" (l.311) agrees with it |
+| Laugh variation | **DONE** | l.321 "A small creak of a laugh"; the full "small, creaky, rusty laugh" is kept for the climax at l.452 |
+| Opal seen home | **DONE** | l.456: "Sadie Belle's mother said she would walk Granny Opal home, since it was on her way, and Granny Opal took her arm." This also gives Sadie Belle's family a quiet final grace note |
+
+### New observations (non-blocking)
+
+- "The evening came on" is used at both l.430 and l.456. At l.456 it also follows a sunset that has already happened (l.430). An optional polish would be l.456 "Then, little by little, the dark came on", or "the talk went soft and low". Polish only; not required.
+- "At all" remains at l.214, l.239, l.266, l.305 and l.311. These are ordinary uses in dialogue and narration, not close-echo constructions, so the rule is not breached.
+- I found no new contradictions. Timeline: Gathering Saturday, then Sunday evening, lessons Monday to Wednesday, tea party Saturday, Mill and porch Sunday. Hat: borrowed, rail, carried home. Flour day consistent with 018. Bridge consistent with 002. Season wording consistent.
+
+### Updated house-rule lines (all others as in round 2)
+
+| # | Rule | Round 3 verdict |
+|---|---|---|
+| 5 | Fresh close; no banned beats | **PASS** |
+| 7 | Safety | **PASS** |
+| 9 | Day markers, counts, season order | **PASS** ("June" once; early June stays inside the spring slot, but 022 must not run past mid-June or say summer) |
+
+### Founder list
+
+The eighteen items in round 2 stand. Amend item 7: Pebble Run shrinks to a step-over trickle a little way up the bank **after a dry spell** (l.137, l.311). Add to item 16: Sadie Belle's mother walks Granny Opal home from the porch (l.456).
+
+## Final verdicts
+
+| Lock | Reviewer | Final verdict |
+|------|----------|---------------|
+| One | "Piers Morgan" | **8.6 / 10. PASSED** (pass mark 8.5) |
+| Two | "Moneypenny" | **PASSED** |
+| Two | "Sherlock" | **PASSED** |
+| Three | "Dr Noura" | **PASSED** |
+| Three | Narration readiness | **READY** |
+| — | **Overall** | **PASS. Cleared for founder sign-off,** subject to confirmation of the 18 listed new details |
+
+**Score rationale (Lock One, 8.6):**
+- The comic escalation is the strongest in S01.
+- The pivot at l.276–294 is earned and wordless.
+- Wisdom #94 is exact and lands on the story's porch/trail geography.
+- Sadie Belle now has real, in-character plot work while her crush stays unnoticed.
+- The close peaks on Granny Opal's laugh from under the brim "in front of all the faces", then winds down properly.
+
+The score is held below 9 by:
+- the arc overlap with 012 (Beau's vanity turning to kindness, with the littlest rabbit as the measure), which is a season-planning flag for Beau's next lead;
+- a lightly used Benny, Brody and Reba;
+- the familiar lanterns-fetch-the-youngsters fade.
+
+**Summary:** all five required fixes (N-1 to N-5) and all five advisories are verified in the text. No unsafe image, internal contradiction, season breach or banned close beat remains. The only non-blocking note is the repeated "the evening came on" (l.430, l.456). HH-S01-021 passes all three locks.
