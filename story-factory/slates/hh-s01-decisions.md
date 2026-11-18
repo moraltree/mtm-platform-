@@ -43,3 +43,4 @@ counts as approved until the founder says so.
 - HH-S01-015 drafted (Wisdom #30), r1 pending. HH-S01-016 drafted (Wisdom #63), r1 pending.
 - HH-S01-014 Triple-Lock PASS (8.2 → 8.6 → 8.7). Uploaded `1KY2xFyLvvTzXfKTDT2koB0P9GI1E2H_J`, file SHA-256 `c6d54342…1ff8`, download-back verified, 5,663 words. Narration note for Buck's croaked Wisdom is in the QA record.
 - HH-S01-015 Triple-Lock PASS (8.0 → 8.6). Uploaded `1Ak-Ua-ms0JAjCwSw1UhNXRd1BcrT5Aso`, SHA-256 `9f945132…9214`, verified, 5,973 words. WINTER BATCH CHECKPOINT (009–015): all seven passed and verified; register v1.6 `1oA1ubws-Ff8hldT4WGFySpfiqfQ-7vUh`.
+- HH-S01-016 Triple-Lock PASS (8.1 → 8.6). Two post-pass wording tweaks per reviewer recommendation (neutral grandmother paintbox; 'Buck's lantern'). Uploaded `142ILTlpY9cEsZvnIgHnDqQ08JXuiq3Vp`, SHA-256 `73e25dc1…fbb`… file `73e25dc12c27…d74c`, verified, 5,563 words. Founder sign-off requested on carrying-chair overlap with 009.
