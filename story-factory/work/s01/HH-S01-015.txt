@@ -51,7 +51,7 @@ Before he would tell them anything, he walked them along the bank to a rope he h
 
 "Good." The miller leaned on the rope beside them, and looked at his wheel, and began to explain.
 
-"A waterwheel turns because water pours onto its paddles," he said. "Water comes down the race there, that channel along the side of the Mill, from the pond upstream. Goes through the grate, to keep the sticks and leaves out. Then onto the wheel, and round she goes. Clack, splash. You know." He pointed to a wooden gate at the top end of the race. "That's the sluice. Up, and the water comes down the race to the wheel. Down, and it goes off round the side, down the spillway, back into the creek, and the wheel stands still."
+"A waterwheel turns because water pours onto its paddles," he said. "Water comes down the race there, that channel along the side of the Mill, from the pond upstream. Goes through the grate, to keep the sticks and leaves out. Then onto the wheel, and round she goes. Clack, splash. You know." He pointed to a wooden gate at the far end of the race, just past the grate. "That's the sluice. Up, and the water drops onto the wheel. Down, and it goes off round the side, down the spillway, back into the creek, and the wheel stands still."
 
 "Six turns a minute," said Benny.
 
@@ -173,7 +173,7 @@ That part was easy. Their father carried the little mill out into the yard, and 
 
 "Now," said Barney, rubbing his paws together. "My ideas."
 
-Idea one was hot water. Barney was not allowed anywhere near the kettle, so their father poured it, a little warm water from the kettle, over the frozen wheel, while Barney held the lamp and Benny held the notebook. The ice melted at once, and the wheel turned, and Barney cheered.
+Idea one was hot water. Barney was not allowed anywhere near the kettle, so their father poured it, a little warm water from the kettle, over the frozen wheel, while Barney watched and Benny held the notebook. The ice melted at once, and the wheel turned, and Barney cheered.
 
 They waited ten minutes, stamping their feet.
 
@@ -183,7 +183,7 @@ The wheel was frozen again. Worse. There was more ice on it now than before, bec
 
 "Idea two," said Barney, not at all discouraged, and ran inside, and came back with two saucepan lids. He stood beside the little frozen mill and banged them together as hard as he could, CLANG, CLANG, CLANG, to shake the ice off with the noise.
 
-The ice did not move. Not a crystal. But their mother came running out of the house with her paws over her ears, and a dog barked somewhere across the creek, and a great soft lump of snow slid off the shed roof and landed, flump, right on top of Barney's head.
+The ice did not move. Not a crystal. But their mother came running out of the house with her paws over her ears, and a great soft lump of snow slid off the shed roof and landed, flump, right on top of Barney's head.
 
 Benny wrote that down too.
 
@@ -250,7 +250,7 @@ Maverick looked pleased, and flew off to find somewhere warmer to sit.
 
 The brothers walked home behind their father in silence. Benny was thinking so hard that he walked into a gatepost.
 
-When they got to the yard, their father had already brought the two buckets into the warm kitchen and set them on the table, still covered, so the brothers could open them together.
+Before they set out, their father had brought the two buckets into the warm kitchen and set them on the table, still covered, so the brothers could open them together.
 
 Benny lifted the stick off his bucket first. The control.
 
@@ -424,7 +424,7 @@ The miller looked at it. Then he straightened up, and turned round, and looked a
 
 "Right," he said. "Let's see if she'll go."
 
-He went up to the sluice, and heaved on the big lever, and the wooden gate rose with a clunk. They heard the rush of the water, released, pouring down the covered race and through the grate. They saw it hit the first paddle in a spray of white.
+He went up to the sluice, and heaved on the big lever, and the wooden gate rose with a clunk. They heard the rush of the water, released, pouring out under the gate. They saw it hit the first paddle in a spray of white.
 
 And slowly, stiffly, creaking, the great wheel began to turn.
 
@@ -445,7 +445,7 @@ Great-Grandpappy Buck had come along the creek path, slowly, with his walking-st
 
 Chapter Ten — The Model on the Windowsill
 
-The cold lasted nine more days, longer even than the old ones had said.
+The cold lasted nine more days, just as the old ones had feared.
 
 Every one of those nine days, the race-boards stayed on, under their straw and their snow. Every morning the miller lifted the end board, and raked out the little bit of mush, and knocked the thin night's ice off the paddles before he let the water on. Then he let her turn slowly all day long, so the spray never had time to build. Clack, splash. Six times a minute. The flour sacks filled up again in the Mill, and there was bread again in every house in the Hollow. And on the Saturday, because the brothers had specially asked, there were pancakes, for everybody, at the Mill, with honey, and Barney ate nine.
 
@@ -473,6 +473,6 @@ Then, with both paws, very carefully, she poured.
 
 The water ran down the little tin race, and onto the little red paddles, and the cotton-reel wheel went round and round in the sunshine, clack, clack, clack, clack, much faster than six times a minute, and splashed her nose, and the miller's wife laughed from her big chair, and the littlest rabbit asked if she could do it again.
 
-Outside, the great wheel turned in the bright spring morning, and the two small wheels, the big one in the creek and the little one on the sill, went round together.
+Outside, the great wheel turned in the bright spring morning, and the two wheels, the big one in the creek and the little one on the sill, went round together.
 
 Goodnight, Hickory Hollow.
