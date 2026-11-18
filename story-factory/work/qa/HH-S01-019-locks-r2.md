@@ -286,3 +286,46 @@ The story passes all four reviews: Lock One scores 8.6/10, and Moneypenny, Sherl
 - lantern escorts for the remaining youngsters.
 
 There are also three should-fixes. No further full round is needed: a spot-check of the changed lines is enough.
+
+---
+
+## Round 3 spot-check
+
+**Text checked:** `s01/HH-S01-019.txt`, revised again (5,576 words, STRUCTURE PASS, not recounted). I checked the changed lines and their surroundings, the whole of Ch10, and Ch9 l.341–357. Line references below are to this version.
+
+### Required fixes
+
+| r2 # | Fix | Status | Evidence |
+|---|---|---|---|
+| 1 | Re-stage the last look (the 008 echo) | **Done** | "Brody went last" and the look back from the porch steps are gone. The porch now empties "until only Buck was left" (l.398), and the story ends on Buck watching the pot (l.400). The same image is now staged from Buck's side, which no earlier S01 close uses. |
+| 2 | Ch3 dialogue seam | **Done** | Reba's reply to Brody's l.121 now comes first, followed by the sneeze (l.123), then "Sorry" (l.125), then the pencil (l.127). Brody's line gets its answer. |
+| 3 | "long, slow breath" | **Done** | "Buck sat back in his rocking chair." (l.394). It is plain, physical and in character. No stock phrase remains. |
+| 4 | Hummingbird wish on the page | **Done** | l.351: "I haven't seen one close up in years. I'd dearly like to, once more." It is a remark, not a question, so Buck still asks only one question (l.353). l.374 now matches it, and "before his eyes got any older" appears once only (l.341). |
+| 5 | Violet timeline seam | **Done** | l.232: Maggie Mae's spare clumps "fill the gaps where the oldest ones, pulled on the very first day, were too far gone". This is consistent with l.15, l.195 and l.201. *Polish, optional:* l.234 ("Some of the violets were too far gone") now repeats "too far gone" two lines after l.232. Vary one, or fold l.234 into l.232. |
+| 6 | Lantern escorts for everyone | **Done** | l.398: Reba's father, Brody's father, Maggie Mae's neighbours and the brothers' mother come with lanterns. Charlie's own grown-up is not named, but "the grown-ups … a few at a time" covers the group and meets house rule 7. *Optional:* add "and Charlie's mother", because Charlie is the youngest. |
+
+### Should-fixes
+
+| Item | Status | Note |
+|---|---|---|
+| Hummingbird "no bigger than my paw" | **Done** | l.168. |
+| "other pocket" repeated | **Done, but the fix introduces a canon slip** | l.127 now tips the cinnamon things "into her apron". **Reba has no apron in her locked visual**, which is a pink bow, a floral neckerchief and an optional small green rucksack. An apron also blurs Maggie Mae's apron gag in Ch8 (l.332, l.336). **Final one-word fix:** "into her rucksack" (canon-optional) or "into her paw". This does not need re-review. |
+| "Well," she said → said Reba | **Not done (carried, minor)** | l.178 still follows Brody's l.176 with "she". The meaning is clear from context. It is a narration-clarity polish only. |
+
+### Final verdicts
+
+| Lock | Reviewer | Final verdict |
+|------|----------|---------------|
+| One | Piers Morgan | **PASSED: 8.7 / 10.** The close is now fully fresh, and the dialogue seam and stock phrase are gone. |
+| Two | Moneypenny | **PASSED.** The violet timeline is resolved. The calendar runs from mid-May to the first week of June. There is one one-word canon fix: Reba's "apron" (l.127). |
+| Two | Sherlock | **PASSED.** The hummingbird size is corrected. No open fact issues. |
+| Three | Dr Noura | **PASSED.** Every youngster has a grown-up lantern escort home. The bedtime close is calm and safe. |
+
+**Overall: PASSED (Triple-Lock complete).** One final one-word edit is required before lock: l.127, "her apron" becomes "her rucksack" (or "her paw"). It needs no further review.
+
+Optional polish:
+- l.178: "said Reba";
+- l.234: vary the second "too far gone";
+- l.398: add Charlie's mother.
+
+The founder confirmations (new details 1–14) and the season-planner notes (the red-trumpet pot on Buck's porch rail; 020's Blossom Gathering falling within 019's replanting week) stand as recorded in round 2.

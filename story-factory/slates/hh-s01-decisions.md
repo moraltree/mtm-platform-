@@ -47,3 +47,4 @@ counts as approved until the founder says so.
 - HH-S01-017 Triple-Lock PASS (8.0 → 8.6 → 8.7). Uploaded `1LKkaww0yWcOatAcuu4B38kGZqI32MWh6`, SHA-256 `d015b33d…0e43`, verified, 5,565 words. Founder decision: naming American chestnut/blight.
 - HH-S01-018 Triple-Lock PASS (8.0 → 8.6 → 8.7). Uploaded `12VdpIzrVuU-6a0aMFm0p64rSL7saKKg4`, SHA-256 `125a0448…834c`, verified, 5,924 words. Founder ruling requested: softened ladybird/greenfly (Bible §15).
 - HH-S01-020 Triple-Lock PASS (8.2 → 8.6; r2 line edits applied, reviewer: no round 3 needed). Uploaded `1Vr5KfckQJmSGAf7RyokuYoz0THs5DBM7`, SHA-256 `5b812b9a…78d6`, verified, 5,496 words.
+- HH-S01-019 Triple-Lock PASS (8.1 → 8.6 → 8.7). Uploaded `17OdNEaBMF6eKZlmUX_DbyHqSZDhJYp2m`, SHA-256 `bc7b7aa4…a33`, verified, 5,578 words. Calendar kept mid-May → first week of June (coordinator decision for season order).
