@@ -8,13 +8,13 @@ And on Tuesday morning, Benny woke up, and lay in bed, and knew at once that som
 
 He lay very still and listened.
 
-He could hear Barney breathing in the other bed, slow and snuffly, with his nose under the quilt. He could hear the stove ticking as it warmed up downstairs, where their mother was making porridge. He could hear a chickadee somewhere outside, and the creak of the cold in the roof beams.
+He could hear Barney breathing in the other bed, slow and snuffly. He could hear the stove ticking downstairs, where their mother was making porridge.
 
 What he could not hear was the wheel.
 
 All his life, every morning, Benny had woken up to the sound of the Old Mill's great wooden waterwheel turning in the creek. Clack. Splash. Clack. Splash. It was the first sound of the day in the Hollow, as steady as a heartbeat, and so ordinary that most creatures never noticed it at all.
 
-Benny noticed it. Benny noticed everything that could be counted. He had once worked out that the wheel went round eleven times a minute, and he had written it down.
+Benny noticed it. Benny noticed everything that could be counted. He had once worked out, with the pencil he kept behind his ear, that the wheel went round six times a minute, and he had written it down.
 
 This morning, it was not going round at all.
 
@@ -26,13 +26,13 @@ Barney opened one eye.
 
 "Exactly," said Benny, and got out of bed.
 
-Ten minutes later, the brothers were hurrying along the frozen creek path towards the Old Mill, with their scarves wound up to their noses and their breath puffing out in front of them like two small steam engines. Their mother had said they could go if they stayed on the path and did exactly what the miller told them, and they had both promised.
+Ten minutes later, the brothers were hurrying along the frozen creek path towards the Old Mill beside their mother, with their scarves wound up to their noses and their breath puffing out in front of them like two small chimneys. She left them at the Mill in the miller's charge, and they both promised to do exactly what he told them.
 
-The Mill stood beside the creek where it always stood, tall and grey and solid, with its stone chimney smoking. But the great wheel at its side was still. It hung over the water like a giant's coat button, and every paddle on it was furred with ice. Icicles hung from its rim in long glassy fringes. It looked less like a wheel than like a huge frozen flower.
+The Mill stood beside the creek where it always stood, tall and grey and solid, with its stone chimney smoking. But the great wheel at its side was still. Every paddle on it was furred with ice. Icicles hung from its rim in long glassy fringes. It looked less like a wheel than like a huge frozen flower.
 
 The miller was standing on the bank in his big coat, with his floury cap pulled down over his ears, looking at it.
 
-"Morning, lads," he said, without turning round. "Come to see the trouble, I expect."
+"Morning, boys," he said, without turning round. "Come to see the trouble, I expect."
 
 "It's stopped," said Benny.
 
@@ -49,15 +49,19 @@ Before he would tell them anything, he walked them along the bank to a rope he h
 
 "Understood," said the brothers together.
 
-"Good." The miller leaned on the rope beside them, and looked at his wheel, and began to explain. He was a patient creature, the miller, and he liked to explain things, and he could see that Benny would not rest until he understood.
+"Good." The miller leaned on the rope beside them, and looked at his wheel, and began to explain.
 
-"A waterwheel turns because water pours onto its paddles," he said. "Water comes down the race there, that channel along the side of the Mill, from the pond upstream. Goes through the grate, to keep the sticks and leaves out. Then onto the wheel, and round she goes. Clack, splash. You know."
+"A waterwheel turns because water pours onto its paddles," he said. "Water comes down the race there, that channel along the side of the Mill, from the pond upstream. Goes through the grate, to keep the sticks and leaves out. Then onto the wheel, and round she goes. Clack, splash. You know." He pointed to a wooden gate at the top end of the race. "That's the sluice. Up, and the water comes down the race to the wheel. Down, and it goes off round the side, down the spillway, back into the creek, and the wheel stands still."
 
-"Eleven turns a minute," said Benny.
+"Six turns a minute," said Benny.
 
 The miller looked at him with respect.
 
-"That's right," he said. "Well. When it gets as cold as this, two things go wrong. First, the splash freezes. Every time the wheel goes round, the spray lands on the paddles, and some of it freezes there, and some more lands on top, and freezes on top of that. So the paddles get heavier, and heavier. And not evenly, either. One side gets heavier than the other. And then the whole wheel's out of balance, and it shakes and strains on its axle, and if you're not careful you crack the axle, or break the gears inside the Mill. That's why I stopped her."
+"That's right," he said. "Well. When it gets as cold as this, two things go wrong. First, the splash freezes. Every time the wheel goes round, the spray lands on the paddles, and some of it freezes there, and some more lands on top, and freezes on top of that."
+
+Barney looked up at the furry white paddles. "So they get heavier."
+
+"Heavier and heavier," said the miller. "And not evenly, either. One side gets heavier than the other. And then the whole wheel's out of balance, and it shakes and strains on its axle, and if you're not careful you crack the axle, or break the gears inside the Mill. That's why I stopped her."
 
 Benny was already writing it down.
 
@@ -65,11 +69,15 @@ Benny was already writing it down.
 
 The miller pointed down the race, to where it ran in under a little wooden bridge to the grate. The water in the race was still moving, dark and quick, steaming faintly in the bitter air. But at the grate, it was not water any more. It was a great grey heap of something like wet sugar, piled up against the bars, thick and slushy and stuck fast.
 
-"That," said the miller. "Ice mush. On a night like last night, clear and still and bitter, the water in the race gets so cold it starts making little needles of ice, right there in the moving water. Millions of them. They float down and pile up against the grate, and they stick to it, and they stick to each other, and in a few hours they've blocked it up solid. And no water gets through to the wheel at all."
+"That," said the miller. "Ice mush. On a night like last night, clear and still and bitter, the water in the race gets so cold it starts making little needles of ice, right there in the moving water."
+
+"Needles?" said Barney.
+
+"Tiny ones. Millions of them," said the miller. "They float down and pile up against the grate, and they stick to it, and they stick to each other, and in a few hours they've blocked it up solid. And no water gets through to the wheel at all."
 
 "What do you do?" said Benny.
 
-"Rake it out," said the miller. "In the day, with the long rake, standing on the boards up there where it's safe. Knock the ice off the paddles with a wooden mallet. Get her going again." He shook his head. "But then night comes, and it all happens again. And if this cold lasts a week, which the old ones say it might..." He looked towards the Mill, where his wife was standing in the doorway. "We've flour for about a week. After that, there's no new flour in the Hollow till the wheel turns."
+"Rake it out," said the miller. "In the day, with the long rake, standing on the boards up there where it's safe. Knock the ice off the paddles with a wooden mallet. Get her going again." He shook his head. "But then night comes, and it all happens again. And if this cold lasts another week or more, which the old ones say it might..." He looked towards the Mill, where his wife sat by the door in her big chair, wrapped in a shawl, minding her bad back. "We've flour for about a week. After that, there's no new flour in the Hollow till the wheel turns."
 
 "No flour?" said Barney, horrified. "No bread? No cakes? No pancakes?"
 
@@ -94,27 +102,11 @@ Barney thought like a firework. Bang, and an idea went off, and then bang, anoth
 
 They sat at the kitchen table at home that afternoon, with a pot of hot cocoa between them, and thought.
 
-"Hot water," said Barney at once. "We pour hot water on the paddles. Ice melts. Done."
+"Hot water," said Barney at once. "On the paddles. Ice melts. Done."
 
-"How much hot water?" said Benny. "It's a very big wheel."
+"And then the water goes cold," said Benny, "and freezes. Into more ice."
 
-"Lots."
-
-"And then what happens to the hot water, when it's on the paddles, and the air's freezing?"
-
-Barney thought about it. "It goes cold."
-
-"And then?"
-
-"It freezes," admitted Barney. "Into more ice." He thought again. "And anyway the miller would never let us near the wheel with a kettle."
-
-"He wouldn't," agreed Benny.
-
-"All right," said Barney. "We bang it. We get lots of drums and we bang them right next to the Mill, and the ice gets shaken off by the noise."
-
-"Barney."
-
-"What?"
+"Then drums," said Barney. "Lots of drums, right next to the Mill. Shake the ice off with the noise."
 
 "That isn't how ice works."
 
@@ -128,11 +120,7 @@ Barney folded his arms. Benny folded his. Their mother, coming in with the washi
 
 Benny opened his notebook.
 
-"I don't have one yet," he said. "I need to collect information first. How cold it gets. When the ice mush starts. How fast it grows. Then I'll know."
-
-"That'll take ages."
-
-"It'll take as long as it takes," said Benny. "You can't solve something properly if you don't know what it's doing."
+"I don't have one yet," he said. "I need information first."
 
 "And while you're collecting information," said Barney, "the flour's running out."
 
@@ -163,23 +151,45 @@ And for the first time all day, Benny and Barney both said "Yes!" at exactly the
 
 Chapter Four — The Little Mill
 
-They built the little mill that evening, on the kitchen table, with their mother supervising and their father lending them his small tools and keeping the sharp ones for himself.
+They built the little mill that evening, on the kitchen table, with their mother supervising and their father doing anything that needed a sharp tool.
 
 It was not a very good mill. But it was a very good wheel.
 
-Benny made the wheel from a wooden cotton reel, with eight paddles cut from the lid of an old cheese box, glued into slots all the way round, and a knitting needle through the middle for an axle. He measured every paddle to be exactly the same size. Barney painted the paddles red, so you could see them going round.
+Benny made the wheel from a wooden cotton reel. He measured and marked eight paddles on the lid of an old cheese box, and their father cut them out with his sharp knife, and cut the slots in the reel, and Benny glued the paddles in, and a knitting needle through the middle for an axle. He measured every paddle to be exactly the same size. Barney painted the paddles red, so you could see them going round.
 
-Brody made the race. He bent a long strip of tin from the back of the shed into a channel, and propped it up on a pile of books at one end so that it sloped, and their father helped him file off the sharp edges and tested every one with his thumb.
+Brody made the race. Their father cut a long strip of tin from the back of the shed, and filed every edge smooth, and tested each one with his thumb. Only then did he hand it to Brody, who bent it into a channel with his big careful paws, and propped it up on a pile of books at one end so that it sloped.
 
 Then their mother filled a jug with water from the pump, and poured it, very carefully, into the top of the tin race. And the water ran down the channel, and poured onto the little red paddles, and the wheel went round.
 
 Clack, clack, clack, clack.
 
-It went round much faster than eleven times a minute, and water went everywhere, all over the table and the floor and the cat. But it went round.
+It went round much faster than six times a minute, and water went everywhere, all over the table and the floor and Barney. But it went round.
 
 "It works!" shouted Barney.
 
 "Of course it works," said Benny, mopping his notebook. "Now we have to make it freeze."
+
+That part was easy. Their father carried the little mill out into the yard, and poured a jug of water through it, and left it in the bitter dark for an hour. When they went out with the lamp to look, the little red wheel was stuck fast, and every paddle was furred with ice, exactly like the great wheel at the Mill.
+
+"Now," said Barney, rubbing his paws together. "My ideas."
+
+Idea one was hot water. Barney was not allowed anywhere near the kettle, so their father poured it, a little warm water from the kettle, over the frozen wheel, while Barney held the lamp and Benny held the notebook. The ice melted at once, and the wheel turned, and Barney cheered.
+
+They waited ten minutes, stamping their feet.
+
+The wheel was frozen again. Worse. There was more ice on it now than before, because the warm water had turned cold, and then turned to ice, right on top of the old ice.
+
+"More water makes more ice," said Benny, writing.
+
+"Idea two," said Barney, not at all discouraged, and ran inside, and came back with two saucepan lids. He stood beside the little frozen mill and banged them together as hard as he could, CLANG, CLANG, CLANG, to shake the ice off with the noise.
+
+The ice did not move. Not a crystal. But their mother came running out of the house with her paws over her ears, and a dog barked somewhere across the creek, and a great soft lump of snow slid off the shed roof and landed, flump, right on top of Barney's head.
+
+Benny wrote that down too.
+
+"Two ideas," said Barney, from inside the snow. "Two goes. That's science. You said."
+
+"I did say," admitted Benny. "Now we need a proper test. Overnight."
 
 So their mother found two old metal buckets, and two small spare cotton reels, and Benny and Barney made two more little wheels, exactly the same as the first. Their father set each wheel on a stick across the top of a bucket, so that the paddles dipped into the water inside. Then he carried both buckets outside into the yard, where the cold was so sharp it made your teeth ache, and set them down on the frozen ground side by side.
 
@@ -209,7 +219,7 @@ Benny looked at it.
 
 "It's kindness," said Barney. "It's a cold night."
 
-And they went inside to bed, and lay awake listening to the silence where the wheel should have been.
+And they went inside to bed.
 
 
 Chapter Five — What Maverick Saw
@@ -218,11 +228,15 @@ The next morning, the Mill was still silent.
 
 The miller and Brody's father had spent most of the day before raking out the grate and knocking the ice from the paddles, and in the afternoon, when the sun was at its warmest, they had got the wheel turning, slowly, for a few hours. But by midnight the ice mush had come back, and by morning the grate was blocked solid again, and the wheel was a frozen flower once more.
 
-The brothers did not go straight to the buckets. Benny made them go to the Mill first, because he wanted to see the grate again and write down how big the heap was.
+The brothers did not go straight to the buckets. Benny made them go to the Mill first, with their father, because he wanted to see the grate again and write down how big the heap was.
+
+On the creek path, they met Great-Grandpappy Buck, coming the other way with his walking-stick and a basket of bread for the miller's wife.
+
+"Cold like this," said Buck, "I've seen only twice in all my years. Once when I was a very small beaver, and once when your grandfather was." He looked at them over his spectacles. "Mind that rope line, now."
 
 At the rope line, they found Maverick sitting on a post, with his feathers fluffed up against the cold until he was nearly round.
 
-"Morning, young beavers," he said. "I've been up and down that creek since first light. Thought you'd want to know what I saw." He pointed upstream with a great brown wing. "The pond above the Mill is frozen solid. Thick white ice, all across. Not a drop of open water. And it's not making any mush at all."
+"Morning, young beavers," he said. "I've been up and down that creek since first light. Sharpest eyes in the Hollow, mine. Not boasting. Simply a fact. Thought you'd want to know what I saw." He pointed upstream with a great brown wing. "The pond above the Mill is frozen solid. Thick white ice, all across. Not a drop of open water. And it's not making any mush at all."
 
 Benny was writing.
 
@@ -230,15 +244,11 @@ Benny was writing.
 
 Benny stopped writing, and looked up at him.
 
-"Under the ice, no mush," he said slowly. "Out in the open, mush."
-
-"That's what I said," said Maverick.
-
-"Thank you, Maverick," said Benny. "That's very important."
+"Under the ice, no mush," he said slowly. "Thank you, Maverick."
 
 Maverick looked pleased, and flew off to find somewhere warmer to sit.
 
-The brothers walked home in silence. Benny was thinking so hard that he walked into a gatepost.
+The brothers walked home behind their father in silence. Benny was thinking so hard that he walked into a gatepost.
 
 When they got to the yard, their father had already brought the two buckets into the warm kitchen and set them on the table, still covered, so the brothers could open them together.
 
@@ -254,11 +264,7 @@ Underneath, the water was dark. Moving a little as the bucket was set down. A th
 
 It turned easily. Round and round, in the dark, liquid water, as if it had spent the whole bitter night tucked up in bed.
 
-Barney looked at it.
-
-Benny looked at it.
-
-Their father, at the end of the table, raised his eyebrows a very long way, and said nothing at all.
+Their father, at the end of the table, raised his eyebrows a very long way.
 
 
 Chapter Six — The Lid
@@ -281,11 +287,11 @@ Barney stared at him.
 
 "So if the race had a lid," he said slowly.
 
-"Then it wouldn't make mush," said Benny. "Or not nearly as much. And the grate wouldn't block. And the water would get through to the wheel."
+"Then it wouldn't make mush," said Benny. "Or not nearly as much."
 
 "A blanket," said Barney. "For the race."
 
-"Not a real blanket," said Benny. "It's a very long race. But something like it. Boards across the top. And something on the boards to keep the cold off. Straw, maybe. And snow on top. Snow's good at keeping cold out, that's why burrows under the snow stay warm."
+"Not a real blanket," said Benny. "It's a very long race. But something like it. Boards across the top. And something on the boards to keep the cold off. Straw, maybe. And snow on top. Snow's good at keeping cold out, that's why burrows under the snow stay warmer than the air."
 
 Barney's mouth fell open.
 
@@ -303,11 +309,7 @@ They stood on opposite sides of the kitchen table, glaring at each other, and th
 
 Then Brody, who had come round to hear the results, and had been standing in the doorway the whole time, cleared his throat.
 
-"Seems to me," he said, "you both found it."
-
-The brothers turned round.
-
-"Barney made the blanket," said Brody. "Benny worked out what it meant." He came in and sat down, and the bench creaked. "Now. Who's going to tell the miller?"
+"Seems to me," he said, "the miller ought to hear about this." He came in and sat down, and the bench creaked. "Who's going to tell him?"
 
 Benny looked at Barney. Barney looked at Benny.
 
@@ -332,7 +334,9 @@ Then he took off his cap, and scratched his head, and said a surprising thing.
 
 "Where are they now?" said Benny.
 
-"Up in the loft of the old barn behind the Mill, if they're anywhere," said the miller. "Under forty years of sacks and cobwebs." He looked at the brothers, and then he put his cap back on and looked at them again, differently, as if they had grown a little since he last saw them. "You worked that out between you. With a cotton reel and a blanket."
+"Up in the loft of the old barn behind the Mill, if they're anywhere," said the miller. "Under forty years of sacks and cobwebs." He looked at the brothers, and then he put his cap back on and looked at them again, differently, as if they had grown a little since he last saw them. "With a cotton reel and a blanket," he said, and shook his head slowly. "Well, I never."
+
+"There's grey boards up in that loft," said a voice behind them. It was Reba, who had come along the bank to see what all the fuss was about. "Long ones, with numbers painted on the ends. I saw them in the autumn." She went a little pink under her mask. "I was looking for where the miller keeps the honey."
 
 "And Brody," said Barney. "Brody told us to do it small first."
 
@@ -353,27 +357,35 @@ By the middle of the afternoon, half of Hickory Hollow had gathered at the Old M
 
 The grown-ups climbed up into the loft of the old barn, with the miller leading and Brody's father holding the ladder, and there, under forty years of sacks and cobwebs and one very surprised family of mice, they found the race-boards, stacked against the wall. Long and flat and grey with age, but solid, every one. The miller's father had painted a number on the end of each, one to thirty, so that they would go back in the right order.
 
-"He was a careful creature, my father," said the miller, wiping the dust off number one. "Like you, Benny."
-
 The grown-ups did all the work near the water. They carried the boards down, two at a time, and laid them across the race, from the weir to the grate, one after another, standing on the wide flat stones along the edge where they could keep their footing. Brody's father and the miller raked the ice mush out of the grate one last time with the long rake, from the safe boards on the little bridge. And the miller climbed down onto the wheel's stone platform with a wooden mallet, with a rope round his middle tied to the Mill wall in case he slipped, and knocked the ice from every paddle, one by one, while everybody behind the rope line watched without making a sound.
 
 And the youngsters, behind the rope line, did everything else.
 
 Benny stood at the head of the line of boards with his notebook, reading out the numbers on their ends so that each went in the right place. "Seventeen next. Then eighteen. No, that's twenty-one, it goes further down."
 
-Brody fetched straw. He went to the Great Barn with the farmer, and came back pulling a sledge heaped with bales so high that only his ears showed over the top, and then he went back for another, and another, until his legs shook. He never went past the rope line once. He set every bale down at the line, and the grown-ups carried them the rest of the way.
+Brody fetched straw. He went to the Great Barn with the farmer, and came back pulling a sledge heaped with bales so high that only his ears showed over the top, and then he went back for another, and another, until his legs shook. He never went past the rope line once. He set every bale down at the line, and the grown-ups carried them the rest of the way. Beau pulled the second sledge alongside him, puffing, and said it was easier than the Winter Games.
 
-Barney and Charlie pulled the bales apart into loose straw and stuffed it into sacks, so that the grown-ups could spread it easily over the boards. Barney stuffed the sacks so full that they burst, and Charlie stuffed them so carefully that they took twice as long, and between them they made a heap of straw sacks as tall as Barney.
+Barney and Charlie pulled the bales apart into loose straw and stuffed it into sacks, so that the grown-ups could spread it easily over the boards. Barney stuffed the sacks so full that they burst, and Charlie stuffed them so carefully that they took twice as long.
 
-Reba ran messages up and down the line, because she was quick and she knew where everybody was. Rusty showed the grown-ups the shortest way to bring the second sledge round from the Great Barn without going near the creek. Sadie Belle and Beau stamped the snow flat along the rope line so that nobody would slip. Maverick sat on top of the Mill chimney, where he could see the whole race at once, and called out whenever a board was crooked.
+Reba ran messages up and down the line, because she was quick and she knew where everybody was.
 
-And Maggie Mae and the miller's wife kept a big pot of hot cordial going on the Mill stove, and brought round mugs to everybody, grown-up and youngster alike, so often that Barney said he was more cordial than beaver by the end of it.
+Sadie Belle stamped the snow flat along the rope line, so that nobody would slip.
+
+Maverick sat on the ridge of the Mill roof, well away from the chimney, where he could see the whole race at once. "Number nine's crooked!" he called. "Sharpest eyes in the Hollow!"
+
+And inside, the rabbit mother and Reba's mother kept a big pot of hot cordial going on the Mill stove, with the miller's wife sitting in the warm beside them in her big chair, telling everybody where everything was. Maggie Mae carried the mugs out from the table on a tray, to everybody, grown-up and youngster alike, so often that Barney said he was more cordial than beaver by the end of it.
 
 As the sun went down behind Weather Ridge, the last board went across, and the grown-ups spread the last sack of straw over the top. The whole race, from the weir to the grate, was a long low hump of boards and straw.
 
-And then, as if it had been listening, it began to snow.
+"Snow on top," said Benny. "It needs snow on top. Lots."
 
-Soft, light, sparkly snow, out of a clear sky turning violet, falling straight down onto the straw, and covering it, until the race had disappeared under a thick white blanket, and you could only tell where it was by the little line of hump in the snow.
+"The deepest drifts are round the back of the old barn," said Rusty at once. "On the north side, where the sun never gets. Up to my ears, they are. I know every drift in the Hollow."
+
+So the grown-ups took the big shovels round to the north side of the old barn, where Rusty showed them, and dug out the deep, soft drifts, and carried them in barrows, and heaped them over the straw under the clear violet sky, until the race had disappeared under a thick white blanket, and you could only tell where it was by the long low hump in the snow.
+
+Charlie, at the rope line, peered at it.
+
+"It's stopped steaming," she said. "Look. All the way down. It isn't steaming any more."
 
 Barney looked at it.
 
@@ -384,9 +396,9 @@ Chapter Nine — Clack, Splash
 
 The brothers did not sleep much that night.
 
-They lay in their beds in the dark, side by side, and listened. Outside, the cold was as bitter as ever. The stars were sharp as needles. They could hear the roof beams creak.
+They lay in their beds in the dark, side by side, and listened. Outside, the sky was clear and the cold was as bitter as ever. The stars were sharp as needles. They could hear the roof beams creak.
 
-But they could not hear the wheel. The miller had left it stopped, to be safe, until morning.
+But they could not hear the wheel. The miller had left the sluice down, and the water running round by the spillway, to be safe, until morning.
 
 "What if it doesn't work?" whispered Barney into the dark.
 
@@ -404,7 +416,7 @@ Benny lay still for a moment. Then he got out of bed, in the dark, and took his 
 
 Neither of them minded.
 
-In the morning, before it was even fully light, they were at the rope line, with Brody and half the Hollow behind them, watching the miller and Brody's father lift the end board at the grate.
+In the morning, as soon as it was light, their father walked them down to the Mill, and they were at the rope line, with Brody and half the Hollow behind them, watching the miller and Brody's father lift the end board at the grate.
 
 Underneath, there was water. Dark, quick, moving water, running clear through the grate. A little grey mush, here and there, caught on the bars. But only a little. Only a handful. Nothing like the great frozen heap that had been there every other morning.
 
@@ -412,7 +424,7 @@ The miller looked at it. Then he straightened up, and turned round, and looked a
 
 "Right," he said. "Let's see if she'll go."
 
-He went into the Mill. They heard the clunk of the big lever. They heard the rush of the water, released, pouring through the grate. They saw it hit the first paddle in a spray of white.
+He went up to the sluice, and heaved on the big lever, and the wooden gate rose with a clunk. They heard the rush of the water, released, pouring down the covered race and through the grate. They saw it hit the first paddle in a spray of white.
 
 And slowly, stiffly, creaking, the great wheel began to turn.
 
@@ -424,18 +436,18 @@ Clack. Splash.
 
 Everybody cheered. Barney threw his hat in the air and it landed on Brody. Charlie jumped up and down so many times that she sat down in the snow. And Benny stood very still at the rope line, with his notebook in his paw and his lips moving, counting.
 
-"Eleven," he said, at last. "Eleven turns a minute." And he wrote it down.
+"Six," he said, at last. "Six turns a minute." And he wrote it down.
 
-Great-Grandpappy Buck had come along the creek path, slowly, with his walking-stick, to see. He stood at the rope line among the youngsters for a while, listening to the wheel, with his eyes crinkled up behind his spectacles. He looked at the long white hump of the race under its blanket of snow, and at the brothers standing side by side, and at Brody, and the straw on Charlie's ears, and the cordial mugs, and Maverick on the chimney, and the whole crowd of the Hollow, still clapping.
+Great-Grandpappy Buck had come along the creek path, slowly, with his walking-stick, to see. He stood at the rope line among the youngsters for a while, listening to the wheel, with his eyes crinkled up behind his spectacles. He looked at the long white hump of the race under its snow, and at the brothers standing side by side, and at the whole crowd of the Hollow, still clapping.
 
 "A job shared is a job halved," he said, "and a day doubled in gladness."
 
 
 Chapter Ten — The Model on the Windowsill
 
-The cold lasted nine more days, exactly as the old ones had said.
+The cold lasted nine more days, longer even than the old ones had said.
 
-Every one of those nine days, the race-boards stayed on, under their straw and their snow. Every morning the miller lifted the end board, and raked out the little bit of mush, and every morning the wheel went round. Clack, splash. Eleven times a minute. The flour sacks filled up again in the Mill. The miller's wife baked bread. And on the Saturday, because the brothers had specially asked, there were pancakes, for everybody, at the Mill, with honey, and Barney ate nine.
+Every one of those nine days, the race-boards stayed on, under their straw and their snow. Every morning the miller lifted the end board, and raked out the little bit of mush, and knocked the thin night's ice off the paddles before he let the water on. Then he let her turn slowly all day long, so the spray never had time to build. Clack, splash. Six times a minute. The flour sacks filled up again in the Mill, and there was bread again in every house in the Hollow. And on the Saturday, because the brothers had specially asked, there were pancakes, for everybody, at the Mill, with honey, and Barney ate nine.
 
 When the cold finally broke, on a soft grey morning with the wind coming warm out of the south, the grown-ups lifted the race-boards off, one by one, and scraped them clean, and carried them back up to the loft of the old barn. They put them back in order, one to thirty, just as the miller's father had numbered them.
 
@@ -447,26 +459,20 @@ BENNY. BARNEY.
 
 "So the next miller knows who to thank," he said. "And so does the one after that."
 
-The brothers carried the board between them up to their bedroom, and propped it against the wall at the foot of their beds, where they could see it.
+The brothers carried the board between them up to their bedroom, and propped it against the wall between their two beds, exactly in the middle, so that neither of them had more of it than the other. Barney's old blue blanket, which had come back from the yard a little stiff and a little damp and smelling strongly of snow, went back on the end of his bed, where it belonged.
 
-And on the windowsill, in pride of place, where it would catch the morning light, they put the little mill. The tin race, propped on its books. The bucket. And the little red cotton-reel wheel, with its eight paddles all exactly the same size, all painted red. Barney's old blue blanket, which had come back from the yard a little stiff and a little damp and smelling strongly of snow, went back on the end of his bed, where it belonged.
+The little mill they did not keep.
 
-That night, the brothers lay in bed in the dark, and listened.
+They gave it to the miller. Benny wrote out a label for it, in his best, most careful writing, explaining the control bucket and the blanket bucket and what had happened to each. And Barney painted a picture on the bottom of the label, of a cotton reel tucked up in bed under a blue blanket, with a nightcap on, fast asleep.
 
-Outside, the snow was melting off the roof in soft drips. The creek was running loud with meltwater. And through it all, steady, sure, as ordinary as a heartbeat, came the sound of the great wheel at the Old Mill, turning in the dark.
+The miller set the little mill on the wide sill of the Mill window, beside the flour scales, with the label propped against it, and a jug beside it. And he made a rule, which he wrote on a card in his floury writing: ANY YOUNGSTER MAY POUR. ASK FIRST.
 
-Clack. Splash. Clack. Splash.
+And on the first warm morning of spring, when the race-boards were long back in the loft and the creek was running high and brown and noisy with snowmelt, the littlest rabbit came into the Mill with her mother to fetch the flour. She stood on tiptoe at the windowsill, and read the card, and asked first.
 
-"Benny?" whispered Barney.
+Then, with both paws, very carefully, she poured.
 
-"What?"
+The water ran down the little tin race, and onto the little red paddles, and the cotton-reel wheel went round and round in the sunshine, clack, clack, clack, clack, much faster than six times a minute, and splashed her nose, and the miller's wife laughed from her big chair, and the littlest rabbit asked if she could do it again.
 
-"Next time, can I do the careful bit, and you do the silly bit?"
-
-Benny thought about it.
-
-"No," he said. "But you can help."
-
-And on the windowsill, in the last thin moonlight, the little red wheel stood quite still on its knitting-needle axle, with its eight paddles waiting, as if it were only resting until somebody poured the water in again.
+Outside, the great wheel turned in the bright spring morning, and the two small wheels, the big one in the creek and the little one on the sill, went round together.
 
 Goodnight, Hickory Hollow.
