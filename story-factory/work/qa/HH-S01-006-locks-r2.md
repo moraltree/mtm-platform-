@@ -198,3 +198,54 @@ The moral is now shown: the heron, the pegs, the wonders ring, the white-stone l
 
 ### Founder confirmations requested
 Halfway Morning (name, date, custom, annual revival); Beau's grandmother (and whether her minding him implies anything about his parents); the High Ridge quartz cliff; the white stones site and the Sunrise Ridge notch; Buck's grandmother; Sadie Belle's mother (a name?); the peg-board and the wren as recurring objects; and awareness that the close uses Buck's porch step rather than the rocking chair.
+
+---
+
+## Round 3
+
+### Verification of R2-1 to R2-6, and final verdicts
+
+The same reviewer re-checked the applied fixes against `s01/HH-S01-006.txt` and skimmed the whole text again for anything the fixes might have broken. The manuscript was not edited. Line numbers are unchanged from round 2.
+
+| Item | Status | Evidence |
+|---|---|---|
+| **R2-1** Halfway Morning definition | **FIXED** | l.360: "Halfway between the end of harvest and the Longest Night". This is a folk definition rather than an astronomical one. It is consistent with early November (about midway from harvest-in to the v1.0 winter festival held at the solstice) and is no longer wrong. It is timeless and clear for a child. |
+| **R2-2** Benny's count | **FIXED** | l.205–207: "Four more claws. Four more mornings." / "Four," said Beau… "That's ages." (Still funny coming from Beau, who is "not very good at a while".) The arithmetic now holds: peg 3 on board-day 3, plus 4, gives the notch on day 7. Peg 6 lands "one claw's width from the notch" (l.248), and Benny says "Tomorrow" (l.252). With the first Ch4 watch, that makes seven mornings, which matches "every morning for a week" (l.323, l.385) and the pegs "a week before" (l.421). |
+| **R2-3** Time order | **FIXED** | l.250 "That afternoon" now runs straight into Ch7's afternoon telling-round (l.273) and Sadie Belle's late-afternoon worry (l.305). The evening scene with Benny alone at the creek has gone. |
+| **R2-4** Adult handles the tools | **FIXED** | l.189: "The miller cut him a long, flat board… and drilled a neat row of holes… while Benny measured exactly where every hole should go." The adult does the blade and drill work, and Benny keeps the planning role. This is consistent with the S01-002 precedent and with the miller's established role. |
+| **R2-5** One blush only | **FIXED** | The single mist-blush remains at l.82. l.403 is now "Sadie Belle looked down at her hooves, and smiled". It is innocent, Beau does not notice it, and it no longer repeats the mist device. |
+| **R2-6** Wisdom not pre-explained | **FIXED** | l.446 ends "And then the sun came up in the notch." #41 (l.450) is now the only statement of the moral at the close, and it lands cleanly. |
+
+**Regression skim:** no new continuity, canon, safety or narration problems were introduced. The Ch5–7 timeline and the peg sequence are internally consistent. The miller's added role does not clash with his Ch8–9 appearances.
+
+One minor logic point remains (optional, and it predates this round): Benny marks out the holes before anyone knows how far the sun moves each day. "A close row of holes" or "holes he could add to" would cover it. The round-2 optional polish items are still open at the author's discretion: Maverick's "at dawn" wonder, the repeated "black to deep blue", four uses of "brilliant", the chin-to-chest sleep, frost vs dew, the holly leaves, the direction of the light-path, and "threw a crust".
+
+### Lock One re-score: **8.7 / 10 — PASS** (pass mark 8.5)
+
+The central mechanism is now airtight and the moral lands once. The story's real strengths are unchanged:
+- the ensemble solving it together;
+- Barney's named pegs;
+- the mother's bedside scene;
+- the "one small wonder" round;
+- the whittled wren close.
+
+It scores below 9 because a few stock cadences remain and a sharp adult reader could still spot the optional polish items.
+
+### Final verdicts
+
+| Lock | Result |
+|---|---|
+| Lock One — Piers Morgan | **8.7 / 10 — PASS** |
+| Lock Two — Moneypenny / Sherlock | **PASS WITH NOTES** (its conditions are met; the founder confirmations listed in round 2 are still outstanding) |
+| Lock Three — Dr Noura | **PASS** (its condition is met; optional softenings remain) |
+
+**Status: HH-S01-006 clears all three locks**, subject to founder confirmation of the new details:
+- Halfway Morning;
+- Beau's grandmother, and whether she implies anything about his parents;
+- the High Ridge quartz cliff, the white-stones site and the notch;
+- Buck's grandmother;
+- a name for Sadie Belle's mother;
+- the peg-board and the wren as recurring objects;
+- the porch-step close instead of the rocking chair.
+
+No further revisions are required.
