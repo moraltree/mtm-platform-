@@ -29,3 +29,11 @@ founder at any time. Stories already drafted will then be revised.
 New canon invented inside individual manuscripts is listed in each story's
 QA record under "new details needing founder confirmation". None of it
 counts as approved until the founder says so.
+
+## 18 Nov 2026 — production log (coordinator)
+
+- HH-S01-011 Triple-Lock PASS (Lock One 7.x r1 → 8.6 r2; L2/L3 PASS after r3 spot-check). Species changed porcupine → opossum (Granny Opal) on Sherlock's finding. Uploaded `1zfaZMtramjE36Y6LANCVuVc7wHkXjTZL`, file SHA-256 `7c0f8554…23b7`, download-back MATCH, 5,666 words.
+- HH-S01-012 Triple-Lock PASS (8.0 → 8.6). Mountain Wisdom changed #50 → #2 by coordinator, pending founder confirmation. Uploaded `1mCrGHwzlCNnWT__FioPoRl0pkPNT6lyy`, file SHA-256 `f9d51bfc…23b2`, download-back MATCH, 5,848 words.
+- HH-S01-013 r2 8.6 conditional; line fixes applied, spot-check pending.
+- HH-S01-014 drafted (Mountain Wisdom #20), r1 review running.
+- Reviewer agents paused by usage limit 11:50 UTC; resumed 12:24 UTC.
