@@ -56,3 +56,5 @@ counts as approved until the founder says so.
 - HH-S01-024 Triple-Lock PASS (8.0 → 8.8; four r2 line edits applied, no round 3 per reviewer). Uploaded `15E99pqXRvZ7m-goQWgH2bkjbB9RMOKgs`, SHA-256 `eec3b4aa…4ce4`, verified, 5,307 words. QA record `1QhGNW9F8BV8NIBhphAEpFy2xK3cyfcdA` (verified). Maverick shelters in the Great Barn in storms (not under a tree); Buck's 010 rules (no flying into cloud, none after dark) upheld.
 - HH-S01-023 reworked per R-1…R-16 (5,459 words); round 2 review running.
 - HH-S01-025 r1: 7.9, revise (watering arithmetic, moral signposting, recycled close, ensemble, safety conditions).
+- HH-S01-023 Triple-Lock PASS (7.6 → 8.7; R2-1 and advisories applied by coordinator, no round 3 per reviewer). Uploaded `1YvUqTKBFRJ0tIGKeVYX3fxugx98dNOh_`, SHA-256 `5d070f75…d5ab8`, verified, 5,461 words. QA record `1RZKqqAmhdcvjCzNz_8quUrBnYco-RpGE` (verified). Founder items: Berry Supper (new annual event), Old Mill baking oven, young skunk using a tin leaf cutter.
+- HH-S01-025 revised per 19 items (5,677 words); round 2 review running.
