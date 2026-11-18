@@ -272,3 +272,41 @@ It is not a porch close, but it fulfils §10.8–11 in spirit: sunset, gathering
 6. Reba as next year's sorter.
 7. Reba's family home.
 8. **F1, the porch count.** With 007 off the porch, three of seven S01 closes are non-porch (003, 004, 007). That is still "most stories" under the founder default, but only just. Recommend that 008 and 009 return to the porch, with varied staging.
+
+---
+
+## Round 3 — verification of the seven required fixes
+
+**Role-based AI assessment by a separate review agent (same underlying model family as the author); not an independent human review.**
+
+I read the changed passages in context and skimmed the surrounding chapters. The manuscript was not edited. The word count is taken as given (above 5,000).
+
+| # | Fix | Status | Evidence |
+|---|---|---|---|
+| L1 | Narrator moral recast as event | **MET** | l.248: "By the next morning, Reba's fib had wandered off without her." This is an image, not a maxim, and #97 is now the only statement of the moral. |
+| L2 | Miller's wife's maxim trimmed | **MET** | l.399: "So they did," followed by her patting the sieve "as if it were an old friend". |
+| L3 | Rusty's deliveries vs the handout | **MET** | l.382: Rusty tells the families who had gone home that their right basket will be waiting at the shed. This now agrees with the handout at the shed in Ch9. Rusty keeps his trail-knowledge signature. |
+| L4 | Stock phrases and the Ch3 time order | **MET** | Buck's "over his spectacles" became "without a word" (l.307). "His whiskers twitched" became "the corner of his mouth lifted" (l.311). The second "paws in his pockets" became "kicking at the leaves" (l.229). The "long moment" uses are gone. One "spectacles" (l.31) and one "pockets" (l.143) remain, which is acceptable. Rusty's visit is now "Earlier that afternoon, before the bitternuts went over" (l.117), a clear flashback, so time no longer runs backwards. |
+| Sherlock | Hand check after the sieve | **MET** | l.372: Reba feels each nut left on top for "the four hard ridges of a shagbark" and picks out the large bitternuts. This deals with the size overlap and gives Reba's new skill a final job. |
+| D1 | Reba's reaction to Maverick's broadcast | **MET** | l.350: she giggles behind her paws, "because it was perfectly true… a strange sort of relief". She owns the mistake with good humour, so the broadcast no longer reads as public shaming. |
+| N1 | Mark the embedded speech | **MET** | l.264: `say, "I did it."` |
+
+**Anything the fixes broke:** nothing of substance. There is one small new repetition, which is advisory: the miller's wife puts her paw on the sieve at l.391 and then pats it at l.399, eight lines apart. Dropping either gesture would be cleaner.
+
+**Advisory items carried over** (not required): a sensory opening line for Ch1; "Before Harvest Home" changed to "that first hard frost"; several days' drying at home; softening "breathe again" (l.313); "small, slow figure" (l.282); a narrator volume note for the capitalised shouting.
+
+### Final verdicts
+
+| Lock | Result |
+|---|---|
+| Lock One — Piers Morgan (literary) | **8.8 / 10 — PASSED** (pass mark 8.5) |
+| Lock Two — Moneypenny / Sherlock (canon, continuity, facts) | **PASS** (founder confirmations below still outstanding) |
+| Lock Three — Dr Noura (safeguarding, bedtime, narration) | **PASS** |
+
+**Status: HH-S01-007 clears all three locks.** No required revisions remain.
+
+**Founder confirmations still outstanding:**
+1. The round-1 and round-2 items: Nut Day; the nut shed; the miller's wife's role; the ribbon colours; the rabbit family of nine; Reba's mother and family home; Buck tending the hickories; the grove locations; Barney as Float Tub Officer and his pockets; Benny's sieve as a recurring prop; the Mill's supper room; the miller's spoons; Buck's annual "few words"; Reba as next year's sorter.
+2. The porch-count note (F1).
+
+These are confirmations, not blockers to the QA verdict.

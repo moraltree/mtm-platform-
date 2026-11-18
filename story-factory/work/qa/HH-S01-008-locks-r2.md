@@ -192,3 +192,38 @@ Every round-1 safeguarding item is fixed, and most literary items are fixed well
    - "by Buck's door" should be "on the porch rail" (l.432).
 6. **Hold D1–D3** (the Nut Day, frog and early-mornings callbacks) until S01-006 and S01-007 are approved.
 7. **Founder to confirm N1–N8** (unchanged from round 1).
+
+---
+
+## Round 3
+
+This is a role-based AI assessment by a separate review agent from the same underlying model family as the author. It is not an independent human review.
+
+### Verification of R2-1 to R2-5
+
+All items were checked against the current `s01/HH-S01-008.txt`, which still has ten chapters.
+
+| Item | Status | Evidence |
+|---|---|---|
+| **R2-1 and R2-2.** The count, and the moral stated twice | **FIXED** | The narrator's "Nine lanterns…" sentence is gone. Ch8 now moves straight from "So's mine" (Maverick) to Charlie's "The holes are where we put the pieces" (l.334), so the line stands alone and there is no number left to get wrong. |
+| **R2-3.** Humming against the banjo | **FIXED** | "He picked up his banjo and played a slow tune…" (l.426) comes after the Wisdom. This matches "the soft notes of the banjo" (l.436) and restores the banjo at the signature close. |
+| **R2-4.** "Nine youngsters" | **FIXED** | l.134 now reads "Every youngster in the kitchen" and l.144 reads "everybody". No "nine" remains anywhere in the text. |
+| **R2-5.** Small slips | **FIXED** | Benny now "leaned over" (l.230). Brody's corner "made a new edge for the roof", and Maggie Mae's yellow strip "became a fresh row of flowers along the front of the porch" (l.314). "Out of the wind" is gone from the lighting paragraph (l.347); it survives only in the miller's wife's earlier line (l.189), where it is correct. "Glowing on the porch rail" (l.430) matches the hook at l.410. |
+| **D1–D3.** Callbacks | **CLOSED (per coordinator)** | S01-006 is reported as passing all locks with the frog wonder and the early mornings intact. S01-007 is reported at 8.6 with "second chances" intact. I did not re-read those files in this round. If a later edit to either story changes those beats, the lines at l.349 and l.351 must be checked again. |
+
+### Skim for breakage
+
+- **No new continuity errors found.** The Ch8 repair now uses every piece offered in Ch7. The lighting rule, adult carrying, the wind dropping, the safe porch lamp and grown-up supervision are all intact.
+- **One cosmetic point, optional.** Brody appears twice in consecutive sentences at l.314 (his corner, then "Brody held everything steady"). It reads naturally aloud. No change required.
+
+### Final verdicts
+
+| Lock | Result |
+|---|---|
+| **Lock One** ("Piers Morgan") | **8.6 / 10 — PASSED** (pass mark 8.5) |
+| **Lock Two** ("Moneypenny"/"Sherlock") | **PASS** (canon and continuity clean). Founder confirmation of N1–N8 is still recommended: the lantern-custom details, Buck's stiff paws, the background adults and the props. These are notes, not blockers. |
+| **Lock Three** ("Dr Noura") | **PASS.** Every flame is lit and carried by adults, Barney's guilt is resolved through his own act of giving, the wind-down is calm and the text is ready for narration. |
+
+**Overall: APPROVED. All three locks have passed.**
+
+There are no outstanding required revisions. The only remaining item is the founder's confirmation of the new world details (N1–N8).
