@@ -37,3 +37,7 @@ counts as approved until the founder says so.
 - HH-S01-013 r2 8.6 conditional; line fixes applied, spot-check pending.
 - HH-S01-014 drafted (Mountain Wisdom #20), r1 review running.
 - Reviewer agents paused by usage limit 11:50 UTC; resumed 12:24 UTC.
+- HH-S01-013 Triple-Lock PASS (8.1 → 8.6). Uploaded `1FMaED1v5GvbwsWF1eE17i-uBAAgkQxbx`, file SHA-256 `7f4631a4…e471`, download-back MATCH, 5,528 words. Register v1.5 uploaded `1iybiy24x0HKduW7GafGgVyLd-Ch47pdu`.
+- CANON NOTE: Benny and Barney are brothers (Barney younger), not twins. HH-S01-011 v1.0 (uploaded) contains one stray "the twins" (l.84). Not altered (uploaded manuscript); flagged for founder — correct to "the brothers" at v1.1 if approved. Fixed in 014 and 015 drafts before upload.
+- HH-S01-014 r1: 8.2, Lock Two FAIL (Benny/Barney share a lodge); revised, r2 pending.
+- HH-S01-015 drafted (Wisdom #30), r1 pending. HH-S01-016 drafted (Wisdom #63), r1 pending.
