@@ -68,3 +68,4 @@ counts as approved until the founder says so.
 - HH-S01-029 drafted (Mountain Wisdom #57; first week of September heatwave; plants the low creek for 030). Round 1 running.
 - HH-S01-027 Triple-Lock PASS (8.1 → 8.7; R2-1…R2-4 applied by coordinator). Uploaded `1BI63GBIRZVkf-atbJdA6MyDLVbDVWaAQ`, SHA-256 `c6b46d6e…238c`, verified, 5,347 words. QA record `1k7vid1xonloGcUqpoRxRiVP2Z14_Y4OF` (verified). FOUNDER: season order (Option A recommended); Maverick's mother on the page.
 - HH-S01-028 Triple-Lock PASS (8.2 → 8.7; R2-1/R2-2 and advisories applied by coordinator). Uploaded `1z_yyjEaNhi4wLcu9pSBjRORglobwQRWA`, SHA-256 `0cd3e09f…d7af`, verified, 5,327 words. QA record `145qizD5ylwFQ98rQqnLnLQPrxZ5KRQlx` (verified).
+- HH-S01-030 drafted (Mountain Wisdom #79; Saturday after 029's heatwave; the brothers see the river from the edge of the Hollow and promise to stay; no log, no River Rangers). Round 1 running.
