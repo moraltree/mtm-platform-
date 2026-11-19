@@ -70,3 +70,4 @@ counts as approved until the founder says so.
 - HH-S01-028 Triple-Lock PASS (8.2 → 8.7; R2-1/R2-2 and advisories applied by coordinator). Uploaded `1z_yyjEaNhi4wLcu9pSBjRORglobwQRWA`, SHA-256 `0cd3e09f…d7af`, verified, 5,327 words. QA record `145qizD5ylwFQ98rQqnLnLQPrxZ5KRQlx` (verified).
 - HH-S01-030 drafted (Mountain Wisdom #79; Saturday after 029's heatwave; the brothers see the river from the edge of the Hollow and promise to stay; no log, no River Rangers). Round 1 running.
 - HH-S01-029 r1 8.2 (revise): the Wisdom was paraphrased early, and the close over-signalled 030. Revised per 21 items, with a new close (the forgotten paper fans, heat unbroken). Round 2 running.
+- HH-S01-029 Triple-Lock PASS (8.2 → 8.6; R2-1/R2-2 applied by coordinator). Uploaded `1kJc_xXPXEvlvanO2z7443DCKXJTbajpc`, SHA-256 `6a8aaa8a…b957`, verified, 5,284 words. QA record `1gkLJfbxwr_TMr3rV0e0dVoS1ibTgkwKs` (verified).
