@@ -72,3 +72,7 @@ counts as approved until the founder says so.
 - HH-S01-029 r1 8.2 (revise): the Wisdom was paraphrased early, and the close over-signalled 030. Revised per 21 items, with a new close (the forgotten paper fans, heat unbroken). Round 2 running.
 - HH-S01-029 Triple-Lock PASS (8.2 → 8.6; R2-1/R2-2 applied by coordinator). Uploaded `1kJc_xXPXEvlvanO2z7443DCKXJTbajpc`, SHA-256 `6a8aaa8a…b957`, verified, 5,284 words. QA record `1gkLJfbxwr_TMr3rV0e0dVoS1ibTgkwKs` (verified).
 - HH-S01-030 r1 8.0 (revise): the Wisdom was pre-stated, the close duplicated 029, and continuity with 020's low pass. Substantially revised (bridge-rail leaf close; the end of the Hollow lies beyond the low-pass turn-off). Round 2 running.
+
+## 19 Nov 2026 — founder instruction
+
+- **"Do not start season two."** Season Two production is on hold until the founder says otherwise. Work is limited to completing Season One: 030 round 2, its upload and verification, and register v1.8 with the summer checkpoint.
