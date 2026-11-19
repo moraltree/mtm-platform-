@@ -76,3 +76,5 @@ counts as approved until the founder says so.
 ## 19 Nov 2026 — founder instruction
 
 - **"Do not start season two."** Season Two production is on hold until the founder says otherwise. Work is limited to completing Season One: 030 round 2, its upload and verification, and register v1.8 with the summer checkpoint.
+- HH-S01-030 Triple-Lock PASS (8.0 → 8.6; R2-1 safety fix applied: the brothers' winter job is now helping Buck mend the dam from the bank, not watching ice; R2-2 low-pass wording applied). Uploaded `1400lT3GaFvW0j8ojGSOUN6kir0oS_x_Q`, SHA-256 `24d55995…7895823`, verified, 5,214 words. QA record `1LqNeRPoZ6sNiPtar6c45XghD6DyjXb2R` (verified).
+- SUMMER BATCH CHECKPOINT (023–030): all eight passed and verified. **SEASON ONE COMPLETE: 30/30 Triple-Lock passed, uploaded and SHA-256 verified.** Register v1.8 `1A1Gv_pIsdkDaupVh_QgbpQM-PZQOINTZ` (SHA-256 `a964a83c…bb1a`, verified). Founder approval: NOT GIVEN for any story. Season Two ON HOLD per founder instruction.
